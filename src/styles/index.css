@@ -1,0 +1,354 @@
+/* CSS Variables - Scott Everett Brand Colors */
+/* MOBILE-FIRST: Base styles are for mobile, then scale up */
+:root {
+  --primary-yellow: #f2c031;
+  --primary-black: #28282a;
+  --dark-gray: #3d3d3f;
+  --medium-gray: #7a7a7a;
+  --light-gray: #F5F5F5;
+  --white: #ffffff;
+  --accent-yellow-light: #fef9e7;
+  --gradient-yellow: linear-gradient(135deg, #f2c031 0%, #d4a520 100%);
+
+  /* Accent Colors */
+  --accent-coral: #f95738;
+  --accent-teal: #087e8b;
+  --accent-blue: #0066ff;
+
+  /* Typography - Inter for everything */
+  --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* Spacing - Mobile First */
+  --section-padding: 48px;
+  --container-max: 1200px;
+
+  /* Transitions */
+  --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-bounce: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* Reset & Base Styles */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-size: 14px;
+}
+
+body {
+  font-family: var(--font-primary);
+  background-color: var(--white);
+  color: var(--primary-black);
+  line-height: 1.6;
+  overflow-x: hidden;
+  font-weight: 400;
+}
+
+/* Typography - Mobile First - Bold & Dynamic */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-primary);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+}
+
+h1 {
+  font-size: 2.5rem;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+}
+
+h2 {
+  font-size: 2rem;
+  font-weight: 800;
+}
+
+h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+p {
+  font-size: 1rem;
+  line-height: 1.7;
+  font-weight: 400;
+}
+
+/* Strong text emphasis */
+strong, b {
+  font-weight: 700;
+}
+
+a {
+  color: var(--primary-black);
+  text-decoration: none;
+  transition: var(--transition-smooth);
+  font-weight: 500;
+}
+
+a:hover {
+  color: var(--primary-yellow);
+}
+
+/* Utility Classes */
+.container {
+  width: 100%;
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+.section {
+  padding: var(--section-padding) 0;
+}
+
+.section-title {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 32px;
+  overflow: hidden;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+}
+
+.section-title::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 0;
+  width: 60px;
+  height: 4px;
+  background: var(--gradient-yellow);
+  border-radius: 2px;
+}
+
+/* Button Styles - Mobile First */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 28px;
+  font-family: var(--font-primary);
+  font-weight: 700;
+  font-size: 0.9rem;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  width: 100%;
+}
+
+.btn-primary {
+  background: var(--gradient-yellow);
+  color: var(--primary-black);
+  box-shadow: 0 4px 15px rgba(255, 208, 0, 0.3);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 25px rgba(255, 208, 0, 0.4);
+  color: var(--white);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--primary-black);
+  border: 2px solid var(--primary-black);
+}
+
+.btn-outline:hover {
+  background: var(--primary-black);
+  color: var(--white);
+}
+
+/* Card Styles */
+.card {
+  background: var(--white);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transition: var(--transition-smooth);
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+}
+
+/* Highlight Text */
+.highlight {
+  background: var(--gradient-yellow);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.highlight-block {
+  background: var(--primary-yellow);
+  color: var(--primary-black);
+  padding: 2px 8px;
+  display: inline-block;
+  font-weight: 700;
+}
+
+/* Subtle hover lift effect for interactive elements */
+.card,
+.skill-category,
+.education-card,
+.project-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--light-gray);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary-yellow);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #d4a520;
+}
+
+/* Selection Styling */
+::selection {
+  background: var(--primary-yellow);
+  color: var(--primary-black);
+}
+
+/* ===========================================
+   TABLET BREAKPOINT (768px and up)
+   =========================================== */
+@media (min-width: 768px) {
+  :root {
+    --section-padding: 80px;
+  }
+
+  html {
+    font-size: 15px;
+  }
+
+  h1 {
+    font-size: 3.5rem;
+  }
+
+  h2 {
+    font-size: 2.75rem;
+  }
+
+  h3 {
+    font-size: 1.5rem;
+  }
+
+  h4 {
+    font-size: 1.25rem;
+  }
+
+  .container {
+    padding: 0 24px;
+  }
+
+  .section-title {
+    margin-bottom: 40px;
+  }
+
+  .section-title::after {
+    width: 80px;
+    height: 5px;
+  }
+
+  .btn {
+    width: auto;
+    padding: 16px 32px;
+    font-size: 0.9rem;
+  }
+
+  .card {
+    padding: 28px;
+    border-radius: 14px;
+  }
+}
+
+/* ===========================================
+   DESKTOP BREAKPOINT (1024px and up)
+   =========================================== */
+@media (min-width: 1024px) {
+  :root {
+    --section-padding: 100px;
+  }
+
+  html {
+    font-size: 16px;
+  }
+
+  h1 {
+    font-size: 4.5rem;
+    letter-spacing: -0.05em;
+  }
+
+  h2 {
+    font-size: 3.25rem;
+  }
+
+  h3 {
+    font-size: 1.75rem;
+  }
+
+  h4 {
+    font-size: 1.35rem;
+  }
+
+  .section-title {
+    margin-bottom: 48px;
+  }
+
+  .section-title::after {
+    width: 100px;
+    height: 6px;
+  }
+
+  .btn {
+    padding: 18px 36px;
+    font-size: 0.95rem;
+  }
+
+  .card {
+    padding: 32px;
+    border-radius: 16px;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+  }
+}
+
+/* ===========================================
+   LARGE DESKTOP BREAKPOINT (1280px and up)
+   =========================================== */
+@media (min-width: 1280px) {
+  h1 {
+    font-size: 5rem;
+  }
+
+  h2 {
+    font-size: 3.5rem;
+  }
+}
