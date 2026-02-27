@@ -1,13 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
-import { FiMail, FiPhone, FiGlobe, FiMapPin } from 'react-icons/fi';
+import { FiMail, FiPhone, FiGlobe, FiMapPin, FiSend, FiCheck, FiAlertCircle } from 'react-icons/fi';
+import emailjs from '@emailjs/browser';
+
+// ─── Replace these with your EmailJS credentials ───────────────────────────
+const EMAILJS_SERVICE_ID  = 'fDj1CqvMn3hc3hFBr';   // from EmailJS → Email Services
+const EMAILJS_TEMPLATE_ID = 'template_yro89le';  // from EmailJS → Email Templates
+const EMAILJS_PUBLIC_KEY  = 'lV9djCOssav_tktHc4nT8';   // from EmailJS → Account
+// ───────────────────────────────────────────────────────────────────────────
 
 const Contact = () => {
   const [ref, inView] = useInView({
     triggerOnce: true,
     threshold: 0.2,
   });
+
+  const formRef = useRef(null);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -16,7 +25,9 @@ const Contact = () => {
     message: '',
   });
 
+  const [isSending, setIsSending]   = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [error, setError]           = useState(false);
 
   const handleChange = (e) => {
     setFormData({
@@ -25,13 +36,28 @@ const Contact = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // In a real implementation, you'd send this to a backend
-    console.log('Form submitted:', formData);
-    setIsSubmitted(true);
-    setTimeout(() => setIsSubmitted(false), 3000);
-    setFormData({ name: '', email: '', subject: '', message: '' });
+    setIsSending(true);
+    setError(false);
+
+    try {
+      await emailjs.sendForm(
+        EMAILJS_SERVICE_ID,
+        EMAILJS_TEMPLATE_ID,
+        formRef.current,
+        EMAILJS_PUBLIC_KEY
+      );
+      setIsSubmitted(true);
+      setFormData({ name: '', email: '', subject: '', message: '' });
+      setTimeout(() => setIsSubmitted(false), 5000);
+    } catch (err) {
+      console.error('EmailJS error:', err);
+      setError(true);
+      setTimeout(() => setError(false), 5000);
+    } finally {
+      setIsSending(false);
+    }
   };
 
   const contactInfo = [
@@ -82,6 +108,16 @@ const Contact = () => {
       },
     },
   };
+
+  // Button label & style based on state
+  const buttonContent = () => {
+    if (isSending)   return { label: 'Sending...', icon: null,         style: { opacity: 0.7 } };
+    if (isSubmitted) return { label: 'Message Sent!', icon: <FiCheck />, style: { background: '#087e8b' } };
+    if (error)       return { label: 'Try Again', icon: <FiAlertCircle />, style: { background: '#f95738' } };
+    return { label: 'Send Message', icon: <FiSend />, style: {} };
+  };
+
+  const btn = buttonContent();
 
   return (
     <section className="contact section" id="contact">
@@ -136,6 +172,7 @@ const Contact = () => {
           </motion.div>
 
           <motion.form
+            ref={formRef}
             className="contact-form"
             onSubmit={handleSubmit}
             variants={itemVariants}
@@ -145,7 +182,7 @@ const Contact = () => {
               <motion.input
                 type="text"
                 id="name"
-                name="name"
+                name="from_name"
                 value={formData.name}
                 onChange={handleChange}
                 placeholder="Your name"
@@ -159,7 +196,7 @@ const Contact = () => {
               <motion.input
                 type="email"
                 id="email"
-                name="email"
+                name="from_email"
                 value={formData.email}
                 onChange={handleChange}
                 placeholder="your.email@example.com"
@@ -198,12 +235,24 @@ const Contact = () => {
             <motion.button
               type="submit"
               className="btn btn-primary"
-              style={{ width: '100%' }}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', ...btn.style }}
+              whileHover={!isSending ? { scale: 1.02 } : {}}
+              whileTap={!isSending ? { scale: 0.98 } : {}}
+              disabled={isSending}
             >
-              {isSubmitted ? 'Message Sent!' : 'Send Message'}
+              {btn.icon && btn.icon}
+              {btn.label}
             </motion.button>
+
+            {error && (
+              <motion.p
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                style={{ color: '#f95738', fontSize: '0.85rem', marginTop: '12px', textAlign: 'center' }}
+              >
+                Something went wrong. Please try again or email me directly.
+              </motion.p>
+            )}
           </motion.form>
         </motion.div>
       </div>
