@@ -19,8 +19,8 @@ const Contact = () => {
   const formRef = useRef(null);
 
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
+    from_name: '',
+    from_email: '',
     subject: '',
     message: '',
   });
@@ -49,7 +49,7 @@ const Contact = () => {
         EMAILJS_PUBLIC_KEY
       );
       setIsSubmitted(true);
-      setFormData({ name: '', email: '', subject: '', message: '' });
+      setFormData({ from_name: '', from_email: '', subject: '', message: '' });
       setTimeout(() => setIsSubmitted(false), 5000);
     } catch (err) {
       console.error('EmailJS error:', err);
@@ -183,7 +183,7 @@ const Contact = () => {
                 type="text"
                 id="name"
                 name="from_name"
-                value={formData.name}
+                value={formData.from_name}
                 onChange={handleChange}
                 placeholder="Your name"
                 required
@@ -197,7 +197,7 @@ const Contact = () => {
                 type="email"
                 id="email"
                 name="from_email"
-                value={formData.email}
+                value={formData.from_email}
                 onChange={handleChange}
                 placeholder="your.email@example.com"
                 required
