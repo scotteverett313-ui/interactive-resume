@@ -5,7 +5,7 @@ import { FiMail, FiPhone, FiGlobe, FiMapPin, FiSend, FiCheck, FiAlertCircle } fr
 import emailjs from '@emailjs/browser';
 
 // ─── Replace these with your EmailJS credentials ───────────────────────────
-const EMAILJS_SERVICE_ID  = 'fDj1CqvMn3hc3hFBr';   // from EmailJS → Email Services
+const EMAILJS_SERVICE_ID  = 'service_475hvm6';   // from EmailJS → Email Services
 const EMAILJS_TEMPLATE_ID = 'template_yro89le';  // from EmailJS → Email Templates
 const EMAILJS_PUBLIC_KEY  = 'lV9djCOssav_tktHc4nT8';   // from EmailJS → Account
 // ───────────────────────────────────────────────────────────────────────────

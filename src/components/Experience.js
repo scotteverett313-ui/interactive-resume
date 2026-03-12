@@ -1,6 +1,10 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
 
 const Experience = () => {
   const [ref, inView] = useInView({
@@ -49,9 +53,7 @@ const Experience = () => {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: {
-        staggerChildren: 0.3,
-      },
+      transition: { staggerChildren: 0.3 },
     },
   };
 
@@ -60,12 +62,31 @@ const Experience = () => {
     visible: {
       opacity: 1,
       x: 0,
-      transition: {
-        duration: 0.6,
-        ease: 'easeOut',
-      },
+      transition: { duration: 0.6, ease: 'easeOut' },
     },
   };
+
+  // GSAP ScrollTrigger — draw the timeline line as user scrolls
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      gsap.fromTo('.timeline-line-fill',
+        { scaleY: 0 },
+        {
+          scaleY: 1,
+          transformOrigin: 'top center',
+          ease: 'none',
+          scrollTrigger: {
+            trigger: '.timeline',
+            start: 'top 75%',
+            end: 'bottom 35%',
+            scrub: 1.5,
+          },
+        }
+      );
+    });
+
+    return () => ctx.revert();
+  }, []);
 
   return (
     <section className="experience section" id="experience">
@@ -86,6 +107,9 @@ const Experience = () => {
           initial="hidden"
           animate={inView ? 'visible' : 'hidden'}
         >
+          {/* GSAP animated line — draws as you scroll */}
+          <div className="timeline-line-fill" />
+
           {experiences.map((exp, index) => (
             <motion.div
               className="timeline-item"

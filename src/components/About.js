@@ -67,7 +67,7 @@ const About = () => {
           <motion.div className="about-image-wrapper" variants={itemVariants}>
             <div className="about-image-accent"></div>
             <img
-              src="/scott.png"
+              src="/scott-about.jpg"
               alt="Scott Everett"
               className="about-img"
               style={{ height: '400px', objectFit: 'cover' }}

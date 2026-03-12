@@ -198,13 +198,13 @@ main {
 
 .availability-badge .divider {
   color: var(--medium-gray);
-  font-size: 0.6rem;
+  font-size: 0.75rem;
 }
 
 .hero-subtitle {
   font-family: var(--font-primary);
   font-weight: 600;
-  font-size: 0.85rem;
+  font-size: 1rem;
   text-transform: uppercase;
   letter-spacing: 3px;
   color: var(--medium-gray);
@@ -295,7 +295,7 @@ main {
 }
 
 .stat-label {
-  font-size: 0.65rem;
+  font-size: 0.75rem;
   color: var(--medium-gray);
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -379,7 +379,7 @@ main {
 }
 
 .highlight-text p {
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   margin: 0;
 }
 
@@ -418,6 +418,21 @@ main {
   margin-bottom: 0;
 }
 
+/* GSAP animated timeline line */
+.timeline-line-fill {
+  position: absolute;
+  left: 8px;
+  top: 0;
+  width: 2px;
+  height: 100%;
+  background: var(--primary-yellow);
+  transform-origin: top center;
+  transform: scaleY(0);
+  z-index: 0;
+  border-radius: 2px;
+  box-shadow: 0 0 8px rgba(242, 192, 49, 0.4);
+}
+
 .timeline-dot {
   position: absolute;
   left: 0;
@@ -442,7 +457,7 @@ main {
   background: var(--primary-black);
   padding: 4px 10px;
   border-radius: 20px;
-  font-size: 0.75rem;
+  font-size: 0.85rem;
   display: inline-block;
   margin-bottom: 10px;
 }
@@ -461,7 +476,7 @@ main {
 }
 
 .timeline-location {
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   color: var(--medium-gray);
   margin-bottom: 12px;
 }
@@ -508,7 +523,7 @@ main {
 
 .skill-title {
   font-family: var(--font-primary);
-  font-size: 0.7rem;
+  font-size: 0.85rem;
   font-weight: 600;
   color: var(--medium-gray);
   text-transform: uppercase;
@@ -529,10 +544,32 @@ main {
 }
 
 .skill-details {
-  font-size: 0.7rem;
+  font-size: 0.8rem;
   color: var(--medium-gray);
   line-height: 1.4;
   margin: 0;
+}
+
+/* GSAP skill progress bar */
+.skill-bar-track {
+  width: 100%;
+  height: 4px;
+  background: rgba(242, 192, 49, 0.15);
+  border-radius: 2px;
+  margin-top: 14px;
+  overflow: hidden;
+}
+
+.skill-bar-fill {
+  height: 100%;
+  background: var(--gradient-yellow);
+  border-radius: 2px;
+  width: 0%;
+}
+
+/* Hero title word spans for GSAP stagger */
+.hero-title-word {
+  display: inline-block;
 }
 
 /* ===========================================
@@ -567,7 +604,7 @@ main {
   cursor: pointer;
   font-family: var(--font-primary);
   font-weight: 600;
-  font-size: 0.75rem;
+  font-size: 0.85rem;
   transition: var(--transition-smooth);
 }
 
@@ -605,7 +642,7 @@ main {
 }
 
 .project-category {
-  font-size: 0.7rem;
+  font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 1.5px;
   color: var(--primary-yellow);
@@ -635,7 +672,7 @@ main {
   color: var(--primary-yellow);
   padding: 4px 10px;
   border-radius: 20px;
-  font-size: 0.7rem;
+  font-size: 0.8rem;
   font-weight: 600;
 }
 
@@ -746,7 +783,7 @@ main {
 }
 
 .modal-category {
-  font-size: 0.7rem;
+  font-size: 0.8rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1.5px;
@@ -787,7 +824,7 @@ main {
 }
 
 .modal-outcome-label {
-  font-size: 0.65rem;
+  font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 2px;
@@ -808,7 +845,7 @@ main {
 }
 
 .modal-section-label {
-  font-size: 0.7rem;
+  font-size: 0.8rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1.5px;
@@ -1030,7 +1067,7 @@ main {
   font-family: var(--font-primary);
   font-weight: 600;
   margin-bottom: 6px;
-  font-size: 0.85rem;
+  font-size: 0.95rem;
 }
 
 .form-group input,
@@ -1103,7 +1140,7 @@ main {
   padding-top: 20px;
   border-top: 1px solid var(--dark-gray);
   color: var(--medium-gray);
-  font-size: 0.8rem;
+  font-size: 0.9rem;
 }
 
 /* ===========================================
@@ -1444,6 +1481,12 @@ main {
     text-align: left;
     margin-left: 50%;
     padding-left: 40px;
+  }
+
+  .timeline-line-fill {
+    left: 50%;
+    transform-origin: top center;
+    transform: translateX(-50%) scaleY(0);
   }
 
   .timeline-dot {

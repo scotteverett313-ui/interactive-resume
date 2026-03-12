@@ -1,37 +1,37 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
 
 // Animated counter component
 const AnimatedPercentage = ({ target, inView, delay }) => {
   const [count, setCount] = useState(0);
+  const displayTarget = Math.min(target, 100);
 
   useEffect(() => {
     if (!inView) return;
-
-    // Delay the start of counting based on the card's stagger delay
     const startDelay = setTimeout(() => {
-      const duration = 1500; // 1.5 seconds for the count
-      const steps = 60; // Number of steps in the animation
-      const increment = target / steps;
+      const duration = 1500;
+      const steps = 60;
+      const increment = displayTarget / steps;
       const stepDuration = duration / steps;
-
       let current = 0;
       const timer = setInterval(() => {
         current += increment;
-        if (current >= target) {
-          setCount(target);
+        if (current >= displayTarget) {
+          setCount(displayTarget);
           clearInterval(timer);
         } else {
           setCount(Math.floor(current));
         }
       }, stepDuration);
-
       return () => clearInterval(timer);
     }, delay * 1000);
-
     return () => clearTimeout(startDelay);
-  }, [inView, target, delay]);
+  }, [inView, displayTarget, delay]);
 
   return <>{count}%</>;
 };
@@ -46,7 +46,7 @@ const Skills = () => {
   const skillCategories = [
     {
       title: 'Design Tools',
-      percentage: 200,
+      percentage: 100,
       skills: ['Figma', 'Adobe Suite', 'Procreate'],
     },
     {
@@ -80,9 +80,7 @@ const Skills = () => {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-      },
+      transition: { staggerChildren: 0.1 },
     },
   };
 
@@ -91,12 +89,36 @@ const Skills = () => {
     visible: {
       opacity: 1,
       y: 0,
-      transition: {
-        duration: 0.5,
-        ease: 'easeOut',
-      },
+      transition: { duration: 0.5, ease: 'easeOut' },
     },
   };
+
+  // GSAP ScrollTrigger — fill progress bars on scroll
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      skillCategories.forEach((skill, i) => {
+        const barTarget = Math.min(skill.percentage, 100);
+        gsap.fromTo(
+          `.skill-bar-fill-${i}`,
+          { width: '0%' },
+          {
+            width: `${barTarget}%`,
+            duration: 1.2,
+            ease: 'power2.out',
+            delay: i * 0.08,
+            scrollTrigger: {
+              trigger: '.skills-grid',
+              start: 'top 75%',
+              toggleActions: 'play none none reset',
+            },
+          }
+        );
+      });
+    });
+
+    return () => ctx.revert();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <section className="skills section" id="skills">
@@ -141,10 +163,15 @@ const Skills = () => {
                 />
               </motion.div>
 
-              {/* Subtle skill list */}
+              {/* Skill list */}
               <p className="skill-details">
                 {category.skills.join(' · ')}
               </p>
+
+              {/* GSAP progress bar */}
+              <div className="skill-bar-track">
+                <div className={`skill-bar-fill skill-bar-fill-${index}`} />
+              </div>
             </motion.div>
           ))}
         </motion.div>
