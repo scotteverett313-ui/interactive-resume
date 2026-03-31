@@ -1,9 +1,39 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
-import { FiBook, FiGlobe, FiAward, FiHeart, FiMapPin, FiCheck } from 'react-icons/fi';
+import { FiBook, FiGlobe, FiAward, FiHeart, FiMapPin,
+         FiMic, FiUsers, FiLayers } from 'react-icons/fi';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+// Counts up from 0 to target when inView becomes true
+const CountUp = ({ target, suffix, inView }) => {
+  const [count, setCount] = React.useState(0);
+
+  React.useEffect(() => {
+    if (!inView) return;
+    const steps = 50;
+    const increment = target / steps;
+    const stepDuration = 1400 / steps;
+    let current = 0;
+    const timer = setInterval(() => {
+      current += increment;
+      if (current >= target) {
+        setCount(target);
+        clearInterval(timer);
+      } else {
+        setCount(Math.floor(current));
+      }
+    }, stepDuration);
+    return () => clearInterval(timer);
+  }, [inView, target]);
+
+  return <span className="accomplishment-count">{count}{suffix}</span>;
+};
 
 const Education = () => {
+  const sectionRef = useRef(null);
+
   const [ref, inView] = useInView({
     triggerOnce: true,
     threshold: 0.2,
@@ -26,16 +56,36 @@ const Education = () => {
   ];
 
   const accomplishments = [
-    'Award of Excellence Scholarship Recipient',
-    'Commissioned Illustrator for NPR\'s How I Built This Podcast',
-    'Designed digital solutions impacting 2M+ users in government services',
-    'Led 10+ successful projects for mission-driven organizations and social enterprises',
+    {
+      icon: <FiAward />,
+      text: 'Award of Excellence Scholarship Recipient',
+      featured: false,
+    },
+    {
+      icon: <FiMic />,
+      text: "Commissioned Illustrator for NPR's How I Built This Podcast",
+      featured: true,
+    },
+    {
+      icon: <FiUsers />,
+      textParts: ['Designed digital solutions impacting ', ' users in government services'],
+      countTarget: 2,
+      countSuffix: 'M+',
+      featured: false,
+    },
+    {
+      icon: <FiLayers />,
+      textParts: ['Led ', ' successful projects for mission-driven organizations and social enterprises'],
+      countTarget: 10,
+      countSuffix: '+',
+      featured: false,
+    },
   ];
 
   const interests = [
-    { label: 'Gardening', detail: 'beginner' },
-    { label: 'Cooking', detail: 'Turkey Chili Master' },
-    { label: 'Community Design', detail: null },
+    { label: 'Gardening', emoji: '🌱', detail: 'beginner' },
+    { label: 'Cooking', emoji: '🍳', detail: 'Turkey Chili Master' },
+    { label: 'Community Design', emoji: '🏙️', detail: null },
   ];
 
   const containerVariants = {
@@ -60,8 +110,33 @@ const Education = () => {
     },
   };
 
+  // GSAP ScrollTrigger stagger reveal for accomplishment tiles
+  useEffect(() => {
+    gsap.registerPlugin(ScrollTrigger);
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        '.accomplishment-tile',
+        { autoAlpha: 0, y: 24 },
+        {
+          autoAlpha: 1,
+          y: 0,
+          duration: 0.5,
+          ease: 'power2.out',
+          stagger: 0.12,
+          scrollTrigger: {
+            trigger: '.education-accomplishments',
+            start: 'top 78%',
+            toggleActions: 'play none none reset',
+          },
+        }
+      );
+    }, sectionRef);
+
+    return () => ctx.revert();
+  }, []);
+
   return (
-    <section className="education section" id="education">
+    <section className="education section" id="education" ref={sectionRef}>
       <div className="container">
         <motion.h2
           className="section-title"
@@ -90,7 +165,10 @@ const Education = () => {
               <div className="education-icon">{edu.icon}</div>
               <h3 className="education-degree">{edu.degree}</h3>
               <p className="education-school">{edu.school}</p>
-              <p className="education-location"><FiMapPin style={{ marginRight: '4px', verticalAlign: 'middle' }} />{edu.location}</p>
+              <p className="education-location">
+                <FiMapPin style={{ marginRight: '4px', verticalAlign: 'middle' }} />
+                {edu.location}
+              </p>
               {edu.description && (
                 <p style={{ color: 'var(--medium-gray)', marginTop: '8px', fontSize: '0.9rem' }}>
                   {edu.description}
@@ -119,7 +197,7 @@ const Education = () => {
                   }}
                   whileHover={{ scale: 1.05, background: '#f2c031' }}
                 >
-                  {interest.label}
+                  {interest.emoji} {interest.label}
                   {interest.detail && (
                     <span style={{ color: 'var(--medium-gray)', marginLeft: '4px' }}>
                       ({interest.detail})
@@ -146,14 +224,29 @@ const Education = () => {
             {accomplishments.map((item, i) => (
               <motion.div
                 key={i}
-                className="accomplishment-tile"
-                initial={{ opacity: 0, y: 20 }}
-                animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-                transition={{ delay: 0.4 + i * 0.1 }}
+                className={`accomplishment-tile${item.featured ? ' accomplishment-tile--featured' : ''}`}
                 whileHover={{ y: -3, boxShadow: '0 8px 24px rgba(0,0,0,0.08)' }}
+                style={{ opacity: 0 }}
               >
-                <FiCheck className="accomplishment-check" />
-                <p className="accomplishment-text">{item}</p>
+                <span className="accomplishment-icon">{item.icon}</span>
+                <div className="accomplishment-body">
+                  {item.featured && (
+                    <span className="accomplishment-badge">Featured</span>
+                  )}
+                  <p className="accomplishment-text">
+                    {item.textParts ? (
+                      <>
+                        {item.textParts[0]}
+                        <CountUp
+                          target={item.countTarget}
+                          suffix={item.countSuffix}
+                          inView={inView}
+                        />
+                        {item.textParts[1]}
+                      </>
+                    ) : item.text}
+                  </p>
+                </div>
               </motion.div>
             ))}
           </div>

@@ -1000,6 +1000,52 @@ main {
   font-size: 0.8rem;
 }
 
+/* ---- Accomplishment unique icon ---- */
+.accomplishment-icon {
+  color: var(--primary-yellow);
+  font-size: 1.4rem;
+  flex-shrink: 0;
+  margin-top: 2px;
+  display: flex;
+  align-items: flex-start;
+}
+
+/* ---- Accomplishment body flex wrapper ---- */
+.accomplishment-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+/* ---- Featured (NPR spotlight) tile ---- */
+.accomplishment-tile--featured {
+  border-left: 2px solid var(--primary-yellow);
+  border: 2px solid var(--primary-yellow);
+  box-shadow: 0 0 0 1px rgba(242, 192, 49, 0.15),
+              0 4px 24px rgba(242, 192, 49, 0.18);
+  background: linear-gradient(135deg, #fffdf4 0%, var(--white) 100%);
+}
+
+.accomplishment-badge {
+  display: inline-block;
+  background: var(--primary-yellow);
+  color: var(--primary-black);
+  font-weight: 700;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  padding: 3px 9px;
+  border-radius: 20px;
+  margin-bottom: 8px;
+  width: fit-content;
+}
+
+/* ---- Animated counter number ---- */
+.accomplishment-count {
+  font-weight: 800;
+  color: var(--primary-yellow);
+}
+
 /* ===========================================
    CONTACT SECTION - Mobile First
    =========================================== */
