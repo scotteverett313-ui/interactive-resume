@@ -36,8 +36,9 @@ button{font:inherit;color:inherit}
 :focus-visible{outline:3px solid var(--blue);outline-offset:3px}
 
 #intro{position:relative;height:520vh}
-#intro.done{height:100vh;height:100svh}
-.stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;background:var(--yellow)}
+#intro.done{height:100vh;height:100dvh}
+.stage{position:sticky;top:0;height:100vh;height:100dvh;overflow:hidden;background:var(--yellow)}
+html,body{overscroll-behavior-y:none}
 
 /* animated grain, standing in for the texture gif */
 .grain{position:absolute;inset:-50%;pointer-events:none;opacity:.5;
@@ -992,9 +993,16 @@ button{font:inherit;color:inherit}
     view.items.forEach(function(it, i){ if (pos[i]){ it.x = pos[i].x; it.y = pos[i].y; it.r = pos[i].r; } });
     setChrome(node);
   }
-  window.addEventListener('resize', function(){ if (!busy) relayout(); });
+  /* tall phone screens: crop in on the bust so it fills the height instead of floating small */
+  var introSvgEl = document.getElementById('introSvg');
+  function fitIntro(){
+    var r = stage.getBoundingClientRect();
+    introSvgEl.setAttribute('viewBox', r.width / r.height < .8 ? '190 30 420 570' : '0 0 800 600');
+  }
+  window.addEventListener('resize', function(){ fitIntro(); if (!busy) relayout(); });
 
   /* ---------- boot ---------- */
+  fitIntro();
   measure(); drawBg();
   view = buildView(ROOT);
   mapLayer.style.background = groundFor(ROOT);
