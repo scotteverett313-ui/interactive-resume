@@ -95,6 +95,16 @@ const Hero = () => {
               >
                 View My Work
               </motion.a>
+              <motion.a
+                href="https://whatupdoe-detroit.com"
+                className="btn btn-outline"
+                target="_blank"
+                rel="noopener noreferrer"
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.97 }}
+              >
+                Inside My Brain (WIP) ↗
+              </motion.a>
             </div>
 
             {/* Stats */}
