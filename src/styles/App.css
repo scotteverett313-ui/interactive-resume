@@ -235,6 +235,7 @@ main {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  flex-wrap: wrap;
   width: 100%;
 }
 
