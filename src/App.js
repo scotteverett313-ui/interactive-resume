@@ -10,6 +10,7 @@ import Projects from './components/Projects';
 import Education from './components/Education';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
+import BrainExperience from './brain/BrainExperience';
 import './styles/App.css';
 
 // The full interactive resume page
@@ -51,7 +52,7 @@ const ResumePage = () => {
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<ResumePage />} />
+      <Route path="/" element={<BrainExperience />} />
       <Route path="/resume" element={<ResumePage />} />
     </Routes>
   );
