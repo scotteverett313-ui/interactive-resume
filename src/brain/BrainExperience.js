@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { ROOT } from './content';
 import Intro from './Intro';
 import BrainMap from './BrainMap';
@@ -7,9 +7,6 @@ import DotNav from './DotNav';
 import Crumbs from './Crumbs';
 import './brain.css';
 
-/* Checkpoint 3: the intro is not wired yet, so the brain starts on the map. */
-var START_DONE = true;
-
 /* Owns the three pieces of state the brain has:
      stack:  nodes from ROOT down to the level on the map
      page:   { node, instant } the open page, or null
@@ -17,12 +14,12 @@ var START_DONE = true;
    Everything animated lives in refs and GSAP, not here. */
 export default function BrainExperience(){
   var reduce = useMemo(function(){ return window.matchMedia('(prefers-reduced-motion: reduce)').matches; }, []);
-  var [done, setDone] = useState(START_DONE || reduce);
+  var [done, setDone] = useState(reduce); /* reduced motion skips the intro */
   var [stack, setStack] = useState([ROOT]);
   var [page, setPage] = useState({ node:null, instant:false });
 
   var busyRef = useRef(false), modeRef = useRef(null), sceneRef = useRef(null);
-  var stageRef = useRef(null), mapLayerRef = useRef(null), dotTagRef = useRef(null);
+  var stageRef = useRef(null), sectionRef = useRef(null), mapLayerRef = useRef(null), dotTagRef = useRef(null), introRef = useRef(null);
   var stackRef = useRef(stack); stackRef.current = stack;
   var pageRef = useRef(page); pageRef.current = page;
   var doneRef = useRef(done); doneRef.current = done;
@@ -79,14 +76,21 @@ export default function BrainExperience(){
     if (sceneRef.current) sceneRef.current.activateById(id);
   }, [closePage]);
 
+  /* the scrub reached the end, or Skip was pressed: Intro parks its timeline at 1 when done flips */
   var finishIntro = useCallback(function(){
     if (doneRef.current) return;
     setDone(true);
-    window.scrollTo(0, 0);
   }, []);
+  /* back to the top of the brain, rewind the intro, and let scroll drive it again */
   var replayIntro = useCallback(function(){
-    /* wired in the next checkpoint */
-  }, []);
+    if (busyRef.current) return;
+    closePage(true);
+    modeRef.current = { mode:'instant' };
+    setStack([ROOT]);
+    setDone(false);
+  }, [closePage]);
+  /* whenever the intro starts or ends, the section height changes; start from the top either way */
+  useLayoutEffect(function(){ window.scrollTo(0, 0); }, [done]);
 
   var onBack = useCallback(function(){
     if (pageRef.current.node) closePage(); else goTo(stackRef.current.length - 1);
@@ -102,14 +106,15 @@ export default function BrainExperience(){
     return function(){ document.removeEventListener('keydown', onKey); };
   }, [closePage, goTo]);
 
-  var getIntroProgress = useCallback(function(){ return doneRef.current ? 1 : 0; }, []);
+  var getIntroProgress = useCallback(function(){ return doneRef.current ? 1 : (introRef.current ? introRef.current.progress() : 0); }, []);
 
   return (
     <div className="brain">
-      <section id="intro" className={done ? 'done' : undefined} aria-label="Intro">
+      <section id="intro" ref={sectionRef} className={done ? 'done' : undefined} aria-label="Intro">
         <div className={'stage' + (done ? ' is-done' : '')} id="stage" ref={stageRef}>
           <div className="grain" aria-hidden="true" />
-          <Intro stageRef={stageRef} reduce={reduce} />
+          <Intro ref={introRef} stageRef={stageRef} sectionRef={sectionRef} mapLayerRef={mapLayerRef} dotTagRef={dotTagRef}
+            reduce={reduce} done={done} onFinish={finishIntro} />
           <BrainMap stack={stack} done={done} reduce={reduce}
             busyRef={busyRef} modeRef={modeRef} sceneRef={sceneRef} mapLayerRef={mapLayerRef}
             getIntroProgress={getIntroProgress} onDive={onDive} onOpenPage={openPage} />

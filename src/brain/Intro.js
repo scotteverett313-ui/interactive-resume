@@ -1,4 +1,8 @@
-import React, { useEffect, useRef } from 'react';
+import React, { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
 
 /* The illustrated bust. Inline SVG with separate layers so the scroll
    timeline can move each one. Keep these ids and classes stable; a
@@ -12,9 +16,87 @@ import React, { useEffect, useRef } from 'react';
      #angleTag   "drawn angle n / 4" caption
      #boil       the hand-drawn line wobble filter (also used by the map links)
 
-   The scroll timeline itself is wired in BrainExperience through introRef. */
-export default function Intro({ stageRef, reduce }){
+   Scrolling the 520vh #intro section scrubs a GSAP timeline that opens the
+   head, lifts the brain, turns it through the four angles, and zooms until
+   the map layer fades in on top.
+
+     sectionRef:  the tall #intro section ScrollTrigger watches
+     mapLayerRef: the map, faded in at the end of the timeline
+     dotTagRef:   the depth-nav tag, written with the scroll percent
+     done:        true once the intro is finished or skipped; false again on replay
+     onFinish:    called when the scrub reaches the end
+
+   The ref handle exposes progress() so the map can start drawing as the zoom lands. */
+var Intro = forwardRef(function Intro({ stageRef, sectionRef, mapLayerRef, dotTagRef, reduce, done, onFinish }, ref){
   var svgRef = useRef(null), boilRef = useRef(null);
+  var tlRef = useRef(null), triggerRef = useRef(null);
+  var onFinishRef = useRef(onFinish); onFinishRef.current = onFinish;
+
+  /* build the timeline once; it is driven by ScrollTrigger, or jumped to 0 / 1 by the effect below */
+  useEffect(function(){
+    var svg = svgRef.current, $ = function(sel){ return svg.querySelector(sel); };
+    var variants = svg.querySelectorAll('.bv'), angleTag = $('#angleTag'), slit = $('#slit');
+    var turn = { a:0 }, shownVariant = 0;
+    function setVariant(){
+      var i = Math.round(turn.a) % 4;
+      if (i === shownVariant) return;
+      variants[shownVariant].style.display = 'none';
+      variants[i].style.display = '';
+      shownVariant = i;
+      angleTag.textContent = 'drawn angle ' + (i + 1) + ' / 4';
+    }
+    var hint = sectionRef.current.querySelector('#hint'), placeholderTag = sectionRef.current.querySelector('#placeholderTag');
+    gsap.set($('#brainWrap'), { svgOrigin:'400 222' });
+    slit.setAttribute('stroke-dasharray', '240');
+    var tl = gsap.timeline({ paused:true });
+    tl.to(hint, { opacity:0, duration:.6 }, 0)
+      .to(placeholderTag, { opacity:0, duration:.6 }, 3.6)
+      .fromTo(slit, { opacity:0 }, { opacity:1, duration:.4 }, 0)
+      .fromTo(slit, { attr:{ 'stroke-dashoffset':240 } }, { attr:{ 'stroke-dashoffset':0 }, duration:1.4, ease:'none' }, 0)
+      .to($('#capG'), { y:-40, opacity:0, duration:1 }, 1.5)
+      .to($('#brainWrap'), { opacity:1, duration:.6 }, 1.5)
+      .to(slit, { opacity:0, duration:.5 }, 2)
+      .to($('#brainWrap'), { y:-170, duration:2, ease:'power2.inOut' }, 2.5)
+      .to([$('#headG'), $('#bodyG')], { y:150, duration:2, ease:'power2.inOut' }, 2.5)
+      .to(svg.querySelectorAll('.pupil'), { y:-8, x:2, duration:.8 }, 2.7)
+      .to([$('#headG'), $('#bodyG')], { y:560, duration:2, ease:'power2.in' }, 4.6)
+      .to($('#brainWrap'), { y:78, scale:1.7, duration:2, ease:'power2.inOut' }, 4.6)
+      .to(turn, { a:3, duration:2, ease:'none', onUpdate:setVariant }, 4.6)
+      .to(angleTag, { opacity:1, duration:.3 }, 4.6)
+      .to(angleTag, { opacity:0, duration:.3 }, 6.4)
+      .to($('#brainWrap'), { scale:11, duration:2.6, ease:'power2.in' }, 6.6)
+      .to(mapLayerRef.current, { opacity:1, duration:1 }, 8.6)
+      .to(svg, { opacity:0, duration:1 }, 8.8);
+    tlRef.current = tl;
+    return function(){
+      if (triggerRef.current){ triggerRef.current.kill(); triggerRef.current = null; }
+      tl.kill(); tlRef.current = null;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  /* done: park the timeline at the end. not done (first load, or replay): rewind and let scroll drive it */
+  useEffect(function(){
+    var tl = tlRef.current; if (!tl) return;
+    if (triggerRef.current){ triggerRef.current.kill(); triggerRef.current = null; }
+    if (done){
+      tl.progress(1);
+      return;
+    }
+    tl.progress(0);
+    triggerRef.current = ScrollTrigger.create({
+      trigger:sectionRef.current, start:'top top', end:'bottom bottom', scrub:.5, animation:tl,
+      onUpdate:function(self){
+        if (dotTagRef.current) dotTagRef.current.textContent = 'Intro ' + Math.round(self.progress * 100) + '%';
+        if (self.progress > .995) onFinishRef.current();
+      }
+    });
+    ScrollTrigger.refresh();
+  }, [done, sectionRef, dotTagRef]);
+
+  useImperativeHandle(ref, function(){
+    return { progress:function(){ return tlRef.current ? tlRef.current.progress() : 0; } };
+  }, []);
 
   /* tall phone screens: crop in on the bust so it fills the height instead of floating small */
   useEffect(function(){
@@ -100,4 +182,6 @@ export default function Intro({ stageRef, reduce }){
       <div id="placeholderTag">Placeholder Scott · swap in your layered SVG</div>
     </>
   );
-}
+});
+
+export default Intro;
