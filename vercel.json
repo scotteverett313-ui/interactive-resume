@@ -1,5 +1,3 @@
 {
-  "redirects": [
-    { "source": "/", "destination": "/brain/", "permanent": false }
-  ]
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
 }
