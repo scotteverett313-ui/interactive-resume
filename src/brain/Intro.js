@@ -138,6 +138,28 @@ var Intro = forwardRef(function Intro({ stageRef, sectionRef, mapLayerRef, dotTa
           {C.eyes.map(function(e){ return <clipPath id={e.id} key={e.id}><path d={e.outline} /></clipPath>; })}
         </defs>
         <g stroke="#1a1a1a" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
+          {/* the brain is drawn first so it sits behind the character: it shows inside the open head and rises out from behind the forehead cut */}
+          <g id="brainWrap" opacity="0">
+            <g transform="translate(298 150) scale(.85)">
+              <g className="bv">
+                <path d={brainOutline} fill="#ffffff" />
+                <path d="M120 22 C110 60 132 92 118 150 M72 50 C92 62 84 82 62 92 M168 46 C150 66 176 86 160 104 M48 116 C70 108 84 124 74 140 M182 120 C196 106 210 112 214 100" fill="none" strokeWidth="3" />
+              </g>
+              <g className="bv" style={{ display:'none' }}>
+                <path d={brainOutline} fill="#ffffff" transform="translate(12 0) scale(.92 1)" />
+                <path d="M138 24 C124 60 146 96 134 150 M80 54 C100 64 94 86 70 96 M178 50 C160 70 184 88 170 108 M52 118 C74 110 86 126 78 142" fill="none" strokeWidth="3" />
+              </g>
+              <g className="bv" style={{ display:'none' }}>
+                <path d={brainOutline} fill="#ffffff" transform="translate(26 2) scale(.82 1)" />
+                <path d="M146 140 C164 152 190 150 204 132 M90 40 C112 58 100 84 76 92 M150 40 C138 66 162 84 150 108 M64 116 C88 106 104 122 96 140 M118 92 C134 100 150 96 160 86" fill="none" strokeWidth="3" />
+              </g>
+              <g className="bv" style={{ display:'none' }}>
+                <path d={brainOutline} fill="#ffffff" transform="translate(10 0) scale(.94 1)" />
+                <path d="M104 22 C96 62 118 94 104 150 M64 52 C84 62 78 84 56 92 M160 44 C142 66 166 84 152 104 M176 118 C192 104 206 112 210 100" fill="none" strokeWidth="3" />
+              </g>
+            </g>
+          </g>
+
           <g id="charInk" stroke="none" className={MONO ? 'mono' : undefined}>
             <g id="bodyG" clipPath="url(#bodyClip)">
               <image href={C.src} width={C.width} height={C.height} transform={C.place} />
@@ -169,26 +191,6 @@ var Intro = forwardRef(function Intro({ stageRef, sectionRef, mapLayerRef, dotTa
             </g>
           </g>
 
-          <g id="brainWrap" opacity="0">
-            <g transform="translate(298 150) scale(.85)">
-              <g className="bv">
-                <path d={brainOutline} fill="#ffffff" />
-                <path d="M120 22 C110 60 132 92 118 150 M72 50 C92 62 84 82 62 92 M168 46 C150 66 176 86 160 104 M48 116 C70 108 84 124 74 140 M182 120 C196 106 210 112 214 100" fill="none" strokeWidth="3" />
-              </g>
-              <g className="bv" style={{ display:'none' }}>
-                <path d={brainOutline} fill="#ffffff" transform="translate(12 0) scale(.92 1)" />
-                <path d="M138 24 C124 60 146 96 134 150 M80 54 C100 64 94 86 70 96 M178 50 C160 70 184 88 170 108 M52 118 C74 110 86 126 78 142" fill="none" strokeWidth="3" />
-              </g>
-              <g className="bv" style={{ display:'none' }}>
-                <path d={brainOutline} fill="#ffffff" transform="translate(26 2) scale(.82 1)" />
-                <path d="M146 140 C164 152 190 150 204 132 M90 40 C112 58 100 84 76 92 M150 40 C138 66 162 84 150 108 M64 116 C88 106 104 122 96 140 M118 92 C134 100 150 96 160 86" fill="none" strokeWidth="3" />
-              </g>
-              <g className="bv" style={{ display:'none' }}>
-                <path d={brainOutline} fill="#ffffff" transform="translate(10 0) scale(.94 1)" />
-                <path d="M104 22 C96 62 118 94 104 150 M64 52 C84 62 78 84 56 92 M160 44 C142 66 166 84 152 104 M176 118 C192 104 206 112 210 100" fill="none" strokeWidth="3" />
-              </g>
-            </g>
-          </g>
           <text id="angleTag" x="400" y="570" textAnchor="middle" fontFamily="DM Mono, monospace" fontSize="14" fill="#1a1a1a" stroke="none" opacity="0">drawn angle 1 / 4</text>
         </g>
       </svg>
