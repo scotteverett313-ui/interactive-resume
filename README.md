@@ -101,11 +101,22 @@ also has `fx, fy` (position as a fraction of the screen), `hubs` (which of
 `learn`, `teach`, `improve` it feeds, drawn as dashed lines), `also` (ids of
 other curiosities it touches), and an optional `sub` tag.
 
-### Swapping in the real drawing
+### The character
 
-The bust is an inline SVG in `src/brain/Intro.js`. The scroll timeline moves
-these layers by id, so an Illustrator export that keeps the same names drops
-straight in: `bodyG`, `headG` (with two `.pupil` circles), `capG`, `slit`,
+The figure on the home page is one image, `src/brain/art/scott-front.webp`:
+the front view on a transparent background. The intro needs it in layers, so
+`src/brain/character.js` draws the same image three times, each cut to one
+region: body, head, and the cap above the forehead line that lifts off. The
+eyes are redrawn as vectors on top so the pupils can look up at the brain.
+
+- To swap in a new render of the same pose and size, replace the `.webp`.
+- A different pose or crop also needs new numbers in `character.js`: where
+  the image sits, the forehead line, and the two eye outlines.
+- The rest of the site is black and white. Set `MONO = true` in
+  `character.js` to show the character in grayscale too.
+
+The scroll timeline in `src/brain/Intro.js` moves these layers by id, so keep
+the names: `bodyG`, `headG` (with two `.pupil` groups), `capG`, `slit`,
 `brainWrap` (with four `.bv` groups, one per drawn angle), and `angleTag`.
 
 ### Where the rest lives
@@ -114,7 +125,8 @@ straight in: `bodyG`, `headG` (with two `.pupil` circles), `capG`, `slit`,
 |---|---|
 | `src/brain/content.js` | The content tree. The only file you need to edit. |
 | `src/brain/BrainExperience.js` | Owns the state: current level, open page, intro done. |
-| `src/brain/Intro.js` | The bust and the scroll-scrubbed GSAP timeline. |
+| `src/brain/Intro.js` | The character layers and the scroll-scrubbed GSAP timeline. |
+| `src/brain/character.js` | The character art and its measurements. |
 | `src/brain/BrainMap.js` | The map: blob morph loop, hover reach, drag and spring back, dive and rise, outer orbit. |
 | `src/brain/NodePage.js` | The page layout and its Connects to buttons. |
 | `src/brain/DotNav.js`, `Crumbs.js` | Depth dots and the breadcrumb trail. |
@@ -166,6 +178,8 @@ interactive-resume/
 │   │   ├── content.js        <- edit this
 │   │   ├── BrainExperience.js
 │   │   ├── Intro.js
+│   │   ├── character.js
+│   │   ├── art/scott-front.webp
 │   │   ├── BrainMap.js
 │   │   ├── NodePage.js
 │   │   ├── DotNav.js

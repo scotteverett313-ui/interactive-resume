@@ -2,19 +2,22 @@ import React, { forwardRef, useEffect, useImperativeHandle, useRef } from 'react
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
+import { CHARACTER as C, MONO } from './character';
+
 gsap.registerPlugin(ScrollTrigger);
 
-/* The illustrated bust. Inline SVG with separate layers so the scroll
-   timeline can move each one. Keep these ids and classes stable; a
-   layered Illustrator export with the same names drops straight in:
+/* The character and the scroll intro. An inline SVG with separate layers
+   so the timeline can move each one. Keep these ids and classes stable:
 
-     #bodyG      shoulders and neck
-     #headG      lower head: face, eyes, mouth (contains .pupil x2)
-     #capG       skull cap that lifts off
-     #slit       the dashed line that draws across the forehead
+     #bodyG      hoodie and everything below the chin line
+     #headG      face, between the forehead cut and the chin (contains .pupil x2)
+     #capG       top of the head above the forehead cut; lifts off
+     #slit       the line that draws across the forehead
      #brainWrap  the brain, lifts out and zooms (contains 4 .bv angles)
      #angleTag   "drawn angle n / 4" caption
-     #boil       the hand-drawn line wobble filter (also used by the map links)
+     #boil       the hand-drawn line wobble filter (slit, and the map links)
+
+   The art and its measurements live in character.js.
 
    Scrolling the 520vh #intro section scrubs a GSAP timeline that opens the
    head, lifts the brain, turns it through the four angles, and zooms until
@@ -45,20 +48,21 @@ var Intro = forwardRef(function Intro({ stageRef, sectionRef, mapLayerRef, dotTa
       shownVariant = i;
       angleTag.textContent = 'drawn angle ' + (i + 1) + ' / 4';
     }
-    var hint = sectionRef.current.querySelector('#hint'), placeholderTag = sectionRef.current.querySelector('#placeholderTag');
+    var hint = sectionRef.current.querySelector('#hint');
     gsap.set($('#brainWrap'), { svgOrigin:'400 222' });
-    slit.setAttribute('stroke-dasharray', '240');
+    /* one dash as long as the whole line, slid into view, draws the cut on */
+    var slitLen = Math.ceil(slit.getTotalLength()) + 2;
+    slit.setAttribute('stroke-dasharray', slitLen);
     var tl = gsap.timeline({ paused:true });
     tl.to(hint, { opacity:0, duration:.6 }, 0)
-      .to(placeholderTag, { opacity:0, duration:.6 }, 3.6)
       .fromTo(slit, { opacity:0 }, { opacity:1, duration:.4 }, 0)
-      .fromTo(slit, { attr:{ 'stroke-dashoffset':240 } }, { attr:{ 'stroke-dashoffset':0 }, duration:1.4, ease:'none' }, 0)
+      .fromTo(slit, { attr:{ 'stroke-dashoffset':slitLen } }, { attr:{ 'stroke-dashoffset':0 }, duration:1.4, ease:'none' }, 0)
       .to($('#capG'), { y:-40, opacity:0, duration:1 }, 1.5)
       .to($('#brainWrap'), { opacity:1, duration:.6 }, 1.5)
       .to(slit, { opacity:0, duration:.5 }, 2)
       .to($('#brainWrap'), { y:-170, duration:2, ease:'power2.inOut' }, 2.5)
       .to([$('#headG'), $('#bodyG')], { y:150, duration:2, ease:'power2.inOut' }, 2.5)
-      .to(svg.querySelectorAll('.pupil'), { y:-8, x:2, duration:.8 }, 2.7)
+      .to(svg.querySelectorAll('.pupil'), { y:C.lookUp.y, x:C.lookUp.x, duration:.8 }, 2.7)
       .to([$('#headG'), $('#bodyG')], { y:560, duration:2, ease:'power2.in' }, 4.6)
       .to($('#brainWrap'), { y:78, scale:1.7, duration:2, ease:'power2.inOut' }, 4.6)
       .to(turn, { a:3, duration:2, ease:'none', onUpdate:setVariant }, 4.6)
@@ -122,37 +126,47 @@ var Intro = forwardRef(function Intro({ stageRef, sectionRef, mapLayerRef, dotTa
   return (
     <>
       <svg id="introSvg" ref={svgRef} viewBox="0 0 800 600" preserveAspectRatio="xMidYMid meet" role="img"
-        aria-label="Illustrated bust of Scott. Scrolling opens his head and zooms into his brain.">
+        aria-label="Scott as a vinyl toy figure with locs, round gold glasses, and a black hoodie. Scrolling opens his head and zooms into his brain.">
         <defs>
           <filter id="boil" x="-5%" y="-5%" width="110%" height="110%">
             <feTurbulence id="boilT" ref={boilRef} type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="1" />
             <feDisplacementMap in="SourceGraphic" scale="3.5" />
           </filter>
+          <clipPath id="capClip"><path d={C.clip.cap} /></clipPath>
+          <clipPath id="headClip"><path d={C.clip.head} /></clipPath>
+          <clipPath id="bodyClip"><path d={C.clip.body} /></clipPath>
+          {C.eyes.map(function(e){ return <clipPath id={e.id} key={e.id}><path d={e.outline} /></clipPath>; })}
         </defs>
         <g stroke="#1a1a1a" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
-          <g id="charInk" filter="url(#boil)">
-            <g id="bodyG">
-              <path d="M150 604 C168 492 632 492 650 604 Z" fill="#ffffff" />
-              <path d="M318 510 C350 540 450 540 482 510" fill="none" strokeWidth="3" />
-              <rect x="362" y="410" width="76" height="90" fill="#ffffff" />
+          <g id="charInk" stroke="none" className={MONO ? 'mono' : undefined}>
+            <g id="bodyG" clipPath="url(#bodyClip)">
+              <image href={C.src} width={C.width} height={C.height} transform={C.place} />
             </g>
-            <g id="headG">
-              <ellipse cx="284" cy="318" rx="18" ry="30" fill="#ffffff" />
-              <path d="M288 250 A120 140 0 1 0 512 250 Z" fill="#ffffff" />
-              <path d="M352 288 Q372 278 392 286 M430 284 Q448 276 466 284" fill="none" />
-              <ellipse cx="372" cy="320" rx="16" ry="20" fill="#ffffff" strokeWidth="3" />
-              <ellipse cx="447" cy="318" rx="14" ry="19" fill="#ffffff" strokeWidth="3" />
-              <circle className="pupil" cx="376" cy="324" r="7" fill="#1a1a1a" stroke="none" />
-              <circle className="pupil" cx="450" cy="322" r="6" fill="#1a1a1a" stroke="none" />
-              <path d="M420 334 Q434 362 414 370" fill="none" strokeWidth="3" />
-              <path d="M386 394 Q414 412 444 390" fill="none" />
-              <g fill="#1a1a1a" stroke="none" opacity=".5"><circle cx="356" cy="404" r="1.8" /><circle cx="370" cy="416" r="1.8" /><circle cx="392" cy="424" r="1.8" /><circle cx="420" cy="424" r="1.8" /><circle cx="444" cy="414" r="1.8" /><circle cx="460" cy="400" r="1.8" /></g>
+            <g id="headG" clipPath="url(#headClip)">
+              <image href={C.src} width={C.width} height={C.height} transform={C.place} />
+              <g transform={C.place}>
+                {C.eyes.map(function(e){
+                  return (
+                    <g key={e.id} clipPath={'url(#' + e.id + ')'}>
+                      <path d={e.outline} fill={e.white} />
+                      <g className="pupil">
+                        <circle cx={e.pupil.cx} cy={e.pupil.cy} r={e.pupil.r} fill="#111010" />
+                        <circle cx={e.pupil.cx - 10.5} cy={e.pupil.cy - 3.5} r="1.6" fill="#ffffff" opacity=".85" />
+                        <circle cx={e.pupil.cx + 11} cy={e.pupil.cy - 1.5} r="1.1" fill="#ffffff" opacity=".6" />
+                      </g>
+                    </g>
+                  );
+                })}
+              </g>
             </g>
-            <g id="capG">
-              <path d="M288 250 A120 140 0 0 1 512 250 Z" fill="#ffffff" />
-              <path d="M330 206 C350 186 380 176 404 178" fill="none" strokeWidth="3" opacity=".5" />
+            <g id="capG" clipPath="url(#capClip)">
+              <image href={C.src} width={C.width} height={C.height} transform={C.place} />
             </g>
-            <path id="slit" d="M288 250 C350 264 450 264 512 250" fill="none" strokeWidth="3.5" strokeDasharray="6 7" />
+            {/* the empty rect only gives the wobble filter room to move the line */}
+            <g filter="url(#boil)">
+              <rect x="233" y="217" width="336" height="76" fill="none" />
+              <path id="slit" d={C.slit} fill="none" stroke="#ffffff" strokeWidth="3.5" />
+            </g>
           </g>
 
           <g id="brainWrap" opacity="0">
@@ -179,7 +193,6 @@ var Intro = forwardRef(function Intro({ stageRef, sectionRef, mapLayerRef, dotTa
         </g>
       </svg>
       <div id="hint"><span>Scroll to open</span><span className="line" /></div>
-      <div id="placeholderTag">Placeholder Scott · swap in your layered SVG</div>
     </>
   );
 });
