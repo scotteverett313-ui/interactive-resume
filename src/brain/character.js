@@ -1,4 +1,5 @@
 import front from './art/scott-front.webp';
+import shadow from './art/scott-shadow.webp';
 import brain0 from './art/brain-00.webp';
 import brain1 from './art/brain-01.webp';
 import brain2 from './art/brain-02.webp';
@@ -67,7 +68,9 @@ export const CHARACTER = {
   clip: {
     cap: 'M-200 -600 H1000 V247 L549 247 C487 262 315 262 253 247 L-200 247 Z',
     head: 'M-200 246 L253 246 C315 261 487 261 549 246 L1000 246 V512 H-200 Z',
-    body: 'M-200 510 H1000 V1600 H-200 Z'
+    body: 'M-200 510 H1000 V1600 H-200 Z',
+    /* head and body together: everything below the forehead cut */
+    lower: 'M-200 246 L253 246 C315 261 487 261 549 246 L1000 246 V1600 H-200 Z'
   },
   /* image px: the white of each eye, and the pupil inside it */
   eyes: [
@@ -76,6 +79,31 @@ export const CHARACTER = {
     { id:'eyeR', white:'#f0e8e1', pupil:{ cx:336.5, cy:272.9, r:16.8 },
       outline:'M302.6 279.6 L303.5 274.8 L306.5 271.7 L309.5 269.6 L312.5 268.3 L315.5 267.4 L318.5 266.9 L321.5 267.5 L324.5 267.5 L327.5 267.5 L330.5 267.5 L333.5 267.5 L336.5 267.5 L339.5 267.5 L342.5 267.5 L345.5 267.5 L348.5 267.5 L351.5 267.5 L354.5 266.9 L357.5 267.6 L360.5 268.2 L362.5 268.9 L363.4 280.1 L362.5 291.4 L360.5 291.9 L357.5 292.7 L354.5 293.1 L351.5 293.7 L348.5 294.0 L345.5 294.2 L342.5 294.4 L339.5 294.7 L336.5 294.7 L333.5 294.7 L330.5 294.4 L327.5 294.3 L324.5 294.0 L321.5 293.7 L318.5 293.1 L315.5 292.3 L312.5 291.4 L309.5 290.1 L306.5 288.0 L303.5 284.4Z' }
   ],
+  /* a soft blurred copy of the figure's outline, cast onto the shape behind the head.
+     pad is the empty margin around the figure in that image (image px); offset is where
+     the shadow falls relative to the figure, in drawing units (right and down) */
+  shadow: { src: shadow, pad: 48, offset: { x: 12, y: 14 } },
   /* image px: how far the pupils shift when they look up at the brain */
   lookUp: { x:1.5, y:-6 }
+};
+
+/* ============================================================
+   The shape behind the head.
+
+   A soft wobbly blob in the same style as the gravity points on
+   the map: halftone dots with an ink outline. It sits behind the
+   character so the hair breaks out of the top and the shoulders
+   overlap the bottom, and the figure casts a soft shadow onto it.
+   Together that keeps the figure from reading flat against the
+   page. It drifts slowly, and it drops away with the head when
+   the brain lifts out.
+
+   cx, cy, r: center and radius in the 800 x 600 drawing
+   amp:       how much the outline wobbles (0 is a perfect circle)
+   dots:      spacing of the halftone grid, and the dot radius
+   ============================================================ */
+export const BACKDROP = {
+  cx: 400, cy: 378, r: 204,
+  seed: 2.4, amp: 0.045,
+  dots: { gap: 8, r: 1.7 }
 };

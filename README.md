@@ -121,8 +121,15 @@ them in order as the brain turns. To swap or add frames, keep them square,
 centered, and the same size, then list them in `BRAIN.frames` in
 `character.js`. Any number of frames works.
 
+Behind the head sits a halftone blob in the same style as the gravity points
+on the map, and the figure casts a soft shadow onto it. That overlap is what
+keeps the figure from reading flat. Its position, size, wobble, and dot grid
+are the `BACKDROP` numbers in `character.js`. The shadow is a small blurred
+copy of the figure's outline, `src/brain/art/scott-shadow.webp`; if the
+character art changes, that file needs regenerating to match.
+
 The scroll timeline in `src/brain/Intro.js` moves these layers by id, so keep
-the names: `bodyG`, `headG` (with two `.pupil` groups), `capG`, `slit`,
+the names: `backdropG`, `bodyG`, `headG` (with two `.pupil` groups), `capG`, `slit`,
 `brainWrap` (with one `.bv` image per angle), and `angleTag`.
 
 ### Where the rest lives
@@ -132,7 +139,7 @@ the names: `bodyG`, `headG` (with two `.pupil` groups), `capG`, `slit`,
 | `src/brain/content.js` | The content tree. The only file you need to edit. |
 | `src/brain/BrainExperience.js` | Owns the state: current level, open page, intro done. |
 | `src/brain/Intro.js` | The character layers and the scroll-scrubbed GSAP timeline. |
-| `src/brain/character.js` | The character and brain art and their measurements. |
+| `src/brain/character.js` | The character, brain, and backdrop art and their measurements. |
 | `src/brain/BrainMap.js` | The map: blob morph loop, hover reach, drag and spring back, dive and rise, outer orbit. |
 | `src/brain/NodePage.js` | The page layout and its Connects to buttons. |
 | `src/brain/DotNav.js`, `Crumbs.js` | Depth dots and the breadcrumb trail. |
@@ -185,7 +192,7 @@ interactive-resume/
 │   │   ├── BrainExperience.js
 │   │   ├── Intro.js
 │   │   ├── character.js
-│   │   ├── art/              <- scott-front.webp, brain-00..07.webp
+│   │   ├── art/              <- scott-front.webp, scott-shadow.webp, brain-00..07.webp
 │   │   ├── BrainMap.js
 │   │   ├── NodePage.js
 │   │   ├── DotNav.js

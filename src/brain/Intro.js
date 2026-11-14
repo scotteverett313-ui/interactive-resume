@@ -2,13 +2,15 @@ import React, { forwardRef, useEffect, useImperativeHandle, useRef } from 'react
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-import { CHARACTER as C, BRAIN as B, MONO } from './character';
+import { CHARACTER as C, BRAIN as B, BACKDROP as K, MONO } from './character';
+import { blobPath } from './blob';
 
 gsap.registerPlugin(ScrollTrigger);
 
 /* The character and the scroll intro. An inline SVG with separate layers
    so the timeline can move each one. Keep these ids and classes stable:
 
+     #backdropG  the halftone blob behind the head (contains the #backdrop path)
      #bodyG      hoodie and everything below the chin line
      #headG      face, between the forehead cut and the chin (contains .pupil x2)
      #capG       top of the head above the forehead cut; lifts off
@@ -31,7 +33,7 @@ gsap.registerPlugin(ScrollTrigger);
 
    The ref handle exposes progress() so the map can start drawing as the zoom lands. */
 var Intro = forwardRef(function Intro({ stageRef, sectionRef, mapLayerRef, dotTagRef, reduce, done, onFinish }, ref){
-  var svgRef = useRef(null), boilRef = useRef(null);
+  var svgRef = useRef(null), boilRef = useRef(null), backdropRef = useRef(null), backdropClipRef = useRef(null);
   var tlRef = useRef(null), triggerRef = useRef(null);
   var onFinishRef = useRef(onFinish); onFinishRef.current = onFinish;
 
@@ -60,13 +62,14 @@ var Intro = forwardRef(function Intro({ stageRef, sectionRef, mapLayerRef, dotTa
     tl.to(hint, { opacity:0, duration:.6 }, 0)
       .fromTo(slit, { opacity:0 }, { opacity:1, duration:.4 }, 0)
       .fromTo(slit, { attr:{ 'stroke-dashoffset':slitLen } }, { attr:{ 'stroke-dashoffset':0 }, duration:1.4, ease:'none' }, 0)
-      .to($('#capG'), { y:-40, opacity:0, duration:1 }, 1.5)
+      .to([$('#capG'), $('#capShade')], { y:-40, opacity:0, duration:1 }, 1.5)
       .to($('#brainWrap'), { opacity:1, duration:.6 }, 1.5)
       .to(slit, { opacity:0, duration:.5 }, 2)
       .to($('#brainWrap'), { y:lift, duration:2, ease:'power2.inOut' }, 2.5)
-      .to([$('#headG'), $('#bodyG')], { y:150, duration:2, ease:'power2.inOut' }, 2.5)
+      .to([$('#headG'), $('#bodyG'), $('#backdropG')], { y:150, duration:2, ease:'power2.inOut' }, 2.5)
       .to(svg.querySelectorAll('.pupil'), { y:C.lookUp.y, x:C.lookUp.x, duration:.8 }, 2.7)
-      .to([$('#headG'), $('#bodyG')], { y:560, duration:2, ease:'power2.in' }, 4.6)
+      .to([$('#headG'), $('#bodyG'), $('#backdropG')], { y:560, duration:2, ease:'power2.in' }, 4.6)
+      .to($('#backdropG'), { opacity:0, duration:1.4, ease:'power1.in' }, 4.6)
       .to($('#brainWrap'), { y:78, scale:1.7, duration:2, ease:'power2.inOut' }, 4.6)
       .to(turn, { a:nVariants - 1, duration:2, ease:'none', onUpdate:setVariant }, 4.6)
       .to(angleTag, { opacity:1, duration:.3 }, 4.6)
@@ -125,6 +128,20 @@ var Intro = forwardRef(function Intro({ stageRef, sectionRef, mapLayerRef, dotTa
     });
   }, []);
 
+  /* the blob behind the head drifts slowly while the intro is on screen; written straight to the path, no React state */
+  useEffect(function(){
+    if (reduce || done) return undefined;
+    var raf = 0, path = backdropRef.current, clip = backdropClipRef.current;
+    function frame(now){
+      var d = blobPath(K.cx, K.cy, K.r, now / 1000 * .6, K.seed, K.amp, 0, 0);
+      path.setAttribute('d', d);
+      clip.setAttribute('d', d); /* the shadow is cut to the same outline */
+      raf = requestAnimationFrame(frame);
+    }
+    raf = requestAnimationFrame(frame);
+    return function(){ cancelAnimationFrame(raf); };
+  }, [reduce, done]);
+
   /* boil: redraw the line wobble a few times a second, like a hand-drawn loop */
   useEffect(function(){
     if (reduce) return undefined;
@@ -132,6 +149,10 @@ var Intro = forwardRef(function Intro({ stageRef, sectionRef, mapLayerRef, dotTa
     var id = setInterval(function(){ seedN = seedN % 5 + 1; boilT.setAttribute('seed', seedN); }, 120);
     return function(){ clearInterval(id); };
   }, [reduce]);
+
+  var blob0 = blobPath(K.cx, K.cy, K.r, 0, K.seed, K.amp, 0, 0);
+  var pad = C.shadow.pad;
+  var shade = <image href={C.shadow.src} x={-pad} y={-pad} width={C.width + pad * 2} height={C.height + pad * 2} transform={C.place} />;
 
   return (
     <>
@@ -146,9 +167,27 @@ var Intro = forwardRef(function Intro({ stageRef, sectionRef, mapLayerRef, dotTa
           <clipPath id="headClip"><path d={C.clip.head} /></clipPath>
           <clipPath id="bodyClip"><path d={C.clip.body} /></clipPath>
           {C.eyes.map(function(e){ return <clipPath id={e.id} key={e.id}><path d={e.outline} /></clipPath>; })}
+          <clipPath id="lowerClip"><path d={C.clip.lower} /></clipPath>
+          <clipPath id="backdropClip"><path ref={backdropClipRef} d={blob0} /></clipPath>
+          <pattern id="introDots" width={K.dots.gap} height={K.dots.gap} patternUnits="userSpaceOnUse">
+            <rect width={K.dots.gap} height={K.dots.gap} fill="#ffffff" />
+            <circle cx={K.dots.gap / 2} cy={K.dots.gap / 2} r={K.dots.r} fill="#1a1a1a" />
+          </pattern>
         </defs>
         <g stroke="#1a1a1a" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
-          {/* the brain is drawn first so it sits behind the character: it shows inside the open head and rises out from behind the forehead cut */}
+          {/* furthest back: the shape behind the head */}
+          <g id="backdropG">
+            <path id="backdrop" ref={backdropRef} d={blob0} fill="url(#introDots)" stroke="#1a1a1a" strokeWidth="3.5" />
+            {/* the figure's soft shadow, falling only on the shape. The cap's part is separate so it leaves with the cap */}
+            <g clipPath="url(#backdropClip)">
+              <g transform={'translate(' + C.shadow.offset.x + ' ' + C.shadow.offset.y + ')'}>
+                <g id="capShade" clipPath="url(#capClip)">{shade}</g>
+                <g clipPath="url(#lowerClip)">{shade}</g>
+              </g>
+            </g>
+          </g>
+
+          {/* the brain comes next so it sits behind the character: it shows inside the open head and rises out from behind the forehead cut */}
           <g id="brainWrap" opacity="0">
             {B.frames.map(function(src, i){
               return (
