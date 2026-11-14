@@ -11,8 +11,10 @@ gsap.registerPlugin(ScrollTrigger);
    so the timeline can move each one. Keep these ids and classes stable:
 
      #backdropG  the halftone blob behind the head (contains the #backdrop path)
+     #insideG    the hollow and back rim of the open head, behind the brain
      #bodyG      hoodie and everything below the chin line
      #headG      face, between the forehead cut and the chin (contains .pupil x2)
+     #rimG       the front of the head's rim, in front of the brain
      #capG       top of the head above the forehead cut; lifts off
      #slit       the line that draws across the forehead
      #brainWrap  the brain, lifts out and zooms (contains one .bv image per angle)
@@ -58,17 +60,20 @@ var Intro = forwardRef(function Intro({ stageRef, sectionRef, mapLayerRef, dotTa
     /* one dash as long as the whole line, slid into view, draws the cut on */
     var slitLen = Math.ceil(slit.getTotalLength()) + 2;
     slit.setAttribute('stroke-dasharray', slitLen);
+    /* everything that travels with the head when it drops away */
+    var figure = [$('#headG'), $('#bodyG'), $('#backdropG'), $('#insideG'), $('#rimG')];
     var tl = gsap.timeline({ paused:true });
     tl.to(hint, { opacity:0, duration:.6 }, 0)
       .fromTo(slit, { opacity:0 }, { opacity:1, duration:.4 }, 0)
       .fromTo(slit, { attr:{ 'stroke-dashoffset':slitLen } }, { attr:{ 'stroke-dashoffset':0 }, duration:1.4, ease:'none' }, 0)
       .to([$('#capG'), $('#capShade')], { y:-40, opacity:0, duration:1 }, 1.5)
       .to($('#brainWrap'), { opacity:1, duration:.6 }, 1.5)
+      .to([$('#insideG'), $('#rimG')], { opacity:1, duration:.3 }, 1.5)
       .to(slit, { opacity:0, duration:.5 }, 2)
       .to($('#brainWrap'), { y:lift, duration:2, ease:'power2.inOut' }, 2.5)
-      .to([$('#headG'), $('#bodyG'), $('#backdropG')], { y:150, duration:2, ease:'power2.inOut' }, 2.5)
+      .to(figure, { y:150, duration:2, ease:'power2.inOut' }, 2.5)
       .to(svg.querySelectorAll('.pupil'), { y:C.lookUp.y, x:C.lookUp.x, duration:.8 }, 2.7)
-      .to([$('#headG'), $('#bodyG'), $('#backdropG')], { y:560, duration:2, ease:'power2.in' }, 4.6)
+      .to(figure, { y:560, duration:2, ease:'power2.in' }, 4.6)
       .to($('#backdropG'), { opacity:0, duration:1.4, ease:'power1.in' }, 4.6)
       .to($('#brainWrap'), { y:78, scale:1.7, duration:2, ease:'power2.inOut' }, 4.6)
       .to(turn, { a:nVariants - 1, duration:2, ease:'none', onUpdate:setVariant }, 4.6)
@@ -150,6 +155,10 @@ var Intro = forwardRef(function Intro({ stageRef, sectionRef, mapLayerRef, dotTa
     return function(){ clearInterval(id); };
   }, [reduce]);
 
+  /* the head's wall, seen from above where it was cut: the band between the outer and inner edge */
+  var rimD = C.inside.outer + ' ' + C.inside.inner;
+  var rimBack = <path d={rimD} fillRule="evenodd" fill={C.inside.rimHair} stroke="#000000" strokeOpacity=".35" strokeWidth=".8" />;
+  var rimFront = <path d={rimD} fillRule="evenodd" fill="url(#rimFrontFill)" stroke="#000000" strokeOpacity=".35" strokeWidth=".8" />;
   var blob0 = blobPath(K.cx, K.cy, K.r, 0, K.seed, K.amp, 0, 0);
   var pad = C.shadow.pad;
   var shade = <image href={C.shadow.src} x={-pad} y={-pad} width={C.width + pad * 2} height={C.height + pad * 2} transform={C.place} />;
@@ -168,6 +177,17 @@ var Intro = forwardRef(function Intro({ stageRef, sectionRef, mapLayerRef, dotTa
           <clipPath id="bodyClip"><path d={C.clip.body} /></clipPath>
           {C.eyes.map(function(e){ return <clipPath id={e.id} key={e.id}><path d={e.outline} /></clipPath>; })}
           <clipPath id="lowerClip"><path d={C.clip.lower} /></clipPath>
+          <clipPath id="rimFrontClip"><rect x="0" y={C.inside.chord} width="800" height="60" /></clipPath>
+          <linearGradient id="rimFrontFill" x1="0" y1="0" x2="1" y2="0">
+            <stop offset={C.inside.skinFrom - .008} stopColor={C.inside.rimHair} />
+            <stop offset={C.inside.skinFrom + .008} stopColor={C.inside.rimSkin} />
+            <stop offset={C.inside.skinTo - .008} stopColor={C.inside.rimSkin} />
+            <stop offset={C.inside.skinTo + .008} stopColor={C.inside.rimHair} />
+          </linearGradient>
+          <linearGradient id="insideWall" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor={C.inside.wallTop} />
+            <stop offset="1" stopColor={C.inside.wallDeep} />
+          </linearGradient>
           <clipPath id="backdropClip"><path ref={backdropClipRef} d={blob0} /></clipPath>
           <pattern id="introDots" width={K.dots.gap} height={K.dots.gap} patternUnits="userSpaceOnUse">
             <rect width={K.dots.gap} height={K.dots.gap} fill="#ffffff" />
@@ -185,6 +205,12 @@ var Intro = forwardRef(function Intro({ stageRef, sectionRef, mapLayerRef, dotTa
                 <g clipPath="url(#lowerClip)">{shade}</g>
               </g>
             </g>
+          </g>
+
+          {/* the inside of the head: the shadowed hollow and the whole rim, behind the brain */}
+          <g id="insideG" stroke="none" opacity="0">
+            <path d={C.inside.inner} fill="url(#insideWall)" />
+            {rimBack}
           </g>
 
           {/* the brain comes next so it sits behind the character: it shows inside the open head and rises out from behind the forehead cut */}
@@ -218,6 +244,8 @@ var Intro = forwardRef(function Intro({ stageRef, sectionRef, mapLayerRef, dotTa
                 })}
               </g>
             </g>
+            {/* the front of the rim again, drawn over the brain so the brain sits inside the head */}
+            <g id="rimG" clipPath="url(#rimFrontClip)" opacity="0">{rimFront}</g>
             <g id="capG" clipPath="url(#capClip)">
               <image href={C.src} width={C.width} height={C.height} transform={C.place} />
             </g>

@@ -79,6 +79,20 @@ export const CHARACTER = {
     { id:'eyeR', white:'#f0e8e1', pupil:{ cx:336.5, cy:272.9, r:16.8 },
       outline:'M302.6 279.6 L303.5 274.8 L306.5 271.7 L309.5 269.6 L312.5 268.3 L315.5 267.4 L318.5 266.9 L321.5 267.5 L324.5 267.5 L327.5 267.5 L330.5 267.5 L333.5 267.5 L336.5 267.5 L339.5 267.5 L342.5 267.5 L345.5 267.5 L348.5 267.5 L351.5 267.5 L354.5 266.9 L357.5 267.6 L360.5 268.2 L362.5 268.9 L363.4 280.1 L362.5 291.4 L360.5 291.9 L357.5 292.7 L354.5 293.1 L351.5 293.7 L348.5 294.0 L345.5 294.2 L342.5 294.4 L339.5 294.7 L336.5 294.7 L333.5 294.7 L330.5 294.4 L327.5 294.3 L324.5 294.0 L321.5 293.7 L318.5 293.1 L315.5 292.3 L312.5 291.4 L309.5 290.1 L306.5 288.0 L303.5 284.4Z' }
   ],
+  /* the inside of the head, seen once the cap lifts off. The opening is a shallow ellipse: its front
+     edge is the forehead cut, its back edge bows up behind the brain. `outer` is the edge of the head,
+     `inner` is the edge of the hollow, and the band between them is the thickness of the head's wall.
+     The back of the rim and the hollow sit behind the brain; the front of the rim sits in front of it,
+     so the brain reads as sitting inside the head. chord is the y where front and back meet. */
+  inside: {
+    outer: 'M253 247 C315 262 487 262 549 247 C487 207 315 207 253 247 Z',
+    inner: 'M264 247 C322 255.5 480 255.5 538 247 C480 213.5 322 213.5 264 247 Z',
+    chord: 247,
+    /* the rim takes the color of what was cut through: locs at the sides and back, skin across the forehead.
+       skinFrom and skinTo are where the forehead starts and ends along the cut, as a fraction of its width */
+    rimHair: '#3f3736', rimSkin: '#e2976b', skinFrom: 0.199, skinTo: 0.747,
+    wallTop: '#9a4c3a', wallDeep: '#33130f'
+  },
   /* a soft blurred copy of the figure's outline, cast onto the shape behind the head.
      pad is the empty margin around the figure in that image (image px); offset is where
      the shadow falls relative to the figure, in drawing units (right and down) */

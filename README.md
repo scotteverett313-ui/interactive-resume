@@ -128,8 +128,15 @@ are the `BACKDROP` numbers in `character.js`. The shadow is a small blurred
 copy of the figure's outline, `src/brain/art/scott-shadow.webp`; if the
 character art changes, that file needs regenerating to match.
 
+When the top of the head lifts off, the head is hollow: an elliptical opening
+with a rim showing the thickness of the head's wall and a shadowed interior.
+The back of the rim sits behind the brain and the front of it sits in front,
+so the brain reads as sitting inside. The rim is dark where the cut passes
+through the locs and skin-toned across the forehead. Its shape and colors are
+`CHARACTER.inside` in `character.js`.
+
 The scroll timeline in `src/brain/Intro.js` moves these layers by id, so keep
-the names: `backdropG`, `bodyG`, `headG` (with two `.pupil` groups), `capG`, `slit`,
+the names: `backdropG`, `insideG`, `rimG`, `bodyG`, `headG` (with two `.pupil` groups), `capG`, `slit`,
 `brainWrap` (with one `.bv` image per angle), and `angleTag`.
 
 ### Where the rest lives
