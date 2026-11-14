@@ -2,7 +2,7 @@ import React, { forwardRef, useEffect, useImperativeHandle, useRef } from 'react
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-import { CHARACTER as C, MONO } from './character';
+import { CHARACTER as C, BRAIN as B, MONO } from './character';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -13,14 +13,14 @@ gsap.registerPlugin(ScrollTrigger);
      #headG      face, between the forehead cut and the chin (contains .pupil x2)
      #capG       top of the head above the forehead cut; lifts off
      #slit       the line that draws across the forehead
-     #brainWrap  the brain, lifts out and zooms (contains 4 .bv angles)
-     #angleTag   "drawn angle n / 4" caption
+     #brainWrap  the brain, lifts out and zooms (contains one .bv image per angle)
+     #angleTag   "angle n / 8" caption
      #boil       the hand-drawn line wobble filter (slit, and the map links)
 
    The art and its measurements live in character.js.
 
    Scrolling the 520vh #intro section scrubs a GSAP timeline that opens the
-   head, lifts the brain, turns it through the four angles, and zooms until
+   head, lifts the brain, turns it through its angles, and zooms until
    the map layer fades in on top.
 
      sectionRef:  the tall #intro section ScrollTrigger watches
@@ -40,16 +40,19 @@ var Intro = forwardRef(function Intro({ stageRef, sectionRef, mapLayerRef, dotTa
     var svg = svgRef.current, $ = function(sel){ return svg.querySelector(sel); };
     var variants = svg.querySelectorAll('.bv'), angleTag = $('#angleTag'), slit = $('#slit');
     var turn = { a:0 }, shownVariant = 0;
+    var nVariants = variants.length;
     function setVariant(){
-      var i = Math.round(turn.a) % 4;
+      var i = Math.round(turn.a) % nVariants;
       if (i === shownVariant) return;
       variants[shownVariant].style.display = 'none';
       variants[i].style.display = '';
       shownVariant = i;
-      angleTag.textContent = 'drawn angle ' + (i + 1) + ' / 4';
+      angleTag.textContent = 'angle ' + (i + 1) + ' / ' + nVariants;
     }
+    /* lift until the top of the brain sits just inside the top of the drawing */
+    var lift = -(B.cy - B.size * B.fill / 2 - 8);
     var hint = sectionRef.current.querySelector('#hint');
-    gsap.set($('#brainWrap'), { svgOrigin:'400 222' });
+    gsap.set($('#brainWrap'), { svgOrigin:B.cx + ' ' + B.cy });
     /* one dash as long as the whole line, slid into view, draws the cut on */
     var slitLen = Math.ceil(slit.getTotalLength()) + 2;
     slit.setAttribute('stroke-dasharray', slitLen);
@@ -60,12 +63,12 @@ var Intro = forwardRef(function Intro({ stageRef, sectionRef, mapLayerRef, dotTa
       .to($('#capG'), { y:-40, opacity:0, duration:1 }, 1.5)
       .to($('#brainWrap'), { opacity:1, duration:.6 }, 1.5)
       .to(slit, { opacity:0, duration:.5 }, 2)
-      .to($('#brainWrap'), { y:-170, duration:2, ease:'power2.inOut' }, 2.5)
+      .to($('#brainWrap'), { y:lift, duration:2, ease:'power2.inOut' }, 2.5)
       .to([$('#headG'), $('#bodyG')], { y:150, duration:2, ease:'power2.inOut' }, 2.5)
       .to(svg.querySelectorAll('.pupil'), { y:C.lookUp.y, x:C.lookUp.x, duration:.8 }, 2.7)
       .to([$('#headG'), $('#bodyG')], { y:560, duration:2, ease:'power2.in' }, 4.6)
       .to($('#brainWrap'), { y:78, scale:1.7, duration:2, ease:'power2.inOut' }, 4.6)
-      .to(turn, { a:3, duration:2, ease:'none', onUpdate:setVariant }, 4.6)
+      .to(turn, { a:nVariants - 1, duration:2, ease:'none', onUpdate:setVariant }, 4.6)
       .to(angleTag, { opacity:1, duration:.3 }, 4.6)
       .to(angleTag, { opacity:0, duration:.3 }, 6.4)
       .to($('#brainWrap'), { scale:11, duration:2.6, ease:'power2.in' }, 6.6)
@@ -113,6 +116,15 @@ var Intro = forwardRef(function Intro({ stageRef, sectionRef, mapLayerRef, dotTa
     return function(){ window.removeEventListener('resize', fitIntro); };
   }, [stageRef]);
 
+  /* fetch and decode every brain frame up front, so flipping between them during the turn never flashes empty */
+  useEffect(function(){
+    B.frames.forEach(function(src){
+      var im = new Image();
+      im.src = src;
+      if (im.decode) im.decode().catch(function(){});
+    });
+  }, []);
+
   /* boil: redraw the line wobble a few times a second, like a hand-drawn loop */
   useEffect(function(){
     if (reduce) return undefined;
@@ -121,11 +133,9 @@ var Intro = forwardRef(function Intro({ stageRef, sectionRef, mapLayerRef, dotTa
     return function(){ clearInterval(id); };
   }, [reduce]);
 
-  var brainOutline = 'M30 100 C14 70 34 34 72 34 C84 12 128 10 144 28 C170 14 214 30 214 64 C236 78 234 116 210 128 C206 150 172 160 150 148 C132 162 92 162 78 148 C50 154 26 132 30 100 Z';
-
   return (
     <>
-      <svg id="introSvg" ref={svgRef} viewBox="0 0 800 600" preserveAspectRatio="xMidYMid meet" role="img"
+      <svg id="introSvg" ref={svgRef} className={MONO ? 'mono' : undefined} viewBox="0 0 800 600" preserveAspectRatio="xMidYMid meet" role="img"
         aria-label="Scott as a vinyl toy figure with locs, round gold glasses, and a black hoodie. Scrolling opens his head and zooms into his brain.">
         <defs>
           <filter id="boil" x="-5%" y="-5%" width="110%" height="110%">
@@ -140,27 +150,15 @@ var Intro = forwardRef(function Intro({ stageRef, sectionRef, mapLayerRef, dotTa
         <g stroke="#1a1a1a" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
           {/* the brain is drawn first so it sits behind the character: it shows inside the open head and rises out from behind the forehead cut */}
           <g id="brainWrap" opacity="0">
-            <g transform="translate(298 150) scale(.85)">
-              <g className="bv">
-                <path d={brainOutline} fill="#ffffff" />
-                <path d="M120 22 C110 60 132 92 118 150 M72 50 C92 62 84 82 62 92 M168 46 C150 66 176 86 160 104 M48 116 C70 108 84 124 74 140 M182 120 C196 106 210 112 214 100" fill="none" strokeWidth="3" />
-              </g>
-              <g className="bv" style={{ display:'none' }}>
-                <path d={brainOutline} fill="#ffffff" transform="translate(12 0) scale(.92 1)" />
-                <path d="M138 24 C124 60 146 96 134 150 M80 54 C100 64 94 86 70 96 M178 50 C160 70 184 88 170 108 M52 118 C74 110 86 126 78 142" fill="none" strokeWidth="3" />
-              </g>
-              <g className="bv" style={{ display:'none' }}>
-                <path d={brainOutline} fill="#ffffff" transform="translate(26 2) scale(.82 1)" />
-                <path d="M146 140 C164 152 190 150 204 132 M90 40 C112 58 100 84 76 92 M150 40 C138 66 162 84 150 108 M64 116 C88 106 104 122 96 140 M118 92 C134 100 150 96 160 86" fill="none" strokeWidth="3" />
-              </g>
-              <g className="bv" style={{ display:'none' }}>
-                <path d={brainOutline} fill="#ffffff" transform="translate(10 0) scale(.94 1)" />
-                <path d="M104 22 C96 62 118 94 104 150 M64 52 C84 62 78 84 56 92 M160 44 C142 66 166 84 152 104 M176 118 C192 104 206 112 210 100" fill="none" strokeWidth="3" />
-              </g>
-            </g>
+            {B.frames.map(function(src, i){
+              return (
+                <image className="bv" key={i} href={src} x={B.cx - B.size / 2} y={B.cy - B.size / 2} width={B.size} height={B.size}
+                  style={i ? { display:'none' } : undefined} />
+              );
+            })}
           </g>
 
-          <g id="charInk" stroke="none" className={MONO ? 'mono' : undefined}>
+          <g id="charInk" stroke="none">
             <g id="bodyG" clipPath="url(#bodyClip)">
               <image href={C.src} width={C.width} height={C.height} transform={C.place} />
             </g>
@@ -191,7 +189,7 @@ var Intro = forwardRef(function Intro({ stageRef, sectionRef, mapLayerRef, dotTa
             </g>
           </g>
 
-          <text id="angleTag" x="400" y="570" textAnchor="middle" fontFamily="DM Mono, monospace" fontSize="14" fill="#1a1a1a" stroke="none" opacity="0">drawn angle 1 / 4</text>
+          <text id="angleTag" x="400" y="570" textAnchor="middle" fontFamily="DM Mono, monospace" fontSize="14" fill="#1a1a1a" stroke="#ffffff" strokeWidth="5" paintOrder="stroke" opacity="0">{'angle 1 / ' + B.frames.length}</text>
         </g>
       </svg>
       <div id="hint"><span>Scroll to open</span><span className="line" /></div>

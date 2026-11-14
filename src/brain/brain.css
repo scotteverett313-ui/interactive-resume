@@ -66,8 +66,8 @@ html.brain-route ::selection{background:#1a1a1a;color:#ffffff}
 /* the hint sits over the figure's black hoodie, so the label is a paper chip and the drip line is outlined */
 #hint span:first-child{background:var(--paper);border:1.5px solid var(--ink);padding:5px 9px;border-radius:3px}
 #hint span.line{width:2px;height:34px;background:var(--paper);box-shadow:0 0 0 1.5px var(--ink);animation:brain-drip 1.4s ease-in-out infinite;transform-origin:top}
-/* optional grayscale character, switched on by MONO in character.js */
-#charInk.mono{filter:grayscale(1)}
+/* optional grayscale character and brain, switched on by MONO in character.js */
+#introSvg.mono{filter:grayscale(1)}
 @keyframes brain-drip{0%{transform:scaleY(.2)}50%{transform:scaleY(1)}100%{transform:scaleY(.2)}}
 .stage.is-done #hint{opacity:0}
 

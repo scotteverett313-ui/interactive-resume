@@ -1,4 +1,12 @@
 import front from './art/scott-front.webp';
+import brain0 from './art/brain-00.webp';
+import brain1 from './art/brain-01.webp';
+import brain2 from './art/brain-02.webp';
+import brain3 from './art/brain-03.webp';
+import brain4 from './art/brain-04.webp';
+import brain5 from './art/brain-05.webp';
+import brain6 from './art/brain-06.webp';
+import brain7 from './art/brain-07.webp';
 
 /* ============================================================
    The character on the home page.
@@ -26,8 +34,28 @@ import front from './art/scott-front.webp';
    ============================================================ */
 
 /* The rest of the site is black and white. Set this to true to
-   show the character in grayscale as well. */
+   show the character and the brain in grayscale as well. */
 export const MONO = false;
+
+/* ============================================================
+   The brain that lifts out of the head.
+
+   Eight renders of the same brain, one per angle, each a square
+   image with the brain centered on a transparent background
+   (src/brain/art/brain-00.webp to brain-07.webp). The intro shows
+   one at a time and flips through them in order as the brain turns.
+
+   TO SWAP OR ADD FRAMES keep them square, centered, and all the
+   same size, then list them here in the order they should play.
+   Any number of frames works.
+   ============================================================ */
+export const BRAIN = {
+  frames: [brain0, brain1, brain2, brain3, brain4, brain5, brain6, brain7],
+  /* center of the brain in the 800 x 600 drawing; it starts inside the head, behind the forehead cut */
+  cx: 400, cy: 222,
+  /* side of the square image in drawing units, and how much of that side the brain itself fills top to bottom */
+  size: 188, fill: 0.84
+};
 
 export const CHARACTER = {
   src: front,
