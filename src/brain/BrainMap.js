@@ -1,7 +1,7 @@
 import React, { useEffect, useLayoutEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ROOT, CURIO_ROOT } from './content';
-import { blobPath, rng, clamp, wrapLabel, curvePath, curvePoint } from './blob';
+import { blobPath, rng, clamp, wrapLabel, curvePath, curvePoint, seedOf, scatter, webLinks } from './blob';
 
 const NS = 'http://www.w3.org/2000/svg';
 /* Colors are never set here. Elements get a class, and brain.css paints them from the palette tokens. */
@@ -196,15 +196,40 @@ export function createScene(o){
       if (W < H * .8) spots = { learn:[.32,.3,.2], teach:[.5,.66,.21], improve:[.72,.42,.15] };
       return kids.map(function(k){ var s = spots[k.id]; return { x:s[0]*W, y:s[1]*H, r:s[2]*M }; });
     }
-    var n = kids.length, cx = W / 2, cy = H * .54;
-    var rx = Math.min(W * .32, 430), ry = Math.min(H * .26, 250);
-    var R = rng(n * 7 + node.label.length);
-    return kids.map(function(k, i){
-      var deeper = !!(k.kids && k.kids.length);
-      var r = M * (deeper ? .062 : .045);
-      if (n === 1) return { x:cx, y:cy, r:r };
-      var a = -Math.PI / 2 - .35 + i / n * Math.PI * 2 + (R() - .5) * .25;
-      return { x:cx + Math.cos(a) * rx, y:cy + Math.sin(a) * ry, r:r };
+    /* inside a hub: a loose scatter, not a ring. Each node gets room for its blob plus the label and tag
+       under it, the scatter keeps them from overlapping, and the node's id seeds it so it never changes */
+    var n = kids.length, fs = clamp(M * .026, 14, 20);
+    var boxes = kids.map(function(k){
+      var deeper = !!(k.kids && k.kids.length), r = M * (deeper ? .062 : .045);
+      var lines = wrapLabel(k.label), chars = Math.max.apply(null, lines.map(function(x){ return x.length; }));
+      return { r:r, hw: Math.max(r, chars * fs * .3, 38) + 10, up: r + 8, down: r + fs + 6 + fs * 1.1 * (lines.length - 1) + 18 + 16 };
+    });
+    if (n === 1) return [{ x:W / 2, y:H * .5, r:boxes[0].r }];
+    /* where centers may go: clear of the crumbs along the top, the depth dots on the right, the legend and toggle below */
+    /* on narrow screens the crumbs wrap onto a second line, so start lower */
+    var full = { x0:16, y0: W < 600 ? 108 : 78, x1:W - 62, y1:H - 60 };
+    /* the depth tag sits beside the dots on the right, level with this level's dot: keep nodes off it.
+       The dots are five 28px rows, 2px apart, centered on the screen; this level's row is its depth plus one */
+    var depth = 0; for (var up = node; up && up !== ROOT; up = up.parent) depth++;
+    var tagW = node.label.length * 8 + 18, rowY = H / 2 - 74 + 14 + (depth + 1) * 30;
+    var tag = { x0:W - 52 - tagW - 10, y0:rowY - 20, x1:W, y1:rowY + 20 };
+    /* few nodes on a big screen: keep them in a loose group near the middle instead of flung to the corners */
+    var need = boxes.reduce(function(sum, b){ return sum + 2 * b.hw * (b.up + b.down); }, 0) * 3.2;
+    var fw = full.x1 - full.x0, fh = full.y1 - full.y0;
+    var rw = Math.min(fw, Math.sqrt(need * fw / fh)), rh = Math.min(fh, need / rw);
+    rw = Math.min(fw, need / rh);
+    var mx = (full.x0 + full.x1) / 2, my = (full.y0 + full.y1) / 2;
+    var pts = scatter(boxes, { x0:mx - rw / 2, y0:my - rh / 2, x1:mx + rw / 2, y1:my + rh / 2 }, seedOf(node.id), [tag]);
+    return pts.map(function(p, i){ return { x:p.x, y:p.y, r:boxes[i].r }; });
+  }
+
+  /* lines between the nodes of a level: the three gravity points form a triangle; inside a hub each node
+     joins its nearest neighbors in a branching web */
+  function makeLinks(node, items){
+    var pairs = node === ROOT ? [[0, 1], [0, 2], [1, 2]] : webLinks(items);
+    return pairs.map(function(pr, k){
+      var p = el('path', { 'class':'link' }); linksG.appendChild(p);
+      return { a:items[pr[0]], b:items[pr[1]], p:p, k:k };
     });
   }
 
@@ -242,11 +267,7 @@ export function createScene(o){
   function buildView(node){
     var pos = layout(node);
     var items = (node.kids || []).map(function(k, i){ return makeItem(k, pos[i], i); });
-    var links = [], n = items.length;
-    function addLink(a, b){ var p = el('path', { 'class':'link' }); linksG.appendChild(p); links.push({ a:a, b:b, p:p, k:links.length }); }
-    if (node === ROOT){ addLink(items[0], items[1]); addLink(items[0], items[2]); addLink(items[1], items[2]); }
-    else if (n > 1){ for (var i = 0; i < n - 1; i++) addLink(items[i], items[i + 1]); if (n > 2) addLink(items[n - 1], items[0]); }
-    return { node:node, items:items, links:links };
+    return { node:node, items:items, links:makeLinks(node, items) };
   }
 
   /* tell the layer which hub the current level belongs to, so the legend can show that hub's color */
@@ -422,6 +443,9 @@ export function createScene(o){
     measure(); drawBg();
     var node = view.node, pos = layout(node);
     view.items.forEach(function(it, i){ if (pos[i]){ it.x = pos[i].x; it.y = pos[i].y; it.r = pos[i].r; } });
+    /* the scatter changes with the screen, so which nodes are nearest changes too: redraw the lines to match */
+    view.links.forEach(function(l){ if (l.p.parentNode) l.p.parentNode.removeChild(l.p); });
+    view.links = makeLinks(node, view.items);
     setChrome(node);
   }
   function onResize(){ if (!busy()) relayout(); }

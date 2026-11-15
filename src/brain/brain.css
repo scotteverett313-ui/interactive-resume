@@ -68,6 +68,8 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
 .brain .node.is-deep:focus-visible path{stroke:var(--hub)}
 .brain .lbl{font-family:var(--display);font-weight:800;letter-spacing:-.01em;pointer-events:none;fill:var(--ink)}
 .brain .sub{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;pointer-events:none;fill:var(--ink)}
+/* labels that sit on the ground get a halo of ground color, so a line crossing one passes behind the words */
+.brain .node:not(.is-hub) .lbl,.brain .node:not(.is-hub) .sub,.brain .curio text{paint-order:stroke;stroke:var(--map-ground);stroke-width:6px;stroke-linejoin:round}
 /* a gravity point's label sits on the blob, so it uses that hub's text color */
 .brain .node.is-hub .lbl,.brain .node.is-hub .sub{fill:var(--hub-text)}
 /* connection lines, the dashed outer orbit, and the faint background net */

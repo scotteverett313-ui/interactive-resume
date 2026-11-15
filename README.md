@@ -155,6 +155,14 @@ It holds two palettes, `light` and `dark`, and each fills the same roles:
 On the map, blobs are flat shapes with no outline. A node that only opens a
 page takes its hub's color; a node that goes deeper uses ink.
 
+Inside a hub the nodes are scattered loosely, not arranged in a ring. The
+scatter is seeded by the hub's `id`, so each level always looks the same, and
+it knows how much room each label needs, so nodes never overlap each other or
+the buttons and tags around the edge. Each node is joined to its nearest
+neighbors in a branching web. Labels have a halo of ground color, so a line
+crossing one passes behind the words. The scatter and the web are the
+`scatter` and `webLinks` functions in `src/brain/blob.js`.
+
 The dashed lines around the outside come in two kinds. A line from a curiosity
 to the gravity point it feeds is dotted and tinted with that hub's color; the
 dots flow toward the hub, and a pulse of hub color travels along it every few
