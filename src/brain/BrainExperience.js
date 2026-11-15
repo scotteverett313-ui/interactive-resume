@@ -6,7 +6,7 @@ import NodePage from './NodePage';
 import DotNav from './DotNav';
 import Crumbs from './Crumbs';
 import { PALETTES, paletteVars } from './palettes';
-import PaletteSwitch, { readPalette, savePalette } from './PaletteSwitch'; /* temporary: see PaletteSwitch.js */
+import ThemeToggle, { readThemeChoice, saveThemeChoice } from './ThemeToggle';
 import './brain.css';
 
 /* Owns the three pieces of state the brain has:
@@ -19,11 +19,23 @@ export default function BrainExperience(){
   var [done, setDone] = useState(reduce); /* reduced motion skips the intro */
   var [stack, setStack] = useState([ROOT]);
   var [page, setPage] = useState({ node:null, instant:false });
-  /* temporary palette switcher state. Once a palette is chosen this becomes: var palette = PALETTES[DEFAULT_PALETTE]; */
-  var [paletteId, setPaletteId] = useState(readPalette);
-  var palette = PALETTES[paletteId];
+  /* light or dark: the visitor's own choice if they have made one, otherwise whatever their device is set to */
+  var [themeChoice, setThemeChoice] = useState(readThemeChoice);
+  var [deviceDark, setDeviceDark] = useState(function(){ return window.matchMedia('(prefers-color-scheme: dark)').matches; });
+  useEffect(function(){
+    var mq = window.matchMedia('(prefers-color-scheme: dark)');
+    function onChange(e){ setDeviceDark(e.matches); }
+    if (mq.addEventListener) mq.addEventListener('change', onChange); else mq.addListener(onChange);
+    return function(){ if (mq.removeEventListener) mq.removeEventListener('change', onChange); else mq.removeListener(onChange); };
+  }, []);
+  var mode = themeChoice || (deviceDark ? 'dark' : 'light');
+  var palette = PALETTES[mode];
   var vars = useMemo(function(){ return paletteVars(palette); }, [palette]);
-  var pickPalette = useCallback(function(id){ savePalette(id); setPaletteId(id); }, []);
+  var toggleTheme = useCallback(function(){
+    var next = mode === 'dark' ? 'light' : 'dark';
+    saveThemeChoice(next);
+    setThemeChoice(next);
+  }, [mode]);
 
   var busyRef = useRef(false), modeRef = useRef(null), sceneRef = useRef(null);
   var stageRef = useRef(null), sectionRef = useRef(null), mapLayerRef = useRef(null), dotTagRef = useRef(null), introRef = useRef(null);
@@ -145,7 +157,7 @@ export default function BrainExperience(){
           <Crumbs done={done} stack={stack} pageNode={page.node} onBack={onBack} onGoTo={goTo} />
           <button id="skip" className="chip-btn" type="button" hidden={done} onClick={finishIntro}>Skip intro</button>
           <button id="replay" className="chip-btn" type="button" hidden={!done} onClick={replayIntro}>Replay intro</button>
-          <PaletteSwitch value={paletteId} onChange={pickPalette} />
+          <ThemeToggle mode={mode} onToggle={toggleTheme} />
           <DotNav done={done} stack={stack} pageNode={page.node} tagRef={dotTagRef} onReplay={replayIntro} onGoTo={goTo} />
           <NodePage node={page.node} instant={page.instant} stack={stack} reduce={reduce}
             onBack={function(){ closePage(); }} onGoToNode={goToNode} onDiveTo={diveTo} onOpenPage={openPage} />

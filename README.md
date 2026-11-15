@@ -138,10 +138,10 @@ The scroll timeline in `src/brain/Intro.js` moves these layers by id, so keep
 the names: `backdropG`, `insideG`, `rimG`, `bodyG`, `headG` (with two `.pupil` groups), `capG`, `slit`,
 `brainWrap` (with one `.bv` image per angle), and `angleTag`.
 
-### Colors
+### Colors, light mode and dark mode
 
 Every color on the brain site comes from one file, `src/brain/palettes.js`.
-Each palette fills the same roles:
+It holds two palettes, `light` and `dark`, and each fills the same roles:
 
 | Role | What it colors |
 |---|---|
@@ -155,21 +155,21 @@ Each palette fills the same roles:
 On the map, blobs are flat shapes with no outline. A node that only opens a
 page takes its hub's color; a node that goes deeper uses ink.
 
+**Which mode a visitor sees.** They start in whichever their device is set to.
+The round button in the bottom-right corner switches modes and remembers the
+choice in that browser. Until they press it, the site keeps following the
+device. Adding `?theme=light` or `?theme=dark` to the address opens that mode
+for one visit, which is useful for sharing a link. This lives in
+`src/brain/ThemeToggle.js`.
+
 `BrainExperience.js` sets the active palette on the brain root as CSS custom
 properties (`--ground`, `--paper`, `--ink`, `--muted`, `--learn`, `--teach`,
 `--improve`, and a `-text` version of each hub). `brain.css` and the SVG use
 only those, so there are no hex codes anywhere else. The one exception is
 `character.js`, which holds colors that belong to the character art itself
-(eyes, the cut line, the inside of the head) and stay the same in every palette.
+(eyes, the cut line, the inside of the head) and stay the same in both modes.
 
-To change a color, edit its value in `palettes.js`. To add a palette, add an
-entry with the same roles.
-
-**The palette switcher is temporary.** It is there to compare the palettes on
-the live site. It remembers your pick, and `?palette=complementary` or
-`?palette=split` in the address opens a specific one. To remove it once a
-palette is chosen, follow the four steps at the top of
-`src/brain/PaletteSwitch.js`.
+To change a color, edit its value in `palettes.js`.
 
 ### The pace of the intro
 
@@ -197,8 +197,8 @@ through on its own. Before that point it stays wherever you stop.
 | `src/brain/BrainMap.js` | The map: blob morph loop, hover reach, drag and spring back, dive and rise, outer orbit. |
 | `src/brain/NodePage.js` | The page layout and its Connects to buttons. |
 | `src/brain/DotNav.js`, `Crumbs.js` | Depth dots and the breadcrumb trail. |
-| `src/brain/palettes.js` | The color palettes. The only place colors are defined. |
-| `src/brain/PaletteSwitch.js` | Temporary switcher for comparing palettes. |
+| `src/brain/palettes.js` | The light and dark palettes. The only place colors are defined. |
+| `src/brain/ThemeToggle.js` | The light / dark button, and remembering the visitor's choice. |
 | `src/brain/blob.js` | The blob path math, pure functions. |
 | `src/brain/brain.css` | All brain styles, scoped so they never touch the resume. |
 

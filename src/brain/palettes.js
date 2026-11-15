@@ -18,16 +18,19 @@
    On the map, a node that only opens a page takes its hub's fill.
    A node that goes deeper uses ink.
 
+   There are two palettes, one for light mode and one for dark
+   mode. The visitor's device picks which one they start in, and
+   the toggle button switches between them (see ThemeToggle.js).
+
    scheme tells the browser whether the palette is light or dark,
    so native bits such as scrollbars match.
 
-   TO CHANGE A COLOR edit the value here. TO ADD A PALETTE add
-   another entry with the same roles.
+   TO CHANGE A COLOR edit the value here.
    ============================================================ */
 
 export const PALETTES = {
-  /* 1. Complementary (light): Aqua against Rust, its near-opposite on the color wheel */
-  complementary: {
+  /* Light mode. Complementary: Aqua against Rust, its near-opposite on the color wheel */
+  light: {
     name: 'Complementary',
     scheme: 'light',
     ground: '#E2DAC2',
@@ -42,8 +45,8 @@ export const PALETTES = {
     }
   },
 
-  /* 2. Split-complementary (dark): Heat as the base, with the two colors beside its opposite, Aqua and Indigo */
-  split: {
+  /* Dark mode. Split-complementary: Heat as the base, with the two colors beside its opposite, Aqua and Indigo */
+  dark: {
     name: 'Split-complementary',
     scheme: 'dark',
     ground: '#222A2A',
@@ -58,8 +61,6 @@ export const PALETTES = {
     }
   }
 };
-
-export const DEFAULT_PALETTE = 'complementary';
 
 /* The palette as CSS custom properties, ready to spread onto the brain root's style. */
 export function paletteVars(p){
