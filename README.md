@@ -155,6 +155,13 @@ It holds two palettes, `light` and `dark`, and each fills the same roles:
 On the map, blobs are flat shapes with no outline. A node that only opens a
 page takes its hub's color; a node that goes deeper uses ink.
 
+The dashed lines around the outside come in two kinds. A line from a curiosity
+to the gravity point it feeds is dotted and tinted with that hub's color; the
+dots flow toward the hub, and a pulse of hub color travels along it every few
+seconds. A line between two curiosities is fine ink dashes. Hovering a
+curiosity or a hub brightens its lines and speeds them up. Reduced motion
+holds everything still and shows no pulses.
+
 **Which mode a visitor sees.** They start in whichever their device is set to.
 The round button in the bottom-right corner switches modes and remembers the
 choice in that browser. Until they press it, the site keeps following the

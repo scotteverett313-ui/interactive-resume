@@ -39,8 +39,20 @@ export function wrapLabel(s){
   return b ? [a, b] : [a];
 }
 
+/* Control point of a curved link between two points, bowing sideways by w. */
+export function curveCtrl(ax, ay, bx, by, w){
+  var mx = (ax + bx) / 2, my = (ay + by) / 2, dx = bx - ax, dy = by - ay, len = Math.hypot(dx, dy) || 1;
+  return [mx - dy / len * w, my + dx / len * w];
+}
+
 /* Curved link between two points, bowing sideways by w. */
 export function curvePath(ax, ay, bx, by, w){
-  var mx = (ax + bx) / 2, my = (ay + by) / 2, dx = bx - ax, dy = by - ay, len = Math.hypot(dx, dy) || 1;
-  return 'M' + ax.toFixed(1) + ' ' + ay.toFixed(1) + ' Q' + (mx - dy / len * w).toFixed(1) + ' ' + (my + dx / len * w).toFixed(1) + ' ' + bx.toFixed(1) + ' ' + by.toFixed(1);
+  var c = curveCtrl(ax, ay, bx, by, w);
+  return 'M' + ax.toFixed(1) + ' ' + ay.toFixed(1) + ' Q' + c[0].toFixed(1) + ' ' + c[1].toFixed(1) + ' ' + bx.toFixed(1) + ' ' + by.toFixed(1);
+}
+
+/* The point a fraction u (0 to 1) of the way along that same curve. */
+export function curvePoint(ax, ay, bx, by, w, u){
+  var c = curveCtrl(ax, ay, bx, by, w), v = 1 - u;
+  return [v * v * ax + 2 * v * u * c[0] + u * u * bx, v * v * ay + 2 * v * u * c[1] + u * u * by];
 }

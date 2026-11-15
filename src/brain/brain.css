@@ -72,7 +72,13 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
 .brain .node.is-hub .lbl,.brain .node.is-hub .sub{fill:var(--hub-text)}
 /* connection lines, the dashed outer orbit, and the faint background net */
 .brain .link{fill:none;stroke:var(--ink);stroke-width:2.5px;stroke-linecap:round}
-.brain .clink{fill:none;stroke:var(--ink);stroke-dasharray:5 6;stroke-linecap:round}
+/* the dashed outer orbit. "feeds" runs from a curiosity to the hub it feeds: round dots, tinted with that hub's
+   color (mixed with ink so it still reads on the ground), with a pulse of pure hub color travelling along it.
+   "also" links two curiosities: fine ink dashes */
+.brain .clink{fill:none;stroke-linecap:round}
+.brain .clink.feeds{stroke:color-mix(in srgb,var(--hub) 70%,var(--ink));stroke-dasharray:.1 10}
+.brain .clink.also{stroke:var(--ink);stroke-dasharray:2 8}
+.brain .cpulse{fill:var(--hub)}
 .brain .net-line{fill:none;stroke:var(--ink);stroke-width:1px;opacity:.12}
 .brain .net-dot{fill:var(--map-ground);stroke:var(--ink);stroke-width:1.2px;opacity:.3}
 .brain .hit{fill:transparent}
@@ -162,7 +168,7 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
 .brain .grain{transition:background-color .35s ease,opacity .35s ease}
 .brain,.brain .stage,#mapLayer,#page,.brain .chip-btn,#dots .tag,#hint span,#page .proof,#page .proof .cap,#page .thumbs div,#page .conn button{
   transition:background-color .35s ease,color .35s ease,border-color .35s ease}
-.brain .node path,.brain .lbl,.brain .sub,.brain .link,.brain .clink,.brain .net-line,.brain .net-dot,.brain .curio .vis,.brain .curio text,#wm,#backdrop,.brain .dots-ground,.brain .dots-dot,#angleTag{
+.brain .node path,.brain .lbl,.brain .sub,.brain .link,.brain .clink,.brain .cpulse,.brain .net-line,.brain .net-dot,.brain .curio .vis,.brain .curio text,#wm,#backdrop,.brain .dots-ground,.brain .dots-dot,#angleTag{
   transition:fill .35s ease,stroke .35s ease}
 
 @media (max-width:820px){

@@ -1,7 +1,7 @@
 import React, { useEffect, useLayoutEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ROOT, CURIO_ROOT } from './content';
-import { blobPath, rng, clamp, wrapLabel, curvePath } from './blob';
+import { blobPath, rng, clamp, wrapLabel, curvePath, curvePoint } from './blob';
 
 const NS = 'http://www.w3.org/2000/svg';
 /* Colors are never set here. Elements get a class, and brain.css paints them from the palette tokens. */
@@ -81,27 +81,61 @@ export function createScene(o){
       (c.also || []).forEach(function(x){ if (x > c.id) addCurioLink(c, null, x); });
     });
   }
+  /* Two kinds of dashed connection:
+       feeds  a curiosity to the gravity point it feeds. Dotted, tinted with that hub's color,
+              and the dots flow toward the hub. A pulse of hub color travels along it now and then.
+       also   a curiosity to another curiosity it touches. Fine ink dashes that drift slowly. */
   function addCurioLink(c, hubId, otherId){
-    var p = el('path', { 'class':'clink', 'stroke-width':1.4 });
+    var p = el('path', { 'class': hubId ? 'clink feeds in-' + hubId : 'clink also' });
     curioLinksG.appendChild(p);
-    curioLinks.push({ c:c, hub:hubId, other:otherId, p:p, k:curioLinks.length });
+    var pulse = null;
+    if (hubId && !reduce){
+      pulse = el('circle', { 'class':'cpulse in-' + hubId, r:4 });
+      pulse.style.opacity = 0;
+      curioLinksG.appendChild(pulse);
+    }
+    curioLinks.push({ c:c, hub:hubId, other:otherId, p:p, pulse:pulse, k:curioLinks.length, off:0 });
   }
+  var lastCurioT = 0;
   function drawCurio(t){
     if (view.node !== ROOT) return;
+    var dt = Math.min(.1, Math.max(0, t - lastCurioT)); lastCurioT = t;
     var byId = {};
     view.items.forEach(function(it){ byId[it.node.id] = it; });
     curioLinks.forEach(function(l){
       var a = curioPos[l.c.id], bx, by, isHot = hot[l.c.id];
       if (l.hub){
         var it = byId[l.hub];
-        if (!it || it.cx === undefined){ l.p.setAttribute('d', ''); return; }
+        if (!it || it.cx === undefined){ l.p.setAttribute('d', ''); if (l.pulse) l.pulse.style.opacity = 0; return; }
         bx = it.cx; by = it.cy; isHot = isHot || it.hover;
       } else {
         var x = curioPos[l.other]; bx = x.x; by = x.y; isHot = isHot || hot[l.other];
       }
-      l.p.setAttribute('d', curvePath(a.x, a.y, bx, by, 16 * Math.sin(t * .6 + l.k * 1.3)));
-      l.p.style.opacity = isHot ? .9 : .28;
-      l.p.setAttribute('stroke-width', isHot ? 2.2 : 1.4);
+      var bow = 16 * Math.sin(t * .6 + l.k * 1.3);
+      l.p.setAttribute('d', curvePath(a.x, a.y, bx, by, bow));
+      if (l.hub){
+        /* dots flow from the curiosity toward the hub it feeds, faster while either end is hovered */
+        l.off -= dt * (isHot ? 46 : 13);
+        l.p.setAttribute('stroke-dashoffset', l.off.toFixed(1));
+        l.p.setAttribute('stroke-width', isHot ? 4 : 3);
+        l.p.style.opacity = isHot ? 1 : .8;
+        if (l.pulse){
+          /* a pulse leaves the curiosity every few seconds, each link on its own beat; hovered links fire back to back */
+          var period = isHot ? 1.3 : 3.8, travel = isHot ? 1 : .4;
+          var phase = (t / period + l.k * .618) % 1;
+          if (phase < travel){
+            var u = phase / travel, pt = curvePoint(a.x, a.y, bx, by, bow, u);
+            l.pulse.setAttribute('cx', pt[0].toFixed(1)); l.pulse.setAttribute('cy', pt[1].toFixed(1));
+            l.pulse.setAttribute('r', isHot ? 6 : 5);
+            l.pulse.style.opacity = Math.min(1, Math.sin(Math.PI * u) * 2.2); /* fade in as it leaves, out as it lands */
+          } else l.pulse.style.opacity = 0;
+        }
+      } else {
+        l.off -= dt * 4 * (l.k % 2 ? 1 : -1);
+        l.p.setAttribute('stroke-dashoffset', l.off.toFixed(1));
+        l.p.setAttribute('stroke-width', isHot ? 2 : 1.2);
+        l.p.style.opacity = isHot ? .9 : .3;
+      }
     });
   }
 
