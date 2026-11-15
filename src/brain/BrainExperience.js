@@ -141,6 +141,8 @@ export default function BrainExperience(){
     return function(){ document.removeEventListener('keydown', onKey); };
   }, [closePage, goTo]);
 
+  /* the intro reports how far the map has come together; the map moves its own parts to match */
+  var onMapArrival = useCallback(function(p){ if (sceneRef.current) sceneRef.current.setArrival(p); }, []);
   /* the map only needs drawing once it is on screen: after the intro, or from partway through the zoom */
   var mapShowing = useCallback(function(){ return doneRef.current || (!!introRef.current && introRef.current.mapShowing()); }, []);
 
@@ -150,7 +152,7 @@ export default function BrainExperience(){
         <div className={'stage' + (done ? ' is-done' : '')} id="stage" ref={stageRef}>
           <div className="grain" aria-hidden="true" />
           <Intro ref={introRef} stageRef={stageRef} sectionRef={sectionRef} mapLayerRef={mapLayerRef} dotTagRef={dotTagRef}
-            reduce={reduce} done={done} onFinish={finishIntro} />
+            reduce={reduce} done={done} onFinish={finishIntro} onMapArrival={onMapArrival} />
           <BrainMap stack={stack} done={done} reduce={reduce}
             busyRef={busyRef} modeRef={modeRef} sceneRef={sceneRef} mapLayerRef={mapLayerRef}
             mapShowing={mapShowing} onDive={onDive} onOpenPage={openPage} />

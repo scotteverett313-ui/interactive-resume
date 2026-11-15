@@ -29,6 +29,56 @@ export function createScene(o){
   var view = { node:null, items:[], links:[] }, dying = [];
   var curioLinks = [], curioPos = {}, hot = {};
 
+  /* ---------- arrival: how the map comes together at the end of the intro ----------
+     arr runs from 0 to 1, driven by the intro's scroll timeline (so it scrubs both ways).
+     Instead of one flat picture growing, each part moves on its own:
+       gravity points  start tiny and huddled at the center, inside the brain, then spiral outward as it
+                       grows and land one after another with a slight swell
+       curiosities     start beyond the edges of the screen and get pulled inward into their orbit,
+                       dragging their dotted connections in with them
+       background net  drifts in last
+     At 1 everything sits exactly where the normal layout puts it. */
+  var arr = 1, arrSettled = true, curioEls = {}, curioTitle = null, curioNow = {};
+  var ARR_GROW = Math.log(11) * .87;   /* keeps the gravity points in step with the brain's zoom */
+  function arrBase(p){ return Math.exp(-ARR_GROW * (1 - p)); }
+  function backOut(x, c){ return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2); }
+  function hubArrive(i){
+    var pop = backOut(clamp((arr - i * .05) / .16, 0, 1), 1.7);
+    var s0 = .6 + i * .07, q = clamp((arr - s0) / (1 - s0), 0, 1);
+    return { k: arrBase(arr) * pop * (1 + .16 * Math.sin(q * Math.PI)), th: -.9 * Math.pow(1 - arr, 1.6), o: clamp((arr - i * .05) / .06, 0, 1) };
+  }
+  function curioArrive(c, j){
+    var p0 = curioPos[c.id], s0 = .36 + j * .05, q = clamp((arr - s0) / (1 - s0), 0, 1);
+    var wide = 2.6 - 1.6 * backOut(q, 1), th = Math.pow(1 - q, 1.5);
+    var dx = p0.x - W / 2, dy = p0.y - H / 2, co = Math.cos(th), si = Math.sin(th);
+    return { x: W / 2 + (dx * co - dy * si) * wide, y: H / 2 + (dx * si + dy * co) * wide, a: clamp(q * 5, 0, 1) };
+  }
+  /* move the curiosities, the net, and the hint to where the arrival puts them; once arrived, hand them back untouched */
+  function applyArrival(){
+    var arriving = arr < 1, kids = CURIO_ROOT.kids;
+    kids.forEach(function(c, j){
+      var p0 = curioPos[c.id], g = curioEls[c.id]; if (!p0) return;
+      var A = arriving ? curioArrive(c, j) : { x:p0.x, y:p0.y, a:1 };
+      curioNow[c.id] = A;
+      [g, j === 0 ? curioTitle : null].forEach(function(e){
+        if (!e) return;
+        if (arriving){ e.setAttribute('transform', 'translate(' + (A.x - p0.x).toFixed(1) + ' ' + (A.y - p0.y).toFixed(1) + ')'); e.style.opacity = A.a; }
+        else { e.removeAttribute('transform'); e.style.opacity = ''; }
+      });
+    });
+    if (arriving){
+      var nk = 1.35 - .35 * (1 - Math.pow(1 - arr, 3));
+      bgNet.setAttribute('transform', 'translate(' + (W / 2 * (1 - nk)).toFixed(1) + ' ' + (H / 2 * (1 - nk)).toFixed(1) + ') scale(' + nk.toFixed(3) + ')');
+      bgNet.style.opacity = clamp((arr - .4) / .5, 0, 1);
+      pickHint.style.opacity = clamp((arr - .85) / .15, 0, 1);
+    } else {
+      bgNet.removeAttribute('transform'); bgNet.style.opacity = '';
+      pickHint.style.opacity = view.node === ROOT ? 1 : 0;
+      view.links.forEach(function(l){ l.p.style.strokeWidth = ''; });
+    }
+    arrSettled = !arriving;
+  }
+
   function measure(){
     /* the layer's own layout size, not its on-screen box: the intro scales the layer while it zooms in */
     W = Math.max(320, mapLayer.offsetWidth); H = Math.max(320, mapLayer.offsetHeight); M = Math.min(W, H);
@@ -47,9 +97,9 @@ export function createScene(o){
         bgNet.appendChild(el('path', { 'class':'net-line', d:'M'+p[0].toFixed(0)+' '+p[1].toFixed(0)+' L'+q[0].toFixed(0)+' '+q[1].toFixed(0) })); });
       bgNet.appendChild(el('circle', { 'class':'net-dot', cx:p[0].toFixed(0), cy:p[1].toFixed(0), r:(2 + R() * 3).toFixed(1) }));
     });
-    curioG.innerHTML = ''; curioLinksG.innerHTML = ''; curioLinks = []; curioPos = {};
+    curioG.innerHTML = ''; curioLinksG.innerHTML = ''; curioLinks = []; curioPos = {}; curioEls = {}; curioNow = {}; arrSettled = false;
     var kids = CURIO_ROOT.kids;
-    kids.forEach(function(c){ curioPos[c.id] = { x:c.fx * W, y:c.fy * H }; });
+    kids.forEach(function(c){ curioPos[c.id] = { x:c.fx * W, y:c.fy * H }; curioNow[c.id] = { x:c.fx * W, y:c.fy * H, a:1 }; });
     function curioBtn(g, label, fn){
       g.setAttribute('class', 'cnode'); g.setAttribute('tabindex', '0'); g.setAttribute('role', 'button'); g.setAttribute('aria-label', label);
       g.addEventListener('click', function(){ if (done && !busy() && view.node === ROOT) fn(); });
@@ -62,7 +112,7 @@ export function createScene(o){
     tt.textContent = "CAN'T STOP THINKING ABOUT →";
     tg.appendChild(tt);
     curioBtn(tg, "Open page: Can't stop thinking about", function(){ o.onOpenPage(CURIO_ROOT); });
-    curioG.appendChild(tg);
+    curioG.appendChild(tg); curioTitle = tg;
     kids.forEach(function(c){
       var pt = curioPos[c.id], right = c.fx > .5;
       var g = el('g', {});
@@ -76,7 +126,7 @@ export function createScene(o){
       g.addEventListener('pointerleave', function(){ hot[c.id] = false; });
       g.addEventListener('focus', function(){ hot[c.id] = true; });
       g.addEventListener('blur', function(){ hot[c.id] = false; });
-      curioG.appendChild(g);
+      curioG.appendChild(g); curioEls[c.id] = g;
       (c.hubs || []).forEach(function(h){ addCurioLink(c, h, null); });
       (c.also || []).forEach(function(x){ if (x > c.id) addCurioLink(c, null, x); });
     });
@@ -103,13 +153,13 @@ export function createScene(o){
     var byId = {};
     view.items.forEach(function(it){ byId[it.node.id] = it; });
     curioLinks.forEach(function(l){
-      var a = curioPos[l.c.id], bx, by, isHot = hot[l.c.id];
+      var a = curioNow[l.c.id], bx, by, isHot = hot[l.c.id], alpha = a.a;
       if (l.hub){
         var it = byId[l.hub];
         if (!it || it.cx === undefined){ l.p.setAttribute('d', ''); if (l.pulse) l.pulse.style.opacity = 0; return; }
         bx = it.cx; by = it.cy; isHot = isHot || it.hover;
       } else {
-        var x = curioPos[l.other]; bx = x.x; by = x.y; isHot = isHot || hot[l.other];
+        var x = curioNow[l.other]; bx = x.x; by = x.y; isHot = isHot || hot[l.other]; alpha = Math.min(alpha, x.a);
       }
       var bow = 16 * Math.sin(t * .6 + l.k * 1.3);
       l.p.setAttribute('d', curvePath(a.x, a.y, bx, by, bow));
@@ -118,7 +168,7 @@ export function createScene(o){
         l.off -= dt * (isHot ? 46 : 13);
         l.p.setAttribute('stroke-dashoffset', l.off.toFixed(1));
         l.p.setAttribute('stroke-width', isHot ? 4 : 3);
-        l.p.style.opacity = isHot ? 1 : .8;
+        l.p.style.opacity = (isHot ? 1 : .8) * alpha;
         if (l.pulse){
           /* a pulse leaves the curiosity every few seconds, each link on its own beat; hovered links fire back to back */
           var period = isHot ? 1.3 : 3.8, travel = isHot ? 1 : .4;
@@ -127,14 +177,14 @@ export function createScene(o){
             var u = phase / travel, pt = curvePoint(a.x, a.y, bx, by, bow, u);
             l.pulse.setAttribute('cx', pt[0].toFixed(1)); l.pulse.setAttribute('cy', pt[1].toFixed(1));
             l.pulse.setAttribute('r', isHot ? 6 : 5);
-            l.pulse.style.opacity = Math.min(1, Math.sin(Math.PI * u) * 2.2); /* fade in as it leaves, out as it lands */
+            l.pulse.style.opacity = Math.min(1, Math.sin(Math.PI * u) * 2.2) * alpha; /* fade in as it leaves, out as it lands */
           } else l.pulse.style.opacity = 0;
         }
       } else {
         l.off -= dt * 4 * (l.k % 2 ? 1 : -1);
         l.p.setAttribute('stroke-dashoffset', l.off.toFixed(1));
         l.p.setAttribute('stroke-width', isHot ? 2 : 1.2);
-        l.p.style.opacity = isHot ? .9 : .3;
+        l.p.style.opacity = (isHot ? .9 : .3) * alpha;
       }
     });
   }
@@ -173,7 +223,7 @@ export function createScene(o){
     g.appendChild(path); g.appendChild(lbl); g.appendChild(sub);
     nodesG.appendChild(g);
     var it = { node:node, g:g, path:path, lbl:lbl, spans:spans, sub:sub, isHub:isHub, deeper:deeper, lines:lines.length,
-      x:pos.x, y:pos.y, r:pos.r, s:1, o:1, hs:1, lx:0, ly:0, px:0, py:0, dragX:0, dragY:0, hover:false,
+      idx:i, x:pos.x, y:pos.y, r:pos.r, s:1, o:1, hs:1, lx:0, ly:0, px:0, py:0, dragX:0, dragY:0, hover:false,
       seed:i * 1.7 + node.label.length * .37, amp: isHub ? .09 : .07 };
     g.addEventListener('pointerenter', function(){ it.hover = true; });
     g.addEventListener('pointerleave', function(){ if (!drag || drag.it !== it) it.hover = false; });
@@ -299,14 +349,21 @@ export function createScene(o){
     it.px += (hpx - it.px) * .14; it.py += (hpy - it.py) * .14;
     var cx = it.x + it.lx + it.dragX * .45, cy = it.y + it.ly + it.dragY * .45;
     var rr = base * it.hs;
+    /* arriving at the end of the intro: a gravity point is pulled in toward the center, turned, and shrunk */
+    var arriving = arr < 1 && it.isHub, arrO = 1, arrK = 1;
+    if (arriving){
+      var A = hubArrive(it.idx), adx = cx - W / 2, ady = cy - H / 2, co = Math.cos(A.th), si = Math.sin(A.th);
+      cx = W / 2 + (adx * co - ady * si) * A.k; cy = H / 2 + (adx * si + ady * co) * A.k;
+      rr *= A.k; arrO = A.o; arrK = A.k;
+    }
     it.path.setAttribute('d', blobPath(cx, cy, rr, t, it.seed, it.amp, it.px + it.dragX * .7, it.py + it.dragY * .7));
-    it.g.style.opacity = it.o;
+    it.g.style.opacity = it.o * arrO;
     var fs, ly, sy;
     if (it.isHub){
-      fs = clamp(rr * .3, 16, 260);
+      fs = arriving ? rr * .3 : clamp(rr * .3, 16, 260);
       ly = cy + fs * .35 - (it.lines - 1) * fs * .55;
       sy = cy + rr * .45;
-      it.sub.style.opacity = rr > 240 ? 0 : 1;
+      it.sub.style.opacity = arriving ? clamp((arrK - .55) / .25, 0, 1) : (rr > 240 ? 0 : 1);
     } else {
       fs = clamp(M * .026, 14, 20);
       ly = cy + rr + fs + 6;
@@ -321,17 +378,19 @@ export function createScene(o){
   function drawLink(l, t){
     var a = l.a, b = l.b; if (a.cx === undefined || b.cx === undefined) return;
     l.p.setAttribute('d', curvePath(a.cx, a.cy, b.cx, b.cy, 22 * Math.sin(t * .8 + l.k * 1.7)));
-    l.p.style.opacity = Math.min(a.o, b.o);
+    l.p.style.opacity = Math.min(a.o, b.o) * (arr < 1 ? clamp(arr / .12, 0, 1) : 1);
+    if (arr < 1) l.p.style.strokeWidth = (2.5 * Math.max(.3, arrBase(arr))).toFixed(2) + 'px';
   }
   function frame(now){
     var t = reduce ? 0 : now / 1000;
     if (done || o.mapShowing()){
+      if (arr < 1 || !arrSettled) applyArrival();
       view.items.forEach(function(it){ drawItem(it, t); });
       dying.forEach(function(x){ if (x.g) drawItem(x, t); });
       view.links.forEach(function(l){ drawLink(l, t); });
       dying.forEach(function(x){ if (x.p) drawLink(x, t); });
       drawCurio(t);
-      if (mouse && !reduce) bgNet.setAttribute('transform', 'translate(' + ((W / 2 - mouse.x) * .015).toFixed(1) + ' ' + ((H / 2 - mouse.y) * .015).toFixed(1) + ')');
+      if (mouse && !reduce && arr >= 1) bgNet.setAttribute('transform', 'translate(' + ((W / 2 - mouse.x) * .015).toFixed(1) + ' ' + ((H / 2 - mouse.y) * .015).toFixed(1) + ')');
     }
     raf = requestAnimationFrame(frame);
   }
@@ -400,6 +459,8 @@ export function createScene(o){
     swapTo: swapView,
     relayout: relayout,
     setDone: function(b){ done = b; },
+    /* 0 to 1: how far the map has come together (see "arrival" above). The intro drives this; it rests at 1 */
+    setArrival: function(p){ arr = clamp(p, 0, 1); if (arr < 1) arrSettled = false; },
     activateById: function(id){ var it = view.items.filter(function(i){ return i.node.id === id; })[0]; if (it) activate(it); },
     currentNode: function(){ return view.node; }
   };

@@ -36,7 +36,8 @@ gsap.registerPlugin(ScrollTrigger);
    brain is out, letting go of the scroll plays the rest through on its own.
 
      sectionRef:  the tall #intro section ScrollTrigger watches
-     mapLayerRef: the map, grown and faded in during the zoom
+     mapLayerRef: the map layer, faded in during the zoom
+     onMapArrival: called with 0 to 1 as the map comes together during the zoom
      dotTagRef:   the depth-nav tag, written with the scroll percent
      done:        true once the intro is finished or skipped; false again on replay
      onFinish:    called when the scrub reaches the end
@@ -49,10 +50,11 @@ var ZOOM = 11;
    so it never stalls at the start or rushes at the end */
 function zoomEase(p){ return (Math.pow(ZOOM, p) - 1) / (ZOOM - 1); }
 
-var Intro = forwardRef(function Intro({ stageRef, sectionRef, mapLayerRef, dotTagRef, reduce, done, onFinish }, ref){
+var Intro = forwardRef(function Intro({ stageRef, sectionRef, mapLayerRef, dotTagRef, reduce, done, onFinish, onMapArrival }, ref){
   var svgRef = useRef(null), boilRef = useRef(null), backdropRef = useRef(null), backdropClipRef = useRef(null);
   var tlRef = useRef(null), triggerRef = useRef(null);
   var onFinishRef = useRef(onFinish); onFinishRef.current = onFinish;
+  var onArriveRef = useRef(onMapArrival); onArriveRef.current = onMapArrival;
 
   /* build the timeline once; it is driven by ScrollTrigger, or jumped to 0 / 1 by the effect below */
   useEffect(function(){
@@ -82,6 +84,7 @@ var Intro = forwardRef(function Intro({ stageRef, sectionRef, mapLayerRef, dotTa
     var cap = [$('#capG'), $('#capShade')];
     gsap.set(cap, { svgOrigin:'400 205' });
 
+    var arrive = { p:0 };
     var tl = gsap.timeline({ paused:true });
     tl.to(hint, { opacity:0, duration:.5 }, 0)
 
@@ -110,11 +113,12 @@ var Intro = forwardRef(function Intro({ stageRef, sectionRef, mapLayerRef, dotTa
       .to(brain, { y:78, duration:1, ease:'power2.inOut' }, 'zoom')
       .to(brain, { scale:ZOOM, duration:4.6, ease:zoomEase }, 'zoom')
 
-      /* 5. the map starts small inside the brain and grows in step with it, so the gravity points
-            and their connections are on screen early. Then the brain dissolves underneath */
-      .fromTo(mapLayer, { scale:1 / ZOOM }, { scale:1, duration:4.6, ease:zoomEase }, 'zoom')
+      /* 5. the map comes together on top of the growing brain: the gravity points spiral out from its center
+            while the curiosities and their connections sweep in from beyond the screen (BrainMap moves each
+            part; this only tells it how far along we are). Then the brain dissolves underneath */
       .addLabel('map', 5)
-      .to(mapLayer, { opacity:1, duration:1 }, 'map')
+      .to(mapLayer, { opacity:1, duration:.4 }, 'map')
+      .fromTo(arrive, { p:0 }, { p:1, duration:4, ease:'none', onUpdate:function(){ onArriveRef.current(arrive.p); } }, 'map')
       .to(brain, { opacity:0, duration:1.6 }, 7.2)
       .to(svg, { opacity:0, duration:.6 }, 8.4);
     tlRef.current = tl;
@@ -137,9 +141,11 @@ var Intro = forwardRef(function Intro({ stageRef, sectionRef, mapLayerRef, dotTa
     if (triggerRef.current){ triggerRef.current.kill(); triggerRef.current = null; }
     if (done){
       tl.progress(1);
+      onArriveRef.current(1);
       return;
     }
     tl.progress(0);
+    onArriveRef.current(0);
     /* past this point the brain is out of the head, and the rest plays through on its own */
     var autoFrom = tl.labels.zoom / tl.duration();
     triggerRef.current = ScrollTrigger.create({

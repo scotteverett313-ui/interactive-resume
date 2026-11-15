@@ -193,6 +193,13 @@ The intro is scrubbed by scroll. Two things control how it feels:
 Once the brain is out of the head, letting go of the scroll plays the rest
 through on its own. Before that point it stays wherever you stop.
 
+During the zoom the map does not simply grow as one picture. The gravity
+points start tiny at the center of the brain and spiral outward as it grows,
+while the curiosities and their dotted connections start beyond the edges of
+the screen and are pulled inward into orbit. That motion lives in the
+"arrival" section of `src/brain/BrainMap.js`; the intro only tells it how far
+along the zoom is.
+
 ### Where the rest lives
 
 | File | What it does |
