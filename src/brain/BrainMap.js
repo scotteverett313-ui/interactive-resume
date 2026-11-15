@@ -3,7 +3,8 @@ import { gsap } from 'gsap';
 import { ROOT, CURIO_ROOT } from './content';
 import { blobPath, rng, clamp, wrapLabel, curvePath } from './blob';
 
-const INK = '#1a1a1a', PAPER = '#ffffff', NS = 'http://www.w3.org/2000/svg';
+const NS = 'http://www.w3.org/2000/svg';
+/* Colors are never set here. Elements get a class, and brain.css paints them from the palette tokens. */
 function el(tag, attrs){ var e = document.createElementNS(NS, tag); for (var k in attrs) e.setAttribute(k, attrs[k]); return e; }
 
 /* ------------------------------------------------------------------
@@ -43,8 +44,8 @@ export function createScene(o){
       var near = pts.map(function(q, j){ return [j, (q[0]-p[0])*(q[0]-p[0]) + (q[1]-p[1])*(q[1]-p[1])]; })
         .sort(function(a, b){ return a[1] - b[1]; }).slice(1, 3);
       near.forEach(function(n){ var q = pts[n[0]];
-        bgNet.appendChild(el('path', { d:'M'+p[0].toFixed(0)+' '+p[1].toFixed(0)+' L'+q[0].toFixed(0)+' '+q[1].toFixed(0), stroke:INK, 'stroke-width':1, opacity:.12, fill:'none' })); });
-      bgNet.appendChild(el('circle', { cx:p[0].toFixed(0), cy:p[1].toFixed(0), r:(2 + R() * 3).toFixed(1), fill:PAPER, stroke:INK, 'stroke-width':1.2, opacity:.3 }));
+        bgNet.appendChild(el('path', { 'class':'net-line', d:'M'+p[0].toFixed(0)+' '+p[1].toFixed(0)+' L'+q[0].toFixed(0)+' '+q[1].toFixed(0) })); });
+      bgNet.appendChild(el('circle', { 'class':'net-dot', cx:p[0].toFixed(0), cy:p[1].toFixed(0), r:(2 + R() * 3).toFixed(1) }));
     });
     curioG.innerHTML = ''; curioLinksG.innerHTML = ''; curioLinks = []; curioPos = {};
     var kids = CURIO_ROOT.kids;
@@ -56,7 +57,7 @@ export function createScene(o){
     }
     var first = curioPos[kids[0].id];
     var tg = el('g', {});
-    tg.appendChild(el('rect', { x:first.x - 10, y:first.y - 46, width:260, height:30, fill:'#ffffff', 'fill-opacity':.001 }));
+    tg.appendChild(el('rect', { 'class':'hit', x:first.x - 10, y:first.y - 46, width:260, height:30 }));
     var tt = el('text', { x:first.x - 4, y:first.y - 26, 'class':'ctitle' });
     tt.textContent = "CAN'T STOP THINKING ABOUT →";
     tg.appendChild(tt);
@@ -65,8 +66,8 @@ export function createScene(o){
     kids.forEach(function(c){
       var pt = curioPos[c.id], right = c.fx > .5;
       var g = el('g', {});
-      g.appendChild(el('circle', { cx:pt.x, cy:pt.y, r:24, fill:'#ffffff', 'fill-opacity':.001 }));
-      g.appendChild(el('circle', { 'class':'vis', cx:pt.x, cy:pt.y, r:7, fill:PAPER, stroke:INK, 'stroke-width':1.8, 'stroke-dasharray':'3 3' }));
+      g.appendChild(el('circle', { 'class':'hit', cx:pt.x, cy:pt.y, r:24 }));
+      g.appendChild(el('circle', { 'class':'vis', cx:pt.x, cy:pt.y, r:7 }));
       var t = el('text', { x: right ? pt.x - 14 : pt.x + 14, y:pt.y + 4, 'text-anchor': right ? 'end' : 'start' });
       t.textContent = c.label + (c.sub ? ' ' + c.sub : '');
       g.appendChild(t);
@@ -81,7 +82,7 @@ export function createScene(o){
     });
   }
   function addCurioLink(c, hubId, otherId){
-    var p = el('path', { fill:'none', stroke:INK, 'stroke-width':1.4, 'stroke-dasharray':'5 6', 'stroke-linecap':'round' });
+    var p = el('path', { 'class':'clink', 'stroke-width':1.4 });
     curioLinksG.appendChild(p);
     curioLinks.push({ c:c, hub:hubId, other:otherId, p:p, k:curioLinks.length });
   }
@@ -124,15 +125,16 @@ export function createScene(o){
   }
 
   function makeItem(node, pos, i){
-    var isHub = !!node.fill, deeper = !!(node.kids && node.kids.length);
-    var g = el('g', { 'class':'node', tabindex:0, role:'button',
+    var isHub = node.parent === ROOT, deeper = !!(node.kids && node.kids.length);
+    /* in-<hub> gives the node its hub's colors; is-hub and is-deep say which of them it uses (see brain.css) */
+    var cls = 'node in-' + node.hub.id + (isHub ? ' is-hub' : (deeper ? ' is-deep' : ' is-leaf'));
+    var g = el('g', { 'class':cls, tabindex:0, role:'button',
       'aria-label': node.label + (deeper ? ', go deeper' : ', open page') });
-    var fill = isHub ? node.fill : (deeper ? INK : PAPER);
-    var path = el('path', { fill:fill, stroke:INK, 'stroke-width': isHub ? 3.5 : 3 });
+    var path = el('path', {});
     var lines = wrapLabel(node.label);
-    var lbl = el('text', { 'class': node.halo ? 'lbl halo' : 'lbl', 'text-anchor':'middle', fill: isHub ? node.text : INK });
+    var lbl = el('text', { 'class':'lbl', 'text-anchor':'middle' });
     var spans = lines.map(function(s, j){ var ts = el('tspan', { dy: j ? '1.1em' : '0' }); ts.textContent = s; lbl.appendChild(ts); return ts; });
-    var sub = el('text', { 'class':'sub', 'text-anchor':'middle', fill: isHub ? node.text : INK });
+    var sub = el('text', { 'class':'sub', 'text-anchor':'middle' });
     sub.textContent = deeper ? (node.kids.length + ' inside') : 'page';
     g.appendChild(path); g.appendChild(lbl); g.appendChild(sub);
     nodesG.appendChild(g);
@@ -157,22 +159,26 @@ export function createScene(o){
     var pos = layout(node);
     var items = (node.kids || []).map(function(k, i){ return makeItem(k, pos[i], i); });
     var links = [], n = items.length;
-    function addLink(a, b){ var p = el('path', { fill:'none', stroke:INK, 'stroke-width':2.5, 'stroke-linecap':'round' }); linksG.appendChild(p); links.push({ a:a, b:b, p:p, k:links.length }); }
+    function addLink(a, b){ var p = el('path', { 'class':'link' }); linksG.appendChild(p); links.push({ a:a, b:b, p:p, k:links.length }); }
     if (node === ROOT){ addLink(items[0], items[1]); addLink(items[0], items[2]); addLink(items[1], items[2]); }
     else if (n > 1){ for (var i = 0; i < n - 1; i++) addLink(items[i], items[i + 1]); if (n > 2) addLink(items[n - 1], items[0]); }
     return { node:node, items:items, links:links };
   }
 
-  function hubOf(node){ return node === ROOT ? null : (node.hub || node); }
-  function groundFor(node){ var h = hubOf(node); return h ? h.tint : '#ffffff'; }
+  /* tell the layer which hub the current level belongs to, so the legend can show that hub's color */
+  function setHub(node){
+    ROOT.kids.forEach(function(h){ mapLayer.classList.remove('in-' + h.id); });
+    if (node !== ROOT) mapLayer.classList.add('in-' + node.hub.id);
+  }
   function setChrome(node){
+    setHub(node);
     var wmText = node === ROOT ? '' : node.label.toUpperCase();
     wm.textContent = wmText;
     wm.setAttribute('x', W / 2); wm.setAttribute('y', H / 2);
     wm.setAttribute('font-size', Math.min(M * .32, W * 1.5 / Math.max(4, wmText.length)).toFixed(0));
     gsap.to([curioG, curioLinksG], { opacity: node === ROOT ? 1 : 0, duration:D(.4) });
     curioG.style.pointerEvents = node === ROOT ? '' : 'none';
-    legend.hidden = node !== ROOT;
+    legend.hidden = node === ROOT; /* the legend only means something inside a hub */
     pickHint.style.opacity = node === ROOT ? 1 : 0;
   }
 
@@ -191,7 +197,6 @@ export function createScene(o){
     if (mode === 'instant'){
       bury(old.items.concat(old.links));
       view = buildView(node);
-      mapLayer.style.background = groundFor(node);
       setChrome(node);
       return;
     }
@@ -209,8 +214,7 @@ export function createScene(o){
         t.to(x, { x:W / 2 + Math.cos(a) * d, y:H / 2 + Math.sin(a) * d, s:.25, o:0, duration:D(.75), ease:'power2.in' }, 0);
       });
       t.add(function(){
-        mapLayer.style.background = groundFor(node);
-        view = buildView(node);
+          view = buildView(node);
         setChrome(node);
         view.items.forEach(function(it){ it.s = 0; it.o = 0; });
         gsap.to(view.items, { s:1, o:1, duration:D(.6), ease:'back.out(1.7)', stagger:D(.05) });
@@ -219,8 +223,7 @@ export function createScene(o){
     } else {
       old.items.forEach(function(x){ t.to(x, { s:.35, o:0, duration:D(.4), ease:'power2.in' }, 0); });
       t.add(function(){
-        mapLayer.style.background = groundFor(node);
-        view = buildView(node);
+          view = buildView(node);
         setChrome(node);
         view.items.forEach(function(it){ it.s = 1.8; it.o = 0; });
         gsap.to(view.items, { s:1, o:1, duration:D(.6), ease:'power3.out', stagger:D(.04) });
@@ -333,7 +336,6 @@ export function createScene(o){
   function init(){
     measure(); drawBg();
     view = buildView(ROOT);
-    mapLayer.style.background = groundFor(ROOT);
     setChrome(ROOT);
     svg.addEventListener('pointermove', onSvgMove);
     svg.addEventListener('pointerleave', onSvgLeave);
@@ -414,12 +416,6 @@ export default function BrainMap({ stack, done, reduce, busyRef, modeRef, sceneR
   return (
     <div id="mapLayer" ref={mapLayerRef}>
       <svg id="mapSvg" ref={svgRef} aria-label="Brain map. Choose Learn, Teach, or Improve to go deeper.">
-        <defs>
-          <pattern id="halftone" width="7" height="7" patternUnits="userSpaceOnUse">
-            <rect width="7" height="7" fill="#ffffff" />
-            <circle cx="3.5" cy="3.5" r="1.4" fill="#1a1a1a" />
-          </pattern>
-        </defs>
         <g id="bgNet" ref={bgRef} aria-hidden="true" />
         <text id="wm" ref={wmRef} textAnchor="middle" dominantBaseline="middle" />
         <g id="curioLinks" ref={curioLinksRef} aria-hidden="true" />

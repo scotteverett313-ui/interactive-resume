@@ -34,8 +34,7 @@ import brain7 from './art/brain-07.webp';
    the two eye outlines.
    ============================================================ */
 
-/* The rest of the site is black and white. Set this to true to
-   show the character and the brain in grayscale as well. */
+/* Set this to true to show the whole intro (character, brain, backdrop) in grayscale. */
 export const MONO = false;
 
 /* ============================================================
@@ -63,6 +62,9 @@ export const CHARACTER = {
   width: 524, height: 990,
   /* where the image sits in the 800 x 600 drawing: forehead line at y = 250, face centered on x = 400 */
   place: 'translate(206.1 127.9) scale(0.74)',
+  /* colors that belong to the art itself, so they stay the same in every palette:
+     the cut line drawn across the forehead, the pupils, and the glints in them */
+  slitColor: '#ffffff', pupilColor: '#111010', glintColor: '#ffffff',
   /* the forehead cut, drawn on by the first stretch of scroll */
   slit: 'M253 247 C315 262 487 262 549 247',
   clip: {
@@ -91,7 +93,9 @@ export const CHARACTER = {
     /* the rim takes the color of what was cut through: locs at the sides and back, skin across the forehead.
        skinFrom and skinTo are where the forehead starts and ends along the cut, as a fraction of its width */
     rimHair: '#3f3736', rimSkin: '#e2976b', skinFrom: 0.199, skinTo: 0.747,
-    wallTop: '#9a4c3a', wallDeep: '#33130f'
+    wallTop: '#9a4c3a', wallDeep: '#33130f',
+    /* a faint dark line around the rim */
+    edge: 'rgba(0, 0, 0, 0.35)'
   },
   /* a soft blurred copy of the figure's outline, cast onto the shape behind the head.
      pad is the empty margin around the figure in that image (image px); offset is where
@@ -104,13 +108,13 @@ export const CHARACTER = {
 /* ============================================================
    The shape behind the head.
 
-   A soft wobbly blob in the same style as the gravity points on
-   the map: halftone dots with an ink outline. It sits behind the
-   character so the hair breaks out of the top and the shoulders
-   overlap the bottom, and the figure casts a soft shadow onto it.
-   Together that keeps the figure from reading flat against the
-   page. It drifts slowly, and it drops away with the head when
-   the brain lifts out.
+   A soft wobbly blob of halftone dots with an outline. It sits
+   behind the character so the hair breaks out of the top and the
+   shoulders overlap the bottom, and the figure casts a soft shadow
+   onto it. Together that keeps the figure from reading flat against
+   the page. It drifts slowly, and it drops away with the head when
+   the brain lifts out. Its colors come from the palette (see the
+   "backdrop" rules in brain.css).
 
    cx, cy, r: center and radius in the 800 x 600 drawing
    amp:       how much the outline wobbles (0 is a perfect circle)

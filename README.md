@@ -112,8 +112,7 @@ eyes are redrawn as vectors on top so the pupils can look up at the brain.
 - To swap in a new render of the same pose and size, replace the `.webp`.
 - A different pose or crop also needs new numbers in `character.js`: where
   the image sits, the forehead line, and the two eye outlines.
-- The rest of the site is black and white. Set `MONO = true` in
-  `character.js` to show the character and the brain in grayscale too.
+- Set `MONO = true` in `character.js` to show the intro in grayscale.
 
 The brain that lifts out is eight renders of the same brain, one per angle:
 `src/brain/art/brain-00.webp` to `brain-07.webp`. The intro flips through
@@ -121,8 +120,8 @@ them in order as the brain turns. To swap or add frames, keep them square,
 centered, and the same size, then list them in `BRAIN.frames` in
 `character.js`. Any number of frames works.
 
-Behind the head sits a halftone blob in the same style as the gravity points
-on the map, and the figure casts a soft shadow onto it. That overlap is what
+Behind the head sits a blob of halftone dots, and the figure casts a soft
+shadow onto it. That overlap is what
 keeps the figure from reading flat. Its position, size, wobble, and dot grid
 are the `BACKDROP` numbers in `character.js`. The shadow is a small blurred
 copy of the figure's outline, `src/brain/art/scott-shadow.webp`; if the
@@ -138,6 +137,39 @@ through the locs and skin-toned across the forehead. Its shape and colors are
 The scroll timeline in `src/brain/Intro.js` moves these layers by id, so keep
 the names: `backdropG`, `insideG`, `rimG`, `bodyG`, `headG` (with two `.pupil` groups), `capG`, `slit`,
 `brainWrap` (with one `.bv` image per angle), and `angleTag`.
+
+### Colors
+
+Every color on the brain site comes from one file, `src/brain/palettes.js`.
+Each palette fills the same roles:
+
+| Role | What it colors |
+|---|---|
+| `ground` | The page behind everything: intro and pages |
+| `mapGround` | The ground behind the map |
+| `paper` | Small surfaces on the ground: buttons, tags, chips |
+| `ink` | Lines and text |
+| `muted` | Secondary text |
+| `hubs.learn`, `hubs.teach`, `hubs.improve` | Each gravity point: `fill` for the blob, `text` for the label on it |
+
+On the map, blobs are flat shapes with no outline. A node that only opens a
+page takes its hub's color; a node that goes deeper uses ink.
+
+`BrainExperience.js` sets the active palette on the brain root as CSS custom
+properties (`--ground`, `--paper`, `--ink`, `--muted`, `--learn`, `--teach`,
+`--improve`, and a `-text` version of each hub). `brain.css` and the SVG use
+only those, so there are no hex codes anywhere else. The one exception is
+`character.js`, which holds colors that belong to the character art itself
+(eyes, the cut line, the inside of the head) and stay the same in every palette.
+
+To change a color, edit its value in `palettes.js`. To add a palette, add an
+entry with the same roles.
+
+**The palette switcher is temporary.** It is there to compare the palettes on
+the live site. It remembers your pick, and `?palette=complementary` or
+`?palette=split` in the address opens a specific one. To remove it once a
+palette is chosen, follow the four steps at the top of
+`src/brain/PaletteSwitch.js`.
 
 ### The pace of the intro
 
@@ -165,6 +197,8 @@ through on its own. Before that point it stays wherever you stop.
 | `src/brain/BrainMap.js` | The map: blob morph loop, hover reach, drag and spring back, dive and rise, outer orbit. |
 | `src/brain/NodePage.js` | The page layout and its Connects to buttons. |
 | `src/brain/DotNav.js`, `Crumbs.js` | Depth dots and the breadcrumb trail. |
+| `src/brain/palettes.js` | The color palettes. The only place colors are defined. |
+| `src/brain/PaletteSwitch.js` | Temporary switcher for comparing palettes. |
 | `src/brain/blob.js` | The blob path math, pure functions. |
 | `src/brain/brain.css` | All brain styles, scoped so they never touch the resume. |
 

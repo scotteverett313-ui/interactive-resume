@@ -6,12 +6,14 @@
    reads from here.
 
    HOW THE TREE WORKS
-   - ROOT is the brain. Its three kids are the gravity points:
-     Learn (solid black), Teach (white), Improve (halftone dots).
+   - ROOT is the brain. Its three kids are the gravity points: Learn,
+     Teach, and Improve. Their colors are not here; they live in
+     palettes.js, keyed by these same ids.
    - Every node has an id and a label. ids must be unique across
      the whole file; they are what links point at.
-   - A node with `kids` goes deeper (a black blob on the map).
-     A node without `kids` is a leaf and opens a page (a white blob).
+   - A node with `kids` goes deeper (an ink-colored blob on the map).
+     A node without `kids` is a leaf and opens a page (a blob in its
+     hub's color).
    - `page` is optional. Any field inside it is optional too:
        lede:  one line, shown big under the title
        story: a paragraph
@@ -47,7 +49,7 @@ export const PH_STORY = '[The story: how I got here and why it stuck]';
 /* Content from Brain Map: Content Source (Scott's words) + Gap Drafts where the doc is still blank.
    links: { to: node id, why: one line } become "Connects to" jumps anywhere in the brain. */
 export const ROOT = { id:'root', label:'Brain', kids:[
-  { id:'learn', label:'Learn', fill:'#1a1a1a', text:'#ffffff', swatch:'#1a1a1a', tint:'#ffffff', kids:[
+  { id:'learn', label:'Learn', kids:[
     { id:'illus', label:'Illustration', kids:[
       { id:'roots', label:'Where it started', page:{
         lede:'Started here and never left.',
@@ -115,7 +117,7 @@ export const ROOT = { id:'root', label:'Brain', kids:[
         story:'Give Merit helps high school students pay for college. As their graphic designer, I have helped four rounds of students design and promote their own garments.',
         proof:'[Photos of the work and the finished garments]',
         links:[{ to:'umf', why:'Teaching outside the classroom.' }] }} ]} ]},
-  { id:'teach', label:'Teach', fill:'#ffffff', text:'#1a1a1a', swatch:'#ffffff', tint:'#ffffff', kids:[
+  { id:'teach', label:'Teach', kids:[
     { id:'umf', label:'U of M-Flint', page:{
       lede:'I teach the way I learned, by making.',
       story:'I started teaching at the University of Michigan-Flint, where I designed and taught multiple curriculums and managed and facilitated workshops.',
@@ -133,7 +135,7 @@ export const ROOT = { id:'root', label:'Brain', kids:[
     { id:'workshops', label:'Workshops', page:{
       lede:'Managed and facilitated workshops.',
       links:[{ to:'civilla', why:'Facilitation started with journey mapping sessions.' }] }} ]},
-  { id:'improve', label:'Improve', fill:'url(#halftone)', text:'#1a1a1a', halo:true, swatch:'radial-gradient(#1a1a1a 1.3px, #ffffff 1.6px) 0 0/5px 5px', tint:'#ffffff', kids:[
+  { id:'improve', label:'Improve', kids:[
     { id:'ai', label:'AI', kids:[
       { id:'cc', label:'Claude Code + React', page:{
         lede:'Designing with code, not just for it.',

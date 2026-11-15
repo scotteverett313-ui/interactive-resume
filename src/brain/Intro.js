@@ -211,8 +211,8 @@ var Intro = forwardRef(function Intro({ stageRef, sectionRef, mapLayerRef, dotTa
 
   /* the head's wall, seen from above where it was cut: the band between the outer and inner edge */
   var rimD = C.inside.outer + ' ' + C.inside.inner;
-  var rimBack = <path d={rimD} fillRule="evenodd" fill={C.inside.rimHair} stroke="#000000" strokeOpacity=".35" strokeWidth=".8" />;
-  var rimFront = <path d={rimD} fillRule="evenodd" fill="url(#rimFrontFill)" stroke="#000000" strokeOpacity=".35" strokeWidth=".8" />;
+  var rimBack = <path d={rimD} fillRule="evenodd" fill={C.inside.rimHair} stroke={C.inside.edge} strokeWidth=".8" />;
+  var rimFront = <path d={rimD} fillRule="evenodd" fill="url(#rimFrontFill)" stroke={C.inside.edge} strokeWidth=".8" />;
   var blob0 = blobPath(K.cx, K.cy, K.r, 0, K.seed, K.amp, 0, 0);
   var pad = C.shadow.pad;
   var shade = <image href={C.shadow.src} x={-pad} y={-pad} width={C.width + pad * 2} height={C.height + pad * 2} transform={C.place} />;
@@ -244,14 +244,14 @@ var Intro = forwardRef(function Intro({ stageRef, sectionRef, mapLayerRef, dotTa
           </linearGradient>
           <clipPath id="backdropClip"><path ref={backdropClipRef} d={blob0} /></clipPath>
           <pattern id="introDots" width={K.dots.gap} height={K.dots.gap} patternUnits="userSpaceOnUse">
-            <rect width={K.dots.gap} height={K.dots.gap} fill="#ffffff" />
-            <circle cx={K.dots.gap / 2} cy={K.dots.gap / 2} r={K.dots.r} fill="#1a1a1a" />
+            <rect className="dots-ground" width={K.dots.gap} height={K.dots.gap} />
+            <circle className="dots-dot" cx={K.dots.gap / 2} cy={K.dots.gap / 2} r={K.dots.r} />
           </pattern>
         </defs>
-        <g stroke="#1a1a1a" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
+        <g strokeLinecap="round" strokeLinejoin="round">
           {/* furthest back: the shape behind the head */}
           <g id="backdropG">
-            <path id="backdrop" ref={backdropRef} d={blob0} fill="url(#introDots)" stroke="#1a1a1a" strokeWidth="3.5" />
+            <path id="backdrop" ref={backdropRef} d={blob0} fill="url(#introDots)" />
             {/* the figure's soft shadow, falling only on the shape. The cap's part is separate so it leaves with the cap */}
             <g clipPath="url(#backdropClip)">
               <g transform={'translate(' + C.shadow.offset.x + ' ' + C.shadow.offset.y + ')'}>
@@ -289,9 +289,9 @@ var Intro = forwardRef(function Intro({ stageRef, sectionRef, mapLayerRef, dotTa
                     <g key={e.id} clipPath={'url(#' + e.id + ')'}>
                       <path d={e.outline} fill={e.white} />
                       <g className="pupil">
-                        <circle cx={e.pupil.cx} cy={e.pupil.cy} r={e.pupil.r} fill="#111010" />
-                        <circle cx={e.pupil.cx - 10.5} cy={e.pupil.cy - 3.5} r="1.6" fill="#ffffff" opacity=".85" />
-                        <circle cx={e.pupil.cx + 11} cy={e.pupil.cy - 1.5} r="1.1" fill="#ffffff" opacity=".6" />
+                        <circle cx={e.pupil.cx} cy={e.pupil.cy} r={e.pupil.r} fill={C.pupilColor} />
+                        <circle cx={e.pupil.cx - 10.5} cy={e.pupil.cy - 3.5} r="1.6" fill={C.glintColor} opacity=".85" />
+                        <circle cx={e.pupil.cx + 11} cy={e.pupil.cy - 1.5} r="1.1" fill={C.glintColor} opacity=".6" />
                       </g>
                     </g>
                   );
@@ -306,11 +306,11 @@ var Intro = forwardRef(function Intro({ stageRef, sectionRef, mapLayerRef, dotTa
             {/* the empty rect only gives the wobble filter room to move the line */}
             <g filter="url(#boil)">
               <rect x="233" y="217" width="336" height="76" fill="none" />
-              <path id="slit" d={C.slit} fill="none" stroke="#ffffff" strokeWidth="3.5" />
+              <path id="slit" d={C.slit} fill="none" stroke={C.slitColor} strokeWidth="3.5" />
             </g>
           </g>
 
-          <text id="angleTag" x="400" y="570" textAnchor="middle" fontFamily="DM Mono, monospace" fontSize="14" fill="#1a1a1a" stroke="#ffffff" strokeWidth="5" paintOrder="stroke" opacity="0">{'angle 1 / ' + B.frames.length}</text>
+          <text id="angleTag" x="400" y="570" textAnchor="middle" fontFamily="DM Mono, monospace" fontSize="14" opacity="0">{'angle 1 / ' + B.frames.length}</text>
         </g>
       </svg>
       <div id="hint"><span>Scroll to open</span><span className="line" /></div>

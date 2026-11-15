@@ -5,6 +5,8 @@ import BrainMap from './BrainMap';
 import NodePage from './NodePage';
 import DotNav from './DotNav';
 import Crumbs from './Crumbs';
+import { PALETTES, paletteVars } from './palettes';
+import PaletteSwitch, { readPalette, savePalette } from './PaletteSwitch'; /* temporary: see PaletteSwitch.js */
 import './brain.css';
 
 /* Owns the three pieces of state the brain has:
@@ -17,6 +19,11 @@ export default function BrainExperience(){
   var [done, setDone] = useState(reduce); /* reduced motion skips the intro */
   var [stack, setStack] = useState([ROOT]);
   var [page, setPage] = useState({ node:null, instant:false });
+  /* temporary palette switcher state. Once a palette is chosen this becomes: var palette = PALETTES[DEFAULT_PALETTE]; */
+  var [paletteId, setPaletteId] = useState(readPalette);
+  var palette = PALETTES[paletteId];
+  var vars = useMemo(function(){ return paletteVars(palette); }, [palette]);
+  var pickPalette = useCallback(function(id){ savePalette(id); setPaletteId(id); }, []);
 
   var busyRef = useRef(false), modeRef = useRef(null), sceneRef = useRef(null);
   var stageRef = useRef(null), sectionRef = useRef(null), mapLayerRef = useRef(null), dotTagRef = useRef(null), introRef = useRef(null);
@@ -31,6 +38,22 @@ export default function BrainExperience(){
     document.documentElement.classList.add('brain-route');
     return function(){ document.title = prev; document.documentElement.classList.remove('brain-route'); };
   }, []);
+
+  /* the page behind the brain, the scrollbar, the text selection, and the phone's browser bar sit outside
+     the .brain root, so they get the ground and ink colors copied onto <html> while this route is mounted */
+  useEffect(function(){
+    var root = document.documentElement;
+    root.style.setProperty('--ground', palette.ground);
+    root.style.setProperty('--ink', palette.ink);
+    var meta = document.querySelector('meta[name="theme-color"]');
+    var prev = meta ? meta.getAttribute('content') : null;
+    if (meta) meta.setAttribute('content', palette.ground);
+    return function(){
+      root.style.removeProperty('--ground');
+      root.style.removeProperty('--ink');
+      if (meta && prev !== null) meta.setAttribute('content', prev);
+    };
+  }, [palette]);
 
   var openPage = useCallback(function(node){ setPage({ node:node, instant:false }); }, []);
   var closePage = useCallback(function(instant){
@@ -110,7 +133,7 @@ export default function BrainExperience(){
   var mapShowing = useCallback(function(){ return doneRef.current || (!!introRef.current && introRef.current.mapShowing()); }, []);
 
   return (
-    <div className="brain">
+    <div className="brain" data-scheme={palette.scheme} style={vars}>
       <section id="intro" ref={sectionRef} className={done ? 'done' : undefined} aria-label="Intro">
         <div className={'stage' + (done ? ' is-done' : '')} id="stage" ref={stageRef}>
           <div className="grain" aria-hidden="true" />
@@ -122,6 +145,7 @@ export default function BrainExperience(){
           <Crumbs done={done} stack={stack} pageNode={page.node} onBack={onBack} onGoTo={goTo} />
           <button id="skip" className="chip-btn" type="button" hidden={done} onClick={finishIntro}>Skip intro</button>
           <button id="replay" className="chip-btn" type="button" hidden={!done} onClick={replayIntro}>Replay intro</button>
+          <PaletteSwitch value={paletteId} onChange={pickPalette} />
           <DotNav done={done} stack={stack} pageNode={page.node} tagRef={dotTagRef} onReplay={replayIntro} onGoTo={goTo} />
           <NodePage node={page.node} instant={page.instant} stack={stack} reduce={reduce}
             onBack={function(){ closePage(); }} onGoToNode={goToNode} onDiveTo={diveTo} onOpenPage={openPage} />

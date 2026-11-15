@@ -63,10 +63,11 @@ export default function NodePage({ node, instant, stack, reduce, onBack, onGoToN
     var empty = !sibs.length && !nLinks && !hubs.length;
     if (nLinks) sibs = sibs.filter(function(s){ return !(p.links || []).some(function(l){ return l.to === s.id; }); });
     sibs = sibs.slice(0, nLinks ? 4 : 6);
-    var proofBg = 'repeating-linear-gradient(135deg, transparent 0 18px, rgba(40,40,42,.14) 18px 20px), ' + (hub.tint || '#ffffff');
+    /* a page inside a hub carries that hub's colors; outer-orbit pages have no hub */
+    var hubClass = n.curio ? '' : ' in-' + hub.id;
 
     body = (
-      <div className="page-grid">
+      <div className={'page-grid' + hubClass}>
         <div className="page-text">
           <div className="page-top">
             <div className="page-crumbs" id="pCrumbs">{['Brain'].concat(trail).join(' / ')}</div>
@@ -74,8 +75,8 @@ export default function NodePage({ node, instant, stack, reduce, onBack, onGoToN
           </div>
           <div className="pull" id="pPull">
             {n.curio
-              ? <><i style={{ background:'#ffffff', borderStyle:'dashed' }} />Outer orbit · not pulled in yet</>
-              : <><i style={{ background:hub.swatch }} />Pulled toward {hub.label}</>}
+              ? <><i className="orbit" />Outer orbit · not pulled in yet</>
+              : <><i />Pulled toward {hub.label}</>}
           </div>
           <h1 id="pTitle" tabIndex={-1} ref={titleRef}>{n.label}</h1>
           <p className="lede" id="pLede"><Ph text={p.lede || PH_LEDE} /></p>
@@ -112,7 +113,7 @@ export default function NodePage({ node, instant, stack, reduce, onBack, onGoToN
             </div>
           </div>
         </div>
-        <div className="proof" id="pProof" style={{ background:proofBg }}>
+        <div className="proof" id="pProof">
           <div className="cap" id="pProofCap">{p.proof ? 'Proof: ' + p.proof : '[Proof: image, video, live embed, or link]'}</div>
         </div>
       </div>
