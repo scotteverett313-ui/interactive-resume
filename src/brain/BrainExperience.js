@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { ROOT } from './content';
+import { ROOT, TITLES } from './content';
 import Intro from './Intro';
 import BrainMap from './BrainMap';
 import NodePage from './NodePage';
@@ -146,6 +146,8 @@ export default function BrainExperience(){
   /* the map only needs drawing once it is on screen: after the intro, or from partway through the zoom */
   var mapShowing = useCallback(function(){ return doneRef.current || (!!introRef.current && introRef.current.mapShowing()); }, []);
 
+  var atTop = stack.length === 1;
+
   return (
     <div className="brain" data-scheme={palette.scheme} style={vars}>
       <section id="intro" ref={sectionRef} className={done ? 'done' : undefined} aria-label="Intro">
@@ -156,7 +158,19 @@ export default function BrainExperience(){
           <BrainMap stack={stack} done={done} reduce={reduce}
             busyRef={busyRef} modeRef={modeRef} sceneRef={sceneRef} mapLayerRef={mapLayerRef}
             mapShowing={mapShowing} onDive={onDive} onOpenPage={openPage} />
-          <Crumbs done={done} stack={stack} pageNode={page.node} onBack={onBack} onGoTo={goTo} />
+          {/* the opening title stays mounted so the intro can fade it; the map title shows at the top level of the map */}
+          <div id="homeTitle" className="site-title" aria-hidden={done}>
+            <h1>{TITLES.home.title}</h1>
+            {TITLES.home.sub && <p>{TITLES.home.sub}</p>}
+          </div>
+          {done && atTop && !page.node && (
+            <div id="mapTitle" className="site-title">
+              <h1>{TITLES.map.title}</h1>
+              {TITLES.map.sub && <p>{TITLES.map.sub}</p>}
+            </div>
+          )}
+          {/* at the top level the title takes the crumbs' corner; there is nowhere to go back to from there */}
+          <Crumbs done={done && !atTop} stack={stack} pageNode={page.node} onBack={onBack} onGoTo={goTo} />
           <button id="skip" className="chip-btn" type="button" hidden={done} onClick={finishIntro}>Skip intro</button>
           <button id="replay" className="chip-btn" type="button" hidden={!done} onClick={replayIntro}>Replay intro</button>
           <ThemeToggle mode={mode} onToggle={toggleTheme} />

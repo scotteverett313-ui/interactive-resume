@@ -68,8 +68,6 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
 .brain .node.is-deep:focus-visible path{stroke:var(--hub)}
 .brain .lbl{font-family:var(--display);font-weight:800;letter-spacing:-.01em;pointer-events:none;fill:var(--ink)}
 .brain .sub{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;pointer-events:none;fill:var(--ink)}
-/* labels that sit on the ground get a halo of ground color, so a line crossing one passes behind the words */
-.brain .node:not(.is-hub) .lbl,.brain .node:not(.is-hub) .sub,.brain .curio text{paint-order:stroke;stroke:var(--map-ground);stroke-width:6px;stroke-linejoin:round}
 /* a gravity point's label sits on the blob, so it uses that hub's text color */
 .brain .node.is-hub .lbl,.brain .node.is-hub .sub{fill:var(--hub-text)}
 /* connection lines, the dashed outer orbit, and the faint background net */
@@ -111,6 +109,17 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
 @keyframes brain-drip{0%{transform:scaleY(.2)}50%{transform:scaleY(1)}100%{transform:scaleY(.2)}}
 .stage.is-done #hint{opacity:0}
 
+/* the two titles: the opening screen's, and the map's. Same corner, same type, one at a time */
+.brain .site-title{position:absolute;top:calc(18px + env(safe-area-inset-top,0px));left:calc(16px + env(safe-area-inset-left,0px));right:150px;z-index:5;pointer-events:none}
+.brain .site-title h1{font-family:var(--display);font-weight:800;line-height:1;letter-spacing:-.02em;margin:0;text-wrap:balance;color:var(--ink)}
+/* the opening title is the headline; the map's is quieter and has to fit above the outer orbit on a phone */
+#homeTitle h1{font-size:clamp(30px,4.4vw,58px)}
+#mapTitle h1{font-size:clamp(20px,3vw,38px)}
+.brain .site-title p{font-family:var(--mono);font-size:11px;line-height:1.5;letter-spacing:.08em;text-transform:uppercase;margin:10px 0 0;color:var(--ink)}
+.stage.is-done #homeTitle{visibility:hidden}
+#mapTitle{animation:brain-title-in .5s ease both}
+@keyframes brain-title-in{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+
 #crumbs{position:absolute;top:calc(16px + env(safe-area-inset-top,0px));left:calc(16px + env(safe-area-inset-left,0px));right:150px;display:flex;flex-wrap:wrap;align-items:center;gap:6px;z-index:5;font-family:var(--mono);font-size:13px}
 #crumbs button{background:none;border:0;padding:10px 4px;cursor:pointer;text-decoration:underline;text-underline-offset:3px;min-height:44px}
 #crumbs .sep{opacity:.5}
@@ -141,6 +150,8 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
 #page .pull{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase}
 #page .pull i{width:14px;height:14px;border-radius:50%;display:inline-block;background:var(--hub)}
 #page .pull i.orbit{background:transparent;border:2px dashed var(--ink);width:10px;height:10px}
+/* the page title takes focus when a page opens, for screen readers; it is not a control, so it shows no ring */
+#pTitle:focus,#pTitle:focus-visible{outline:none}
 #page h1{font-family:var(--display);font-weight:800;font-size:clamp(34px,5vw,60px);line-height:1;margin:0;letter-spacing:-.02em;text-wrap:balance}
 #page .lede{font-size:clamp(18px,1.8vw,22px);line-height:1.4;font-weight:500;margin:0;max-width:34ch}
 #page h2{font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:500;margin:0 0 8px}
@@ -180,6 +191,6 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
   #legend{display:none}
 }
 @media (prefers-reduced-motion:reduce){
-  .brain .grain,#hint span.line{animation:none}
+  .brain .grain,#hint span.line,#mapTitle{animation:none}
   .brain,.brain *{transition:none!important}
 }

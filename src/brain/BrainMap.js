@@ -19,6 +19,7 @@ function el(tag, attrs){ var e = document.createElementNS(NS, tag); for (var k i
 export function createScene(o){
   var svg = o.svg, nodesG = o.nodesG, linksG = o.linksG, bgNet = o.bgNet, wm = o.wm;
   var curioG = o.curioG, curioLinksG = o.curioLinksG, legend = o.legend, pickHint = o.pickHint, mapLayer = o.mapLayer;
+  var linkMask = o.linkMask, linkMaskAll = o.linkMaskAll;
   var reduce = o.reduce, busyRef = o.busyRef;
   function D(x){ return reduce ? 0 : x; }
   function busy(){ return busyRef.current; }
@@ -83,6 +84,8 @@ export function createScene(o){
     /* the layer's own layout size, not its on-screen box: the intro scales the layer while it zooms in */
     W = Math.max(320, mapLayer.offsetWidth); H = Math.max(320, mapLayer.offsetHeight); M = Math.min(W, H);
     svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+    /* the mask that hides connection lines behind labels covers the whole map */
+    [linkMask, linkMaskAll].forEach(function(e){ e.setAttribute('x', 0); e.setAttribute('y', 0); e.setAttribute('width', W); e.setAttribute('height', H); });
   }
 
   /* background net plus the outer orbit of curiosities */
@@ -247,8 +250,13 @@ export function createScene(o){
     sub.textContent = deeper ? (node.kids.length + ' inside') : 'page';
     g.appendChild(path); g.appendChild(lbl); g.appendChild(sub);
     nodesG.appendChild(g);
+    /* a label that sits on the ground cuts a gap in the connection lines, so a line passes behind the words
+       instead of through them. Nothing is drawn around the text itself. (Gravity points carry their label
+       on the blob, which already covers the lines.) */
+    var gap = null;
+    if (!isHub){ gap = el('rect', { fill:'black', rx:5 }); linkMask.appendChild(gap); }
     var it = { node:node, g:g, path:path, lbl:lbl, spans:spans, sub:sub, isHub:isHub, deeper:deeper, lines:lines.length,
-      idx:i, x:pos.x, y:pos.y, r:pos.r, s:1, o:1, hs:1, lx:0, ly:0, px:0, py:0, dragX:0, dragY:0, hover:false,
+      idx:i, gap:gap, tw:0, twFs:0, x:pos.x, y:pos.y, r:pos.r, s:1, o:1, hs:1, lx:0, ly:0, px:0, py:0, dragX:0, dragY:0, hover:false,
       seed:i * 1.7 + node.label.length * .37, amp: isHub ? .09 : .07 };
     g.addEventListener('pointerenter', function(){ it.hover = true; });
     g.addEventListener('pointerleave', function(){ if (!drag || drag.it !== it) it.hover = false; });
@@ -292,7 +300,10 @@ export function createScene(o){
     v.links.forEach(function(l){ dying.push(l); });
   }
   function bury(list){
-    list.forEach(function(x){ var e = x.g || x.p; if (e && e.parentNode) e.parentNode.removeChild(e); });
+    list.forEach(function(x){
+      var e = x.g || x.p; if (e && e.parentNode) e.parentNode.removeChild(e);
+      if (x.gap && x.gap.parentNode) x.gap.parentNode.removeChild(x.gap);
+    });
     dying = dying.filter(function(x){ return list.indexOf(x) < 0; });
   }
 
@@ -394,6 +405,14 @@ export function createScene(o){
     it.lbl.setAttribute('y', ly.toFixed(1));
     it.spans.forEach(function(s){ s.setAttribute('x', cx.toFixed(1)); });
     it.sub.setAttribute('x', cx.toFixed(1)); it.sub.setAttribute('y', sy.toFixed(1));
+    if (it.gap){
+      /* measure the words once per size (and again if the font arrives late), then keep the gap under them */
+      if (it.twFs !== fs){ var bw = it.lbl.getBBox().width; if (bw > 0){ it.tw = Math.max(bw, it.sub.getBBox().width); it.twFs = fs; } }
+      var gw = (it.tw || rr * 2) + 14, top = ly - fs;
+      it.gap.setAttribute('x', (cx - gw / 2).toFixed(1)); it.gap.setAttribute('y', top.toFixed(1));
+      it.gap.setAttribute('width', gw.toFixed(1)); it.gap.setAttribute('height', (sy + 7 - top).toFixed(1));
+      it.gap.setAttribute('fill-opacity', it.o);
+    }
     it.cx = cx; it.cy = cy; it.rr = rr;
   }
   function drawLink(l, t){
@@ -460,6 +479,8 @@ export function createScene(o){
     window.addEventListener('pointerup', endDrag);
     window.addEventListener('pointercancel', endDrag);
     window.addEventListener('resize', onResize);
+    /* labels are measured for their gaps; measure again once the display font has loaded */
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ view.items.forEach(function(it){ it.twFs = 0; }); });
     raf = requestAnimationFrame(frame);
   }
   function destroy(){
@@ -502,6 +523,7 @@ export function createScene(o){
 export default function BrainMap({ stack, done, reduce, busyRef, modeRef, sceneRef, mapLayerRef, mapShowing, onDive, onOpenPage }){
   var svgRef = useRef(null), nodesRef = useRef(null), linksRef = useRef(null), bgRef = useRef(null), wmRef = useRef(null);
   var curioRef = useRef(null), curioLinksRef = useRef(null), legendRef = useRef(null), pickRef = useRef(null);
+  var maskRef = useRef(null), maskAllRef = useRef(null);
   var cb = useRef(null);
   cb.current = { onDive:onDive, onOpenPage:onOpenPage, mapShowing:mapShowing };
 
@@ -510,6 +532,7 @@ export default function BrainMap({ stack, done, reduce, busyRef, modeRef, sceneR
       svg:svgRef.current, nodesG:nodesRef.current, linksG:linksRef.current, bgNet:bgRef.current, wm:wmRef.current,
       curioG:curioRef.current, curioLinksG:curioLinksRef.current, legend:legendRef.current, pickHint:pickRef.current,
       mapLayer:mapLayerRef.current, reduce:reduce, busyRef:busyRef,
+      linkMask:maskRef.current, linkMaskAll:maskAllRef.current,
       mapShowing:function(){ return cb.current.mapShowing(); },
       onDive:function(n, it){ cb.current.onDive(n, it); },
       onOpenPage:function(n){ cb.current.onOpenPage(n); }
@@ -535,11 +558,17 @@ export default function BrainMap({ stack, done, reduce, busyRef, modeRef, sceneR
   return (
     <div id="mapLayer" ref={mapLayerRef}>
       <svg id="mapSvg" ref={svgRef} aria-label="Brain map. Choose Learn, Teach, or Improve to go deeper.">
+        <defs>
+          {/* white shows the connection lines, black hides them: one black patch per label, added by the engine */}
+          <mask id="linkMask" ref={maskRef} maskUnits="userSpaceOnUse">
+            <rect ref={maskAllRef} fill="white" />
+          </mask>
+        </defs>
         <g id="bgNet" ref={bgRef} aria-hidden="true" />
         <text id="wm" ref={wmRef} textAnchor="middle" dominantBaseline="middle" />
         <g id="curioLinks" ref={curioLinksRef} aria-hidden="true" />
         <g id="curio" ref={curioRef} className="curio" />
-        <g id="links" ref={linksRef} filter="url(#boil)" aria-hidden="true" />
+        <g id="links" ref={linksRef} mask="url(#linkMask)" filter="url(#boil)" aria-hidden="true" />
         <g id="nodes" ref={nodesRef} />
       </svg>
       <div id="legend" ref={legendRef} hidden><span><b className="fill" />goes deeper</span><span><b className="open" />opens a page</span></div>

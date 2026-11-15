@@ -88,6 +88,13 @@ not need to touch any component to change the content.
   anywhere in the brain, up or down any branch. Links are one-way; add the
   reverse on the other node if you want it both ways.
 
+### The titles
+
+The headline on the opening screen and the one on the map are `TITLES` at the
+top of `src/brain/content.js`. Each has a `title` and an optional small `sub`
+line. The opening title fades as the intro starts; the map title shows at the
+top level of the map and gives way to the breadcrumbs once you go into a hub.
+
 ### Adding a node
 
 1. Find the parent inside `ROOT` and add an object to its `kids`.
@@ -159,9 +166,10 @@ Inside a hub the nodes are scattered loosely, not arranged in a ring. The
 scatter is seeded by the hub's `id`, so each level always looks the same, and
 it knows how much room each label needs, so nodes never overlap each other or
 the buttons and tags around the edge. Each node is joined to its nearest
-neighbors in a branching web. Labels have a halo of ground color, so a line
-crossing one passes behind the words. The scatter and the web are the
-`scatter` and `webLinks` functions in `src/brain/blob.js`.
+neighbors in a branching web. Where a label sits, the connection lines are cut
+away, so a line passes behind the words with nothing drawn around the text.
+The scatter and the web are the `scatter` and `webLinks` functions in
+`src/brain/blob.js`.
 
 The dashed lines around the outside come in two kinds. A line from a curiosity
 to the gravity point it feeds is dotted and tinted with that hub's color; the

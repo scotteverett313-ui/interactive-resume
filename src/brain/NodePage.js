@@ -15,7 +15,8 @@ function Ph({ text }){
    stack:    current map stack, for the crumb line
    onBack, onGoToNode(node), onDiveTo(hubId), onOpenPage(node) */
 export default function NodePage({ node, instant, stack, reduce, onBack, onGoToNode, onDiveTo, onOpenPage }){
-  var pageRef = useRef(null), titleRef = useRef(null);
+  var pageRef = useRef(null), titleRef = useRef(null), guardRef = useRef(0);
+  useEffect(function(){ return function(){ clearTimeout(guardRef.current); }; }, []);
   var D = function(x){ return reduce ? 0 : x; };
   var [shown, setShown] = useState(null);
 
@@ -27,6 +28,11 @@ export default function NodePage({ node, instant, stack, reduce, onBack, onGoToN
       if (page.hidden){
         gsap.killTweensOf(page);
         page.hidden = false;
+        /* on a touch screen the tap that opened this page is followed by a click at the same spot. Without
+           this pause that click lands on whatever the page puts there, such as its Back button */
+        page.style.pointerEvents = 'none';
+        clearTimeout(guardRef.current);
+        guardRef.current = setTimeout(function(){ page.style.pointerEvents = ''; }, 350);
         gsap.fromTo(page, { opacity:0, y:30 }, { opacity:1, y:0, duration:D(.45), ease:'power3.out', delay:D(.15) });
       }
     } else if (!page.hidden){

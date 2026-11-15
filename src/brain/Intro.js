@@ -72,7 +72,7 @@ var Intro = forwardRef(function Intro({ stageRef, sectionRef, mapLayerRef, dotTa
     }
     /* lift until the top of the brain sits just inside the top of the drawing */
     var lift = -(B.cy - B.size * B.fill / 2 - 8);
-    var hint = sectionRef.current.querySelector('#hint');
+    var hint = sectionRef.current.querySelector('#hint'), homeTitle = sectionRef.current.querySelector('#homeTitle');
     gsap.set($('#brainWrap'), { svgOrigin:B.cx + ' ' + B.cy });
     /* one dash as long as the whole line, slid into view, draws the cut on */
     var slitLen = Math.ceil(slit.getTotalLength()) + 2;
@@ -87,6 +87,8 @@ var Intro = forwardRef(function Intro({ stageRef, sectionRef, mapLayerRef, dotTa
     var arrive = { p:0 };
     var tl = gsap.timeline({ paused:true });
     tl.to(hint, { opacity:0, duration:.5 }, 0)
+      /* the opening title lifts away as the scroll begins */
+      .to(homeTitle, { opacity:0, y:-14, duration:.9, ease:'power1.in' }, 0)
 
       /* 1. the cut draws across the forehead */
       .fromTo(slit, { opacity:0 }, { opacity:1, duration:.3 }, 0)

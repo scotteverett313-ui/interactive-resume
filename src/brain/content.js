@@ -33,6 +33,10 @@
       to that node's page.links. Links are one-way; add the reverse
       on the other node if you want it both ways.
 
+   THE TITLES
+   The headline on the opening screen and the one on the map are in
+   TITLES, just below this comment.
+
    THE OUTER ORBIT
    CURIO_ROOT holds the curiosities that float around the outside of
    the brain. Each one also has:
@@ -41,6 +45,15 @@
        also:   ids of other curiosities it touches (drawn as dashed lines)
        sub:    optional short tag shown after the label
    ============================================================ */
+
+/* The two titles in the top-left corner.
+     home: on the opening screen with the character. It fades as the intro starts.
+     map:  on the map, once you are inside the brain.
+   `sub` is the small line under the title; leave it as '' for none. */
+export const TITLES = {
+  home: { title: "Inside Scott's Brain", sub: 'Scott Everett · Sr. UX/UI Designer & Educator' },
+  map:  { title: 'What I learn, teach, and improve', sub: '' }
+};
 
 /* Shown on a page when that field is still blank. */
 export const PH_LEDE = '[One line: what this is to me]';
