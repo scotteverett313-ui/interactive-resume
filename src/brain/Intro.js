@@ -1,4 +1,4 @@
-import React, { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
+import React, { forwardRef, useEffect, useImperativeHandle, useLayoutEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -23,17 +23,32 @@ gsap.registerPlugin(ScrollTrigger);
 
    The art and its measurements live in character.js.
 
-   Scrolling the 520vh #intro section scrubs a GSAP timeline that opens the
-   head, lifts the brain, turns it through its angles, and zooms until
-   the map layer fades in on top.
+   Scrolling the tall #intro section scrubs a GSAP timeline:
+
+     1. a cut draws across the forehead
+     2. the top of the head lifts off and leaves through the top of the screen
+     3. the brain rises out of the hollow head, already turning
+     4. the head drops away while the brain keeps turning and starts to grow
+     5. the map's gravity points and connections appear inside the brain and
+        grow with it, the brain dissolves, and the map is left full screen
+
+   The phases overlap so something is always moving. Past the point where the
+   brain is out, letting go of the scroll plays the rest through on its own.
 
      sectionRef:  the tall #intro section ScrollTrigger watches
-     mapLayerRef: the map, faded in at the end of the timeline
+     mapLayerRef: the map, grown and faded in during the zoom
      dotTagRef:   the depth-nav tag, written with the scroll percent
      done:        true once the intro is finished or skipped; false again on replay
      onFinish:    called when the scrub reaches the end
 
-   The ref handle exposes progress() so the map can start drawing as the zoom lands. */
+   The ref handle exposes mapShowing() so the map only draws once it is on screen. */
+
+/* how many times bigger the brain gets by the end of the zoom */
+var ZOOM = 11;
+/* a steady zoom: each bit of scroll multiplies the size by the same amount,
+   so it never stalls at the start or rushes at the end */
+function zoomEase(p){ return (Math.pow(ZOOM, p) - 1) / (ZOOM - 1); }
+
 var Intro = forwardRef(function Intro({ stageRef, sectionRef, mapLayerRef, dotTagRef, reduce, done, onFinish }, ref){
   var svgRef = useRef(null), boilRef = useRef(null), backdropRef = useRef(null), backdropClipRef = useRef(null);
   var tlRef = useRef(null), triggerRef = useRef(null);
@@ -62,26 +77,46 @@ var Intro = forwardRef(function Intro({ stageRef, sectionRef, mapLayerRef, dotTa
     slit.setAttribute('stroke-dasharray', slitLen);
     /* everything that travels with the head when it drops away */
     var figure = [$('#headG'), $('#bodyG'), $('#backdropG'), $('#insideG'), $('#rimG')];
+    var brain = $('#brainWrap'), mapLayer = mapLayerRef.current;
+    /* the top of the head and its shadow tilt around the middle of the cap as they lift */
+    var cap = [$('#capG'), $('#capShade')];
+    gsap.set(cap, { svgOrigin:'400 205' });
+
     var tl = gsap.timeline({ paused:true });
-    tl.to(hint, { opacity:0, duration:.6 }, 0)
-      .fromTo(slit, { opacity:0 }, { opacity:1, duration:.4 }, 0)
-      .fromTo(slit, { attr:{ 'stroke-dashoffset':slitLen } }, { attr:{ 'stroke-dashoffset':0 }, duration:1.4, ease:'none' }, 0)
-      .to([$('#capG'), $('#capShade')], { y:-40, opacity:0, duration:1 }, 1.5)
-      .to($('#brainWrap'), { opacity:1, duration:.6 }, 1.5)
-      .to([$('#insideG'), $('#rimG')], { opacity:1, duration:.3 }, 1.5)
-      .to(slit, { opacity:0, duration:.5 }, 2)
-      .to($('#brainWrap'), { y:lift, duration:2, ease:'power2.inOut' }, 2.5)
-      .to(figure, { y:150, duration:2, ease:'power2.inOut' }, 2.5)
-      .to(svg.querySelectorAll('.pupil'), { y:C.lookUp.y, x:C.lookUp.x, duration:.8 }, 2.7)
-      .to(figure, { y:560, duration:2, ease:'power2.in' }, 4.6)
-      .to($('#backdropG'), { opacity:0, duration:1.4, ease:'power1.in' }, 4.6)
-      .to($('#brainWrap'), { y:78, scale:1.7, duration:2, ease:'power2.inOut' }, 4.6)
-      .to(turn, { a:nVariants - 1, duration:2, ease:'none', onUpdate:setVariant }, 4.6)
-      .to(angleTag, { opacity:1, duration:.3 }, 4.6)
-      .to(angleTag, { opacity:0, duration:.3 }, 6.4)
-      .to($('#brainWrap'), { scale:11, duration:2.6, ease:'power2.in' }, 6.6)
-      .to(mapLayerRef.current, { opacity:1, duration:1 }, 8.6)
-      .to(svg, { opacity:0, duration:1 }, 8.8);
+    tl.to(hint, { opacity:0, duration:.5 }, 0)
+
+      /* 1. the cut draws across the forehead */
+      .fromTo(slit, { opacity:0 }, { opacity:1, duration:.3 }, 0)
+      .fromTo(slit, { attr:{ 'stroke-dashoffset':slitLen } }, { attr:{ 'stroke-dashoffset':0 }, duration:1, ease:'none' }, 0)
+
+      /* 2. the top of the head lifts off: slow at first, then gone through the top of the screen.
+            No fade. The brain and the inside of the head are switched on underneath it just before */
+      .to([brain, $('#insideG'), $('#rimG')], { opacity:1, duration:.15 }, 1)
+      .to(cap, { y:-480, rotation:-8, duration:2.4, ease:'power2.in' }, 1)
+      .to(slit, { opacity:0, duration:.4 }, 1.2)
+
+      /* 3. the brain rises out once the lid is clear, turning as it comes; the head sinks to give it room */
+      .to(brain, { y:lift, duration:2.2, ease:'power2.inOut' }, 2.2)
+      .to(figure, { y:150, duration:2, ease:'power2.inOut' }, 2.4)
+      .to(svg.querySelectorAll('.pupil'), { y:C.lookUp.y, x:C.lookUp.x, duration:.8 }, 2.6)
+      .to(turn, { a:nVariants - 1, duration:4.4, ease:'none', onUpdate:setVariant }, 3)
+      .to(angleTag, { opacity:1, duration:.3 }, 3.4)
+      .to(angleTag, { opacity:0, duration:.3 }, 5)
+
+      /* 4. the head drops away while the brain settles in the middle and starts to grow */
+      .addLabel('zoom', 4.4)
+      .to(figure, { y:560, duration:1.6, ease:'power2.in' }, 'zoom')
+      .to($('#backdropG'), { opacity:0, duration:1, ease:'power1.in' }, 'zoom')
+      .to(brain, { y:78, duration:1, ease:'power2.inOut' }, 'zoom')
+      .to(brain, { scale:ZOOM, duration:4.6, ease:zoomEase }, 'zoom')
+
+      /* 5. the map starts small inside the brain and grows in step with it, so the gravity points
+            and their connections are on screen early. Then the brain dissolves underneath */
+      .fromTo(mapLayer, { scale:1 / ZOOM }, { scale:1, duration:4.6, ease:zoomEase }, 'zoom')
+      .addLabel('map', 5)
+      .to(mapLayer, { opacity:1, duration:1 }, 'map')
+      .to(brain, { opacity:0, duration:1.6 }, 7.2)
+      .to(svg, { opacity:0, duration:.6 }, 8.4);
     tlRef.current = tl;
     return function(){
       if (triggerRef.current){ triggerRef.current.kill(); triggerRef.current = null; }
@@ -89,6 +124,12 @@ var Intro = forwardRef(function Intro({ stageRef, sectionRef, mapLayerRef, dotTa
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  /* the moment the intro is done, stop listening to scroll. This runs before the page jumps back to the top,
+     so that jump is never read as "the intro is at 0%" */
+  useLayoutEffect(function(){
+    if (done && triggerRef.current){ triggerRef.current.kill(); triggerRef.current = null; }
+  }, [done]);
 
   /* done: park the timeline at the end. not done (first load, or replay): rewind and let scroll drive it */
   useEffect(function(){
@@ -99,18 +140,31 @@ var Intro = forwardRef(function Intro({ stageRef, sectionRef, mapLayerRef, dotTa
       return;
     }
     tl.progress(0);
+    /* past this point the brain is out of the head, and the rest plays through on its own */
+    var autoFrom = tl.labels.zoom / tl.duration();
     triggerRef.current = ScrollTrigger.create({
-      trigger:sectionRef.current, start:'top top', end:'bottom bottom', scrub:.5, animation:tl,
+      trigger:sectionRef.current, start:'top top', end:'bottom bottom', scrub:.3, animation:tl,
+      /* let go while scrolling forward past autoFrom and the scroll carries on to the end; anywhere else it stays put */
+      snap:{
+        snapTo:function(p, self){ return self.direction > 0 && self.progress > autoFrom ? 1 : self.progress; },
+        duration:{ min:.8, max:2.2 }, delay:.05, ease:'power1.inOut', inertia:false
+      },
       onUpdate:function(self){
         if (dotTagRef.current) dotTagRef.current.textContent = 'Intro ' + Math.round(self.progress * 100) + '%';
-        if (self.progress > .995) onFinishRef.current();
-      }
+        if (self.progress > .995 && tl.progress() > .99) onFinishRef.current();
+      },
+      /* finish once the smoothed animation has caught up with the scroll, so the last moment is not cut off */
+      onScrubComplete:function(self){ if (self.progress > .995) onFinishRef.current(); }
     });
     ScrollTrigger.refresh();
   }, [done, sectionRef, dotTagRef]);
 
   useImperativeHandle(ref, function(){
-    return { progress:function(){ return tlRef.current ? tlRef.current.progress() : 0; } };
+    return {
+      progress:function(){ return tlRef.current ? tlRef.current.progress() : 0; },
+      /* true from just before the map starts to fade in during the zoom */
+      mapShowing:function(){ var tl = tlRef.current; return !!tl && tl.time() >= tl.labels.map - .1; }
+    };
   }, []);
 
   /* tall phone screens: crop in on the bust so it fills the height instead of floating small */

@@ -29,8 +29,8 @@ export function createScene(o){
   var curioLinks = [], curioPos = {}, hot = {};
 
   function measure(){
-    var r = svg.getBoundingClientRect();
-    W = Math.max(320, r.width); H = Math.max(320, r.height); M = Math.min(W, H);
+    /* the layer's own layout size, not its on-screen box: the intro scales the layer while it zooms in */
+    W = Math.max(320, mapLayer.offsetWidth); H = Math.max(320, mapLayer.offsetHeight); M = Math.min(W, H);
     svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
   }
 
@@ -288,7 +288,7 @@ export function createScene(o){
   }
   function frame(now){
     var t = reduce ? 0 : now / 1000;
-    if (done || o.getIntroProgress() > .8){
+    if (done || o.mapShowing()){
       view.items.forEach(function(it){ drawItem(it, t); });
       dying.forEach(function(x){ if (x.g) drawItem(x, t); });
       view.links.forEach(function(l){ drawLink(l, t); });
@@ -378,18 +378,18 @@ export function createScene(o){
              changes the stack, so the map knows how to transition
    sceneRef: BrainExperience uses it to call activateById (curio "Feeds" buttons)
    ------------------------------------------------------------------ */
-export default function BrainMap({ stack, done, reduce, busyRef, modeRef, sceneRef, mapLayerRef, getIntroProgress, onDive, onOpenPage }){
+export default function BrainMap({ stack, done, reduce, busyRef, modeRef, sceneRef, mapLayerRef, mapShowing, onDive, onOpenPage }){
   var svgRef = useRef(null), nodesRef = useRef(null), linksRef = useRef(null), bgRef = useRef(null), wmRef = useRef(null);
   var curioRef = useRef(null), curioLinksRef = useRef(null), legendRef = useRef(null), pickRef = useRef(null);
   var cb = useRef(null);
-  cb.current = { onDive:onDive, onOpenPage:onOpenPage, getIntroProgress:getIntroProgress };
+  cb.current = { onDive:onDive, onOpenPage:onOpenPage, mapShowing:mapShowing };
 
   useLayoutEffect(function(){
     var scene = createScene({
       svg:svgRef.current, nodesG:nodesRef.current, linksG:linksRef.current, bgNet:bgRef.current, wm:wmRef.current,
       curioG:curioRef.current, curioLinksG:curioLinksRef.current, legend:legendRef.current, pickHint:pickRef.current,
       mapLayer:mapLayerRef.current, reduce:reduce, busyRef:busyRef,
-      getIntroProgress:function(){ return cb.current.getIntroProgress(); },
+      mapShowing:function(){ return cb.current.mapShowing(); },
       onDive:function(n, it){ cb.current.onDive(n, it); },
       onOpenPage:function(n){ cb.current.onOpenPage(n); }
     });

@@ -28,7 +28,8 @@ html.brain-route ::-webkit-scrollbar-track{background:#ffffff}
 html.brain-route ::-webkit-scrollbar-thumb,html.brain-route ::-webkit-scrollbar-thumb:hover{background:#1a1a1a}
 html.brain-route ::selection{background:#1a1a1a;color:#ffffff}
 
-#intro{position:relative;height:520vh}
+/* the intro's scroll length: taller means more scrolling to get through it */
+#intro{position:relative;height:300vh}
 #intro.done{height:100vh;height:100dvh}
 .brain .stage{position:sticky;top:0;height:100vh;height:100dvh;overflow:hidden;background:var(--yellow)}
 
@@ -41,6 +42,8 @@ html.brain-route ::selection{background:#1a1a1a;color:#ffffff}
 #introSvg{position:absolute;inset:0;width:100%;height:100%}
 #mapLayer{position:absolute;inset:0;background:var(--brain);opacity:0;pointer-events:none}
 .stage.is-done #mapLayer{pointer-events:auto;opacity:1}
+/* during the intro the map floats over the growing brain, so it has no ground of its own until the intro is done */
+.stage:not(.is-done) #mapLayer{background:transparent!important}
 #mapSvg{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:manipulation}
 
 .brain .node{cursor:pointer;outline:none}

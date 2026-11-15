@@ -106,7 +106,8 @@ export default function BrainExperience(){
     return function(){ document.removeEventListener('keydown', onKey); };
   }, [closePage, goTo]);
 
-  var getIntroProgress = useCallback(function(){ return doneRef.current ? 1 : (introRef.current ? introRef.current.progress() : 0); }, []);
+  /* the map only needs drawing once it is on screen: after the intro, or from partway through the zoom */
+  var mapShowing = useCallback(function(){ return doneRef.current || (!!introRef.current && introRef.current.mapShowing()); }, []);
 
   return (
     <div className="brain">
@@ -117,7 +118,7 @@ export default function BrainExperience(){
             reduce={reduce} done={done} onFinish={finishIntro} />
           <BrainMap stack={stack} done={done} reduce={reduce}
             busyRef={busyRef} modeRef={modeRef} sceneRef={sceneRef} mapLayerRef={mapLayerRef}
-            getIntroProgress={getIntroProgress} onDive={onDive} onOpenPage={openPage} />
+            mapShowing={mapShowing} onDive={onDive} onOpenPage={openPage} />
           <Crumbs done={done} stack={stack} pageNode={page.node} onBack={onBack} onGoTo={goTo} />
           <button id="skip" className="chip-btn" type="button" hidden={done} onClick={finishIntro}>Skip intro</button>
           <button id="replay" className="chip-btn" type="button" hidden={!done} onClick={replayIntro}>Replay intro</button>

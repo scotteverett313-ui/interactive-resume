@@ -139,6 +139,21 @@ The scroll timeline in `src/brain/Intro.js` moves these layers by id, so keep
 the names: `backdropG`, `insideG`, `rimG`, `bodyG`, `headG` (with two `.pupil` groups), `capG`, `slit`,
 `brainWrap` (with one `.bv` image per angle), and `angleTag`.
 
+### The pace of the intro
+
+The intro is scrubbed by scroll. Two things control how it feels:
+
+- **How much scrolling it takes.** The height of `#intro` in
+  `src/brain/brain.css` (300vh means two screens of scrolling). Taller is
+  slower.
+- **What happens when.** The timeline in `src/brain/Intro.js`, written in
+  order with a comment on each phase: the cut, the lid lifting off, the brain
+  rising, the head dropping away, and the zoom into the map. The numbers at the
+  end of each line are start times; the timeline is 9 units long.
+
+Once the brain is out of the head, letting go of the scroll plays the rest
+through on its own. Before that point it stays wherever you stop.
+
 ### Where the rest lives
 
 | File | What it does |
