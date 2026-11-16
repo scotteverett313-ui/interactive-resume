@@ -21,11 +21,6 @@
       "permanent": false
     },
     {
-      "source": "/work",
-      "destination": "/learn",
-      "permanent": false
-    },
-    {
       "source": "/blog",
       "destination": "/notes",
       "permanent": false
@@ -33,6 +28,26 @@
     {
       "source": "/post/:slug",
       "destination": "/notes/:slug",
+      "permanent": false
+    },
+    {
+      "source": "/learn",
+      "destination": "/work",
+      "permanent": false
+    },
+    {
+      "source": "/learn/:path*",
+      "destination": "/work",
+      "permanent": false
+    },
+    {
+      "source": "/improve",
+      "destination": "/build",
+      "permanent": false
+    },
+    {
+      "source": "/improve/:path*",
+      "destination": "/build/:path*",
       "permanent": false
     }
   ],

@@ -28,7 +28,7 @@ export const STUDIO = {
   title: "Let's work on something.",
   intro: 'I design, teach, and build. Tell me what you need.',
   ways: [
-    { name: 'A project', text: 'Brand, web, or product design.', see: 'sed' },
+    { name: 'A project', text: 'Brand, web, or product design.', see: 'cases' },
     { name: 'An ongoing partner', text: 'Monthly design support, from $299.', see: 'sedstudio' },
     { name: 'Teaching', text: 'Workshops, guest talks, or a full-time role.', see: 'teach' }
   ],

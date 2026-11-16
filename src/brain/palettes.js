@@ -12,7 +12,7 @@
      paper      small surfaces that sit on the ground: buttons, tags, chips
      ink        lines and text
      muted      secondary text
-     hubs       the three gravity points, each { fill, text }
+     hubs       the three gravity points (work, teach, build), each { fill, text }
                 fill is the blob, text is the label that sits on it
 
    On the map, a node that only opens a page takes its hub's fill.
@@ -39,9 +39,9 @@ export const PALETTES = {
     ink: '#222A2A',
     muted: '#525A57',
     hubs: {
-      learn:   { fill: '#4FBBBC', text: '#222A2A' },
-      teach:   { fill: '#EC4624', text: '#222A2A' },
-      improve: { fill: '#F49885', text: '#222A2A' }
+      work:  { fill: '#4FBBBC', text: '#222A2A' },
+      teach: { fill: '#EC4624', text: '#222A2A' },
+      build: { fill: '#F49885', text: '#222A2A' }
     }
   },
 
@@ -55,9 +55,9 @@ export const PALETTES = {
     ink: '#E2DAC2',
     muted: '#B8B19C',
     hubs: {
-      learn:   { fill: '#4FBBBC', text: '#222A2A' },
-      teach:   { fill: '#F39120', text: '#222A2A' },
-      improve: { fill: '#6764C4', text: '#FFFFFF' }
+      work:  { fill: '#4FBBBC', text: '#222A2A' },
+      teach: { fill: '#F39120', text: '#222A2A' },
+      build: { fill: '#6764C4', text: '#FFFFFF' }
     }
   }
 };
@@ -70,8 +70,8 @@ export function paletteVars(p){
     '--paper': p.paper,
     '--ink': p.ink,
     '--muted': p.muted,
-    '--learn': p.hubs.learn.fill, '--learn-text': p.hubs.learn.text,
+    '--work': p.hubs.work.fill, '--work-text': p.hubs.work.text,
     '--teach': p.hubs.teach.fill, '--teach-text': p.hubs.teach.text,
-    '--improve': p.hubs.improve.fill, '--improve-text': p.hubs.improve.text
+    '--build': p.hubs.build.fill, '--build-text': p.hubs.build.text
   };
 }

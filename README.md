@@ -97,14 +97,16 @@ intro and lands straight on that place. The Back and Forward buttons work.
 | Address | What it shows |
 |---|---|
 | `/` | The opening screen, then the map |
-| `/learn`, `/learn/ui-ux` | A level of the map |
-| `/learn/ui-ux/civilla` | A page |
+| `/work`, `/work/case-studies` | A level of the map |
+| `/work/case-studies/civilla` | A page |
+| `/work/resume` | The resume, shown on screen with a download button |
 | `/orbit`, `/orbit/gardening` | The outer orbit's pages |
 | `/work-with-me` | The SE\|Design services page |
 | `/notes`, `/notes/<slug>` | The list of notes, and one note |
 | `/resume` | The classic resume |
 
-A node's part of the address comes from its label ("UI/UX" becomes `ui-ux`).
+A node's part of the address comes from its label ("Case studies" becomes
+`case-studies`).
 Renaming a node changes its address. To pin it, give the node a `slug` in
 `content.js`. The rules are in `src/brain/routes.js`.
 
@@ -125,6 +127,23 @@ The blog. Each note is one entry in `src/brain/notes.js`, newest first. To post,
 add an entry at the top; the comment in that file lists the fields. A note's
 `links` become "Connects to" buttons that jump into the brain.
 
+### The three gravity points
+
+- **Work** is the body of work, sorted by what a visitor is looking for: Case
+  studies, What I do, Background, and the Resume.
+- **Teach** is teaching: where, what, workshops, and internships.
+- **Build** is what I am making and getting better at now.
+
+### The resume
+
+`/work/resume` shows the resume on screen and offers it as a download. Two
+things in `public/cv/` make that work: `scott-everett-resume.pdf` is the file
+people download, and `page-1.webp` is a picture of its page, which is what
+shows on screen (a picture displays on every phone; an embedded PDF does not).
+To use a different resume, replace the PDF and export a picture of each page
+under the same names, adding `page-2.webp` to the `pages` list in `content.js`
+if it runs to two pages.
+
 ### Pictures on pages
 
 Put a picture in `public/proof/` and point a page at it with
@@ -135,8 +154,10 @@ Put a picture in `public/proof/` and point a page at it with
 
 `vercel.json` sends the old Wix addresses to their new homes, so existing links
 keep working once the domain points here: `/partnershiplevels`, `/contact`, and
-`/stopguessing` go to `/work-with-me`, `/work` to `/learn`, `/about` to `/`,
-`/blog` to `/notes`, and `/post/<slug>` to `/notes/<slug>`. They are temporary
+`/stopguessing` go to `/work-with-me`, `/about` to `/`, `/blog` to `/notes`,
+and `/post/<slug>` to `/notes/<slug>`. The old `/work` address needs no
+redirect, since Work is now a level of the map. Links shared while the hubs
+were called Learn and Improve go to `/work` and `/build`. They are temporary
 redirects for now; change `"permanent": false` to `true` once the move is final.
 
 ### The titles
@@ -208,7 +229,7 @@ It holds two palettes, `light` and `dark`, and each fills the same roles:
 | `paper` | Small surfaces on the ground: buttons, tags, chips |
 | `ink` | Lines and text |
 | `muted` | Secondary text |
-| `hubs.learn`, `hubs.teach`, `hubs.improve` | Each gravity point: `fill` for the blob, `text` for the label on it |
+| `hubs.work`, `hubs.teach`, `hubs.build` | Each gravity point: `fill` for the blob, `text` for the label on it |
 
 On the map, blobs are flat shapes with no outline. A node that only opens a
 page takes its hub's color; a node that goes deeper uses ink.
@@ -237,8 +258,8 @@ for one visit, which is useful for sharing a link. This lives in
 `src/brain/ThemeToggle.js`.
 
 `BrainExperience.js` sets the active palette on the brain root as CSS custom
-properties (`--ground`, `--paper`, `--ink`, `--muted`, `--learn`, `--teach`,
-`--improve`, and a `-text` version of each hub). `brain.css` and the SVG use
+properties (`--ground`, `--paper`, `--ink`, `--muted`, `--work`, `--teach`,
+`--build`, and a `-text` version of each hub). `brain.css` and the SVG use
 only those, so there are no hex codes anywhere else. The one exception is
 `character.js`, which holds colors that belong to the character art itself
 (eyes, the cut line, the inside of the head) and stay the same in both modes.

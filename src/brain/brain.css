@@ -4,7 +4,7 @@
    COLOR: there are no hex codes in this file. Every color is one of the tokens that
    BrainExperience sets on the .brain root from the active palette in palettes.js:
      --ground  --map-ground  --paper  --ink  --muted
-     --learn  --teach  --improve   and  --learn-text  --teach-text  --improve-text
+     --work  --teach  --build   and  --work-text  --teach-text  --build-text
    Inside a hub, --hub and --hub-text point at that hub's pair (see "which hub" below). */
 .brain{
   --display:'Bricolage Grotesque','Arial Black',system-ui,sans-serif;
@@ -20,9 +20,9 @@
 .brain :focus-visible{outline:3px solid var(--ink);outline-offset:3px}
 
 /* which hub: anything carrying one of these classes (a map node, the map layer, a page) gets that hub's colors */
-.brain .in-learn{--hub:var(--learn);--hub-text:var(--learn-text)}
+.brain .in-work{--hub:var(--work);--hub-text:var(--work-text)}
 .brain .in-teach{--hub:var(--teach);--hub-text:var(--teach-text)}
-.brain .in-improve{--hub:var(--improve);--hub-text:var(--improve-text)}
+.brain .in-build{--hub:var(--build);--hub-text:var(--build-text)}
 .brain [hidden]{display:none!important}
 .brain img{max-width:100%}
 
@@ -97,6 +97,11 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
 .brain .chip-btn.solid{background:var(--ink);color:var(--paper)}
 .brain .chip-btn.solid:hover{background:var(--paper);color:var(--ink)}
 .brain a.chip-btn{display:inline-flex;align-items:center;text-decoration:none;box-sizing:border-box}
+/* a link drawn as a chip takes the chip's colors, not the page's link color */
+.brain a.chip-btn{color:var(--ink)}
+.brain a.chip-btn:hover{color:var(--paper)}
+.brain a.chip-btn.solid{color:var(--paper)}
+.brain a.chip-btn.solid:hover{color:var(--ink)}
 .brain .chip-btn[disabled]{opacity:.6;cursor:default}
 
 /* the two doors that are always there, bottom-left on the opening screen and the map. Pages cover them */
@@ -181,6 +186,13 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
 #page .thumbs .arrow{flex:0 0 auto;border:0;background:none;display:grid;place-items:center;font-size:24px;width:30px}
 #page .proof{position:relative;min-height:320px;border-left:2px solid var(--ink);display:flex;align-items:flex-end;padding:24px;padding-right:max(64px,env(safe-area-inset-right,0px));
   background:repeating-linear-gradient(135deg,transparent 0 18px,color-mix(in srgb,var(--ink) 14%,transparent) 18px 20px),var(--ground)}
+/* a document page (the resume): its pages as pictures, on a white sheet like paper, with the download button above */
+#page .page-doc{max-width:980px;margin:0 auto;padding:calc(20px + env(safe-area-inset-top,0px)) 72px 64px 24px;display:flex;flex-direction:column;gap:22px}
+#page .doc-head{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap}
+#page .doc-head > div:first-child{display:flex;flex-direction:column;gap:12px}
+#page .doc-actions{display:flex;gap:10px;flex-wrap:wrap}
+#page .doc-pages{display:flex;flex-direction:column;gap:18px}
+#page .doc-pages img{display:block;width:100%;height:auto;max-width:none;border:2px solid var(--ink);border-radius:6px;box-sizing:border-box}
 #page .proof.has-image{background:var(--ground)}
 #page .proof img{position:absolute;inset:0;width:100%;height:100%;max-width:none;object-fit:cover}
 #page .proof .cap{position:relative;background:var(--paper);border:2px solid var(--ink);padding:10px 14px;font-family:var(--mono);font-size:12px;letter-spacing:.04em;max-width:100%}
@@ -250,6 +262,7 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
   #page .page-grid{grid-template-columns:minmax(0,1fr)}
   #page .proof{order:-1;min-height:0;aspect-ratio:16/10;border-left:0;border-bottom:2px solid var(--ink)}
   #page .page-text{padding-right:max(56px,env(safe-area-inset-right,0px))}
+  #page .page-doc{padding-right:56px;padding-left:16px}
   #legend{display:none}
   /* the site buttons take the bottom-left corner, so the centered hints move up out of their way */
   #hint{bottom:calc(74px + env(safe-area-inset-bottom,0px))}

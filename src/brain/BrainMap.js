@@ -195,8 +195,8 @@ export function createScene(o){
   function layout(node){
     var kids = node.kids || [];
     if (node === ROOT){
-      var spots = { learn:[.27,.37,.17], teach:[.5,.69,.18], improve:[.73,.35,.13] };
-      if (W < H * .8) spots = { learn:[.32,.3,.2], teach:[.5,.66,.21], improve:[.72,.42,.15] };
+      var spots = { work:[.27,.37,.17], teach:[.5,.69,.18], build:[.73,.35,.13] };
+      if (W < H * .8) spots = { work:[.32,.3,.2], teach:[.5,.66,.21], build:[.72,.42,.15] };
       return kids.map(function(k){ var s = spots[k.id]; return { x:s[0]*W, y:s[1]*H, r:s[2]*M }; });
     }
     /* inside a hub: a loose scatter, not a ring. Each node gets room for its blob plus the label and tag
@@ -562,7 +562,7 @@ export default function BrainMap({ stack, done, reduce, busyRef, modeRef, sceneR
 
   return (
     <div id="mapLayer" ref={mapLayerRef}>
-      <svg id="mapSvg" ref={svgRef} aria-label="Brain map. Choose Learn, Teach, or Improve to go deeper.">
+      <svg id="mapSvg" ref={svgRef} aria-label="Brain map. Choose Work, Teach, or Build to go deeper.">
         <defs>
           {/* white shows the connection lines, black hides them: one black patch per label, added by the engine */}
           <mask id="linkMask" ref={maskRef} maskUnits="userSpaceOnUse">

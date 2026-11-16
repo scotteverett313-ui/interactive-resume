@@ -5,16 +5,17 @@ import { NOTE_BY_SLUG } from './notes';
    Addresses. Every place in the brain has its own link:
 
      /                              the opening screen, then the map
-     /learn                         a gravity point's level
-     /learn/ui-ux                   a level deeper
-     /learn/ui-ux/civilla           a page
+     /work                          a gravity point's level
+     /work/case-studies             a level deeper
+     /work/case-studies/civilla     a page
+     /work/resume                   the resume, shown on screen with a download button
      /orbit                         the "Can't stop thinking about" page
      /orbit/gardening               a curiosity's page
      /work-with-me                  the SE|Design services page
      /notes  and  /notes/<slug>     the notes list, and one note
 
-   A node's part of the address is made from its label ("UI/UX" gives
-   "ui-ux"). To pin it so it survives a rename, give the node a
+   A node's part of the address is made from its label ("Case studies"
+   gives "case-studies"). To pin it so it survives a rename, give the node a
    `slug` in content.js.
    ============================================================ */
 

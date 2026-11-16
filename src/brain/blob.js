@@ -74,7 +74,7 @@ export function seedOf(str){
 
    Each node is first dropped at the best of a few random spots (the one furthest from the nodes already
    placed), which spreads them out without lining them up. Then any that still overlap are nudged apart. */
-export function scatter(boxes, region, seed, avoid){
+function scatterOnce(boxes, region, seed, avoid){
   var R = rng(seed), n = boxes.length, pts = [];
   avoid = avoid || [];
   /* how far a node at p would have to move to clear a keep-out rectangle: [sideways, up or down], or null if clear */
@@ -132,7 +132,30 @@ export function scatter(boxes, region, seed, avoid){
     }
     if (!moved) break;
   }
-  return pts;
+  /* how badly this arrangement still collides: 0 means nothing touches */
+  var cost = 0;
+  for (var ci = 0; ci < n; ci++){
+    for (var cj = ci + 1; cj < n; cj++){
+      var cx = boxes[ci].hw + boxes[cj].hw - Math.abs(pts[ci].x - pts[cj].x);
+      var cy = Math.min(pts[ci].y + boxes[ci].down, pts[cj].y + boxes[cj].down) - Math.max(pts[ci].y - boxes[ci].up, pts[cj].y - boxes[cj].up);
+      if (cx > 1 && cy > 1) cost += cx * cy;
+    }
+    for (var cv = 0; cv < avoid.length; cv++){ var ch = clash(pts[ci], boxes[ci], avoid[cv]); if (ch && ch[0] > 1 && ch[1] > 1) cost += ch[0] * ch[1]; }
+  }
+  return { pts:pts, cost:cost };
+}
+
+/* The scatter the map uses. A crowded level on a small screen can leave the first arrangement with two
+   nodes touching, so this tries a handful of arrangements and keeps the first clean one (or the cleanest).
+   The same seed always leads to the same result. */
+export function scatter(boxes, region, seed, avoid){
+  var best = null;
+  for (var attempt = 0; attempt < 24; attempt++){
+    var r = scatterOnce(boxes, region, (seed + attempt * 7919) % 233280, avoid);
+    if (!best || r.cost < best.cost) best = r;
+    if (best.cost === 0) break;
+  }
+  return best.pts;
 }
 
 /* Which nodes to join with a line, as pairs of indexes. Each node is tied to its nearest neighbor in a

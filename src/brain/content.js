@@ -6,9 +6,12 @@
    reads from here.
 
    HOW THE TREE WORKS
-   - ROOT is the brain. Its three kids are the gravity points: Learn,
-     Teach, and Improve. Their colors are not here; they live in
+   - ROOT is the brain. Its three kids are the gravity points: Work,
+     Teach, and Build. Their colors are not here; they live in
      palettes.js, keyed by these same ids.
+   - Work is the body of work: case studies, what I do, background,
+     and the resume. Build is what I am making and getting better at
+     now.
    - Every node has an id and a label. ids must be unique across
      the whole file; they are what links point at.
    - A node with `kids` goes deeper (an ink-colored blob on the map).
@@ -24,6 +27,10 @@
        more:  optional extra pictures for the "More" strip, same form
        action: optional button, { label: '...', go: 'studio' } opens the
               Work with me page
+       doc:   optional document shown on the page instead of the usual
+              layout, { file: '/cv/name.pdf', pages: ['/cv/page-1.webp'] }.
+              `file` is what downloads; `pages` are pictures of its pages,
+              shown on screen. The resume uses this.
        links: [{ to: '<node id>', why: 'one line' }]
               these become the "Connects to" buttons and can jump
               anywhere in the brain, up or down any branch.
@@ -46,7 +53,7 @@
    CURIO_ROOT holds the curiosities that float around the outside of
    the brain. Each one also has:
        fx, fy: where it sits, as a fraction of the screen (0 to 1)
-       hubs:   which gravity points it feeds ('learn','teach','improve')
+       hubs:   which gravity points it feeds ('work','teach','build')
        also:   ids of other curiosities it touches (drawn as dashed lines)
        sub:    optional short tag shown after the label
    ============================================================ */
@@ -67,8 +74,64 @@ export const PH_STORY = '[The story: how I got here and why it stuck]';
 /* Content from Brain Map: Content Source (Scott's words) + Gap Drafts where the doc is still blank.
    links: { to: node id, why: one line } become "Connects to" jumps anywhere in the brain. */
 export const ROOT = { id:'root', label:'Brain', kids:[
-  { id:'learn', label:'Learn', kids:[
-    { id:'illus', label:'Illustration', kids:[
+  { id:'work', label:'Work', kids:[
+    { id:'cases', label:'Case studies', kids:[
+      { id:'civilla', label:'Civilla', page:{
+        lede:'Design research that shaped services for 2M+ Michigan residents.',
+        story:'Sr. UX/UI Designer and Design Researcher at Civilla, a small but mighty team. I conducted interviews, defined problems, ideated, prototyped, user tested, and helped implement across state and government institutions. It is where I learned to really be part of a team.',
+        list:['Built 75+ web and mobile prototypes for state and federal initiatives','User research informing services for 2M+ residents','Design lead on a multi-agency benefits platform','Developed core journey map design and facilitation, walkthroughs, and brand collateral','Worked with the Michigan Secretary of State, Michigan Health and Human Services, Starfish, Deloitte, and more'],
+        proof:'Journey maps, Civilla',
+        image:'/proof/civilla-journey-maps.webp',
+        more:['/proof/civilla-renewal-notice.webp','/proof/civilla-mobile-prototypes.webp'],
+        links:[{ to:'c2', why:'The design thinking I practiced here is what I teach now.' },{ to:'sedstudio', why:'Brought the same process to small businesses.' },{ to:'systems', why:'Forms and flows for state agencies.' }] }},
+      { id:'irule', label:'iRule / On Controls', page:{
+        lede:'Where I cut my teeth in user interface design.',
+        story:'Sr. UX/UI Designer, March 2015 to July 2018, in Detroit. I built a design system and library of custom mobile interfaces that wirelessly control lights, thermostats, shades, and appliances across the iRule, On Controls, and Kramer brands.',
+        list:['Created a design system and library of custom UIs for mobile devices','Worked with R&D, the dev team, and leadership through wireframes, prototypes, and UX flow charts','Simplified older designs to reflect modern best practices, improving customer experience and workflow','Designed the iRule logo'],
+        links:[{ to:'systems', why:'My first real design system.' },{ to:'brand', why:'I designed the iRule logo.' },{ to:'c4', why:'Where I designed apps for a living.' }] }},
+      { id:'robear', label:'Robear Detroit', page:{
+        lede:'Custom landing page, 2025.',
+        story:'[The brief, what I built, and what changed for them]',
+        proof:'[Screens of the landing page]',
+        links:[{ to:'sedstudio', why:'A studio partnership.' },{ to:'brand', why:'I also worked on their brand identity.' }] }},
+      { id:'merit', label:'Give Merit tees', page:{
+        lede:'Students design it and wear it.',
+        story:'Give Merit helps high school students pay for college. As their graphic designer, I have helped four rounds of students design and promote their own garments.',
+        proof:'[Photos of the work and the finished garments]',
+        links:[{ to:'umf', why:'Teaching outside the classroom.' }] }},
+      { id:'atwater', label:'Atwater Beer', page:{
+        lede:'Voodoo Vator Doppelbock.',
+        story:'[The brief, and how the label came together]',
+        proof:'[Label photos]',
+        links:[{ to:'pack', why:'More packaging.' },{ to:'ccs', why:'Package design started at CCS.' }] }} ]},
+    { id:'does', label:'What I do', kids:[
+      { id:'brand', label:'Brand identity', page:{
+        lede:'Logos and the systems around them.',
+        list:['iRule logo','Robear Detroit','C4 Combat','Local Butcher'],
+        proof:'Brand system, SE|Design',
+        image:'/proof/brand-system.webp',
+        links:[{ to:'roots', why:'The hand behind the marks.' },{ to:'irule', why:'I designed the iRule logo.' }] }},
+      { id:'web', label:'Web design', page:{
+        lede:'Sites people can actually run themselves.',
+        story:'Building and managing CMS sites for partners on WordPress, Wix, and Squarespace. Lately I am building with Claude Code too.',
+        links:[{ to:'cc', why:'Moving from templates to building my own.' },{ to:'c3', why:'I teach web design at U of M-Flint.' }] }},
+      { id:'pack', label:'Packaging', page:{
+        lede:'Where illustration meets the shelf.',
+        list:['Atwater Beer: Voodoo Vator Doppelbock'],
+        proof:'[Label photos]',
+        links:[{ to:'atwater', why:'The Atwater Beer label.' },{ to:'ccs', why:'Package design started at CCS.' }] }},
+      { id:'illo', label:'Illustration', page:{
+        links:[{ to:'wesson', why:'Where my illustration lives now.' },{ to:'roots', why:'Where it started.' },{ to:'sketch', why:'Where the pieces start.' }] }},
+      { id:'systems', label:'Component systems', page:{
+        lede:'Build the pieces once, use them everywhere.',
+        story:'From remote control interface libraries at iRule to forms and flows for state agencies at Civilla.',
+        links:[{ to:'irule', why:'Where the first system came from.' },{ to:'civilla', why:'Forms and flows at government scale.' }] }},
+      { id:'a11y', label:'Accessibility audits', page:{
+        lede:'Making sure everyone can actually use it.',
+        story:'Speed and accessibility audits for nonprofit and small business sites.',
+        proof:'Speed and accessibility audit, dreamofdetroit.org',
+        links:[{ to:'web', why:'Audits make the sites better.' }] }} ]},
+    { id:'background', label:'Background', kids:[
       { id:'roots', label:'Where it started', page:{
         lede:'Started here and never left.',
         story:'It started in Detroit with my mom noticing I could draw. That turned into art classes, then custom pieces for family. After we moved to Arizona I took AP Studio Art at Chandler High and figure drawing at Maricopa Community College, which led to an $80K scholarship to CCS.',
@@ -85,66 +148,15 @@ export const ROOT = { id:'root', label:'Brain', kids:[
         list:['Graphic design',"Children's book illustration",'Sculpture'],
         proof:'SACI International',
         links:[{ to:'ccs', why:'Part of my time at CCS.' }] }},
-      { id:'sketch', label:'Sketchbook', page:{
-        lede:'Let loose.',
-        story:'Random thoughts and drawings, shapes and wireframes. No client, no brief. This site started on these pages.',
-        proof:'[Photos of sketchbook spreads]',
-        links:[{ to:'wesson', why:'Quick thoughts here turn into finished pieces.' },{ to:'motion', why:'The storyboard for this site came from here.' }] }} ]},
-    { id:'uiux', label:'UI/UX', kids:[
-      { id:'irule', label:'iRule / On Controls', page:{
-        lede:'Where I cut my teeth in user interface design.',
-        story:'Sr. UX/UI Designer, March 2015 to July 2018, in Detroit. I built a design system and library of custom mobile interfaces that wirelessly control lights, thermostats, shades, and appliances across the iRule, On Controls, and Kramer brands.',
-        list:['Created a design system and library of custom UIs for mobile devices','Worked with R&D, the dev team, and leadership through wireframes, prototypes, and UX flow charts','Simplified older designs to reflect modern best practices, improving customer experience and workflow','Designed the iRule logo'],
-        links:[{ to:'systems', why:'My first real design system.' },{ to:'brand', why:'I designed the iRule logo.' },{ to:'c4', why:'Where I designed apps for a living.' }] }},
-      { id:'civilla', label:'Civilla', page:{
-        lede:'Design research that shaped services for 2M+ Michigan residents.',
-        story:'Sr. UX/UI Designer and Design Researcher at Civilla, a small but mighty team. I conducted interviews, defined problems, ideated, prototyped, user tested, and helped implement across state and government institutions. It is where I learned to really be part of a team.',
-        list:['Built 75+ web and mobile prototypes for state and federal initiatives','User research informing services for 2M+ residents','Design lead on a multi-agency benefits platform','Developed core journey map design and facilitation, walkthroughs, and brand collateral','Worked with the Michigan Secretary of State, Michigan Health and Human Services, Starfish, Deloitte, and more'],
-        proof:'Journey maps, Civilla',
-        image:'/proof/civilla-journey-maps.webp',
-        more:['/proof/civilla-renewal-notice.webp','/proof/civilla-mobile-prototypes.webp'],
-        links:[{ to:'c2', why:'The design thinking I practiced here is what I teach now.' },{ to:'sedstudio', why:'Brought the same process to small businesses.' },{ to:'systems', why:'Forms and flows for state agencies.' }] }},
-      { id:'systems', label:'Component systems', page:{
-        lede:'Build the pieces once, use them everywhere.',
-        story:'From remote control interface libraries at iRule to forms and flows for state agencies at Civilla.',
-        links:[{ to:'irule', why:'Where the first system came from.' },{ to:'civilla', why:'Forms and flows at government scale.' }] }},
-      { id:'a11y', label:'Accessibility audits', page:{
-        lede:'Making sure everyone can actually use it.',
-        story:'Speed and accessibility audits for nonprofit and small business sites.',
-        proof:'Speed and accessibility audit, dreamofdetroit.org',
-        links:[{ to:'web', why:'Audits make the sites better.' }] }} ]},
-    { id:'sed', label:'SE|Design Studio', kids:[
       { id:'sedstudio', label:'The studio', page:{
         lede:'My on-demand design studio for small businesses, nonprofits, and entrepreneurs.',
         story:'Working with entrepreneurs and small businesses to level up their brand is my jam. Monthly design partnerships instead of one-off projects, with the same research-first process I used at Civilla.',
         list:['Partners include Local Butcher, Robear Detroit, C4 Combat, and [Viacon]'],
         action:{ label:'Work with me', go:'studio' },
-        links:[{ to:'civilla', why:'Same process, smaller scale.' },{ to:'web', why:'Most partnerships include the site.' },{ to:'robear', why:'A studio partner.' }] }},
-      { id:'robear', label:'Robear Detroit', page:{
-        lede:'Custom landing page, 2025.',
-        story:'[The brief, what I built, and what changed for them]',
-        proof:'[Screens of the landing page]',
-        links:[{ to:'sedstudio', why:'A studio partnership.' },{ to:'brand', why:'I also worked on their brand identity.' }] }},
-      { id:'brand', label:'Brand identity', page:{
-        lede:'Logos and the systems around them.',
-        list:['iRule logo','Robear Detroit','C4 Combat','Local Butcher'],
-        proof:'Brand system, SE|Design',
-        image:'/proof/brand-system.webp',
-        links:[{ to:'roots', why:'The hand behind the marks.' },{ to:'irule', why:'I designed the iRule logo.' }] }},
-      { id:'pack', label:'Packaging', page:{
-        lede:'Where illustration meets the shelf.',
-        list:['Atwater Beer: Voodoo Vator Doppelbock'],
-        proof:'[Label photos]',
-        links:[{ to:'ccs', why:'Package design started at CCS.' }] }},
-      { id:'web', label:'Web design', page:{
-        lede:'Sites people can actually run themselves.',
-        story:'Building and managing CMS sites for partners on WordPress, Wix, and Squarespace. Lately I am building with Claude Code too.',
-        links:[{ to:'cc', why:'Moving from templates to building my own.' },{ to:'c3', why:'I teach web design at U of M-Flint.' }] }},
-      { id:'merit', label:'Give Merit tees', page:{
-        lede:'Students design it and wear it.',
-        story:'Give Merit helps high school students pay for college. As their graphic designer, I have helped four rounds of students design and promote their own garments.',
-        proof:'[Photos of the work and the finished garments]',
-        links:[{ to:'umf', why:'Teaching outside the classroom.' }] }} ]} ]},
+        links:[{ to:'civilla', why:'Same process, smaller scale.' },{ to:'web', why:'Most partnerships include the site.' },{ to:'robear', why:'A studio partner.' }] }} ]},
+    { id:'resume', label:'Resume', page:{
+      lede:'Roles, dates, and skills on one page.',
+      doc:{ file:'/cv/scott-everett-resume.pdf', pages:['/cv/page-1.webp'] } }} ]},
   { id:'teach', label:'Teach', kids:[
     { id:'umf', label:'U of M-Flint', page:{
       lede:'I teach the way I learned, by making.',
@@ -169,7 +181,7 @@ export const ROOT = { id:'root', label:'Brain', kids:[
       action:{ label:'Introduce yourself', go:'studio' },
       proof:'[Past interns and what they made]',
       links:[{ to:'sedstudio', why:'Where interns would work.' },{ to:'umf', why:'Where I meet most new designers.' }] }} ]},
-  { id:'improve', label:'Improve', kids:[
+  { id:'build', label:'Build', kids:[
     { id:'ai', label:'AI', kids:[
       { id:'cc', label:'Claude Code + React', page:{
         lede:'Designing with code, not just for it.',
@@ -206,20 +218,25 @@ export const ROOT = { id:'root', label:'Brain', kids:[
     { id:'vault', label:'Vaultmark', page:{
       lede:'Proving digital art is the real thing.',
       story:'A digital art authentication concept I developed into provisional patent materials.',
-      links:[{ to:'wesson', why:'It came from my own digital work.' }] }} ]} ]};
+      links:[{ to:'wesson', why:'It came from my own digital work.' }] }},
+    { id:'sketch', label:'Sketchbook', page:{
+      lede:'Let loose.',
+      story:'Random thoughts and drawings, shapes and wireframes. No client, no brief. This site started on these pages.',
+      proof:'[Photos of sketchbook spreads]',
+      links:[{ to:'wesson', why:'Quick thoughts here turn into finished pieces.' },{ to:'motion', why:'The storyboard for this site came from here.' }] }} ]} ]};
 
 /* outer orbit: curiosities not pulled in yet. hubs = which gravity points they feed, also = other curiosities they touch */
 export const CURIO_ROOT = { id:'curio', label:"Can't Stop Thinking About", curio:true,
   page:{ lede:'The outer ring. Loose curiosities that feed what I am chasing. When one turns into a real project, it drifts inward.' },
   kids:[
     { id:'podcasts', label:'Podcasts', fx:.09, fy:.17, hubs:['teach'], also:['technology'] },
-    { id:'science', label:'Science', fx:.86, fy:.13, hubs:['improve'], also:['biology','technology'] },
-    { id:'biology', label:'Biology', fx:.9, fy:.6, hubs:['improve'], also:['science','gardening'],
+    { id:'science', label:'Science', fx:.86, fy:.13, hubs:['build'], also:['biology','technology'] },
+    { id:'biology', label:'Biology', fx:.9, fy:.6, hubs:['build'], also:['science','gardening'],
       page:{ lede:'[What keeps pulling me toward the very small, like neurons]' } },
-    { id:'gardening', label:'Gardening', sub:'→ Dirt Rich', fx:.11, fy:.8, hubs:['improve','learn'], also:['biology'],
+    { id:'gardening', label:'Gardening', sub:'→ Dirt Rich', fx:.11, fy:.8, hubs:['build','work'], also:['biology'],
       page:{ lede:'A curiosity that turned into a project: Dirt Rich, a garden tracking app built in Detroit.', proof:'Dirt Rich',
         links:[{ to:'dirtrich', why:'The curiosity that drifted inward and became an app.' }] } },
-    { id:'technology', label:'Technology', fx:.74, fy:.9, hubs:['improve','learn'], also:['science','podcasts'] } ]};
+    { id:'technology', label:'Technology', fx:.74, fy:.9, hubs:['build','work'], also:['science','podcasts'] } ]};
 
 /* ------------------------------------------------------------
    Derived lookups. Nothing below needs editing.

@@ -73,7 +73,30 @@ export default function NodePage({ node, instant, stack, reduce, onBack, onGoToN
     /* a page inside a hub carries that hub's colors; outer-orbit pages have no hub */
     var hubClass = n.curio ? '' : ' in-' + hub.id;
 
-    body = (
+    /* a document page: the file's pages shown on screen, with a button to download it. The resume uses this */
+    if (p.doc) body = (
+      <div className={'page-doc' + hubClass}>
+        <div className="page-top">
+          <div className="page-crumbs" id="pCrumbs">{['Brain'].concat(trail).join(' / ')}</div>
+          <button className="chip-btn" type="button" id="pBack" onClick={onBack}>← Back to brain</button>
+        </div>
+        <div className="doc-head">
+          <div>
+            <div className="pull" id="pPull"><i />Pulled toward {hub.label}</div>
+            <h1 id="pTitle" tabIndex={-1} ref={titleRef}>{n.label}</h1>
+            {p.lede && <p className="lede" id="pLede">{p.lede}</p>}
+          </div>
+          <div className="doc-actions">
+            <a className="chip-btn solid" href={p.doc.file} download>Download PDF</a>
+            <a className="chip-btn" href={p.doc.file} target="_blank" rel="noopener noreferrer">Open in a new tab</a>
+          </div>
+        </div>
+        <div className="doc-pages">
+          {p.doc.pages.map(function(src, i){ return <img key={src} src={src} alt={n.label + ', page ' + (i + 1)} />; })}
+        </div>
+      </div>
+    );
+    else body = (
       <div className={'page-grid' + hubClass}>
         <div className="page-text">
           <div className="page-top">
