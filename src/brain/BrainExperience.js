@@ -1,24 +1,38 @@
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { ROOT, TITLES } from './content';
 import Intro from './Intro';
 import BrainMap from './BrainMap';
 import NodePage from './NodePage';
 import DotNav from './DotNav';
 import Crumbs from './Crumbs';
+import SiteNav from './SiteNav';
+import StudioPage from './StudioPage';
+import NotesPage from './NotesPage';
+import { pathFor, parsePath, titleFor } from './routes';
 import { PALETTES, paletteVars } from './palettes';
 import ThemeToggle, { readThemeChoice, saveThemeChoice } from './ThemeToggle';
 import './brain.css';
 
-/* Owns the three pieces of state the brain has:
+var SITE = "Inside Scott's Brain";
+function isHome(v){ return v.stack.length === 1 && !v.pageNode && !v.sheet; }
+
+/* Owns the pieces of state the brain has:
      stack:  nodes from ROOT down to the level on the map
      page:   { node, instant } the open page, or null
+     sheet:  a full-screen page over the brain: the services page or the notes, or null
      done:   whether the intro has finished
+   Those four decide the address in the browser, and the address decides them (see routes.js).
    Everything animated lives in refs and GSAP, not here. */
 export default function BrainExperience(){
   var reduce = useMemo(function(){ return window.matchMedia('(prefers-reduced-motion: reduce)').matches; }, []);
-  var [done, setDone] = useState(reduce); /* reduced motion skips the intro */
-  var [stack, setStack] = useState([ROOT]);
-  var [page, setPage] = useState({ node:null, instant:false });
+  var location = useLocation(), navigate = useNavigate();
+  /* where the visitor arrived. Anywhere but the front door lands straight on that place, with no intro to scroll through */
+  var arrived = useMemo(function(){ return parsePath(window.location.pathname); }, []);
+  var [done, setDone] = useState(reduce || !isHome(arrived)); /* reduced motion skips the intro too */
+  var [stack, setStack] = useState(arrived.stack);
+  var [page, setPage] = useState({ node:arrived.pageNode, instant:true });
+  var [sheet, setSheet] = useState(arrived.sheet);
   /* light or dark: the visitor's own choice if they have made one, otherwise whatever their device is set to */
   var [themeChoice, setThemeChoice] = useState(readThemeChoice);
   var [deviceDark, setDeviceDark] = useState(function(){ return window.matchMedia('(prefers-color-scheme: dark)').matches; });
@@ -42,14 +56,37 @@ export default function BrainExperience(){
   var stackRef = useRef(stack); stackRef.current = stack;
   var pageRef = useRef(page); pageRef.current = page;
   var doneRef = useRef(done); doneRef.current = done;
+  var sheetRef = useRef(sheet); sheetRef.current = sheet;
 
-  /* page title and the html-level overrides for this route */
+  /* the html-level overrides for this route, and the tab title put back when leaving it */
   useEffect(function(){
     var prev = document.title;
-    document.title = "Inside Scott's Brain";
     document.documentElement.classList.add('brain-route');
     return function(){ document.title = prev; document.documentElement.classList.remove('brain-route'); };
   }, []);
+
+  /* ---- addresses: what is on screen and the address bar stay in step, both ways ---- */
+  var path = pathFor({ stack:stack, pageNode:page.node, sheet:sheet });
+  var pathRef = useRef(path); pathRef.current = path;
+  var syncedRef = useRef(false);
+  /* something changed on screen: move the address to match. The very first correction replaces the entry,
+     so a mistyped address does not sit in the Back history */
+  useEffect(function(){
+    if (location.pathname !== path) navigate(path, { replace: !syncedRef.current });
+    syncedRef.current = true;
+    document.title = titleFor({ stack:stack, pageNode:page.node, sheet:sheet }, SITE);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [path]);
+  /* the address changed on its own (Back, Forward): show what it points at */
+  useEffect(function(){
+    if (location.pathname === pathRef.current) return;
+    var v = parsePath(location.pathname);
+    modeRef.current = { mode:'instant' };
+    setStack(v.stack);
+    setPage({ node:v.pageNode, instant:true });
+    setSheet(v.sheet);
+    if (!isHome(v)) setDone(true);
+  }, [location.pathname]);
 
   /* the page behind the brain, the scrollbar, the text selection, and the phone's browser bar sit outside
      the .brain root, so they get the ground and ink colors copied onto <html> while this route is mounted */
@@ -105,6 +142,15 @@ export default function BrainExperience(){
     }
   }, [closePage, openPage]);
 
+  /* the full-screen pages over the brain */
+  var openStudio = useCallback(function(){ setSheet({ type:'studio' }); }, []);
+  var openNote = useCallback(function(slug){ setSheet({ type:'notes', slug:slug || null }); }, []);
+  var closeSheet = useCallback(function(){ setSheet(null); }, []);
+  /* a node page's own button, for example "See partnership levels" */
+  var onAction = useCallback(function(action){ if (action && action.go === 'studio') openStudio(); }, [openStudio]);
+  /* a note's "Connects to": leave the notes and land in the brain */
+  var goToNodeFromSheet = useCallback(function(n){ setSheet(null); goToNode(n); }, [goToNode]);
+
   /* from a curiosity page, jump straight into the hub it feeds */
   var diveTo = useCallback(function(id){
     closePage(true);
@@ -120,6 +166,7 @@ export default function BrainExperience(){
   var replayIntro = useCallback(function(){
     if (busyRef.current) return;
     closePage(true);
+    setSheet(null);
     modeRef.current = { mode:'instant' };
     setStack([ROOT]);
     setDone(false);
@@ -134,7 +181,9 @@ export default function BrainExperience(){
   /* Escape goes up a level */
   useEffect(function(){
     function onKey(e){
-      if (e.key !== 'Escape' || !doneRef.current) return;
+      if (e.key !== 'Escape') return;
+      if (sheetRef.current){ setSheet(null); return; }
+      if (!doneRef.current) return;
       if (pageRef.current.node) closePage(); else if (stackRef.current.length > 1) goTo(stackRef.current.length - 1);
     }
     document.addEventListener('keydown', onKey);
@@ -163,7 +212,7 @@ export default function BrainExperience(){
             <h1>{TITLES.home.title}</h1>
             {TITLES.home.sub && <p>{TITLES.home.sub}</p>}
           </div>
-          {done && atTop && !page.node && (
+          {done && atTop && !page.node && !sheet && (
             <div id="mapTitle" className="site-title">
               <h1>{TITLES.map.title}</h1>
               {TITLES.map.sub && <p>{TITLES.map.sub}</p>}
@@ -174,9 +223,15 @@ export default function BrainExperience(){
           <button id="skip" className="chip-btn" type="button" hidden={done} onClick={finishIntro}>Skip intro</button>
           <button id="replay" className="chip-btn" type="button" hidden={!done} onClick={replayIntro}>Replay intro</button>
           <ThemeToggle mode={mode} onToggle={toggleTheme} />
-          <DotNav done={done} stack={stack} pageNode={page.node} tagRef={dotTagRef} onReplay={replayIntro} onGoTo={goTo} />
+          <SiteNav onStudio={openStudio} onNotes={function(){ openNote(null); }} />
+          <DotNav done={done} stack={stack} pageNode={page.node || sheet} tagRef={dotTagRef} onReplay={replayIntro}
+            onGoTo={function(d){ setSheet(null); goTo(d); }} />
           <NodePage node={page.node} instant={page.instant} stack={stack} reduce={reduce}
-            onBack={function(){ closePage(); }} onGoToNode={goToNode} onDiveTo={diveTo} onOpenPage={openPage} />
+            onBack={function(){ closePage(); }} onGoToNode={goToNode} onDiveTo={diveTo} onOpenPage={openPage} onAction={onAction} />
+          {sheet && sheet.type === 'studio' && <StudioPage onClose={closeSheet} />}
+          {sheet && sheet.type === 'notes' && (
+            <NotesPage slug={sheet.slug} onClose={closeSheet} onOpenNote={openNote} onGoToNode={goToNodeFromSheet} onStudio={openStudio} />
+          )}
         </div>
       </section>
     </div>

@@ -216,13 +216,15 @@ export function createScene(o){
     var depth = 0; for (var up = node; up && up !== ROOT; up = up.parent) depth++;
     var tagW = node.label.length * 8 + 18, rowY = H / 2 - 74 + 14 + (depth + 1) * 30;
     var tag = { x0:W - 52 - tagW - 10, y0:rowY - 20, x1:W, y1:rowY + 20 };
+    /* the site buttons sit in the bottom-left corner, with the legend above them on wide screens */
+    var corner = W <= 820 ? { x0:0, y0:H - 66, x1:220, y1:H } : { x0:0, y0:H - 100, x1:300, y1:H };
     /* few nodes on a big screen: keep them in a loose group near the middle instead of flung to the corners */
     var need = boxes.reduce(function(sum, b){ return sum + 2 * b.hw * (b.up + b.down); }, 0) * 3.2;
     var fw = full.x1 - full.x0, fh = full.y1 - full.y0;
     var rw = Math.min(fw, Math.sqrt(need * fw / fh)), rh = Math.min(fh, need / rw);
     rw = Math.min(fw, need / rh);
     var mx = (full.x0 + full.x1) / 2, my = (full.y0 + full.y1) / 2;
-    var pts = scatter(boxes, { x0:mx - rw / 2, y0:my - rh / 2, x1:mx + rw / 2, y1:my + rh / 2 }, seedOf(node.id), [tag]);
+    var pts = scatter(boxes, { x0:mx - rw / 2, y0:my - rh / 2, x1:mx + rw / 2, y1:my + rh / 2 }, seedOf(node.id), [tag, corner]);
     return pts.map(function(p, i){ return { x:p.x, y:p.y, r:boxes[i].r }; });
   }
 
@@ -308,7 +310,10 @@ export function createScene(o){
   }
 
   /* mode: 'dive' from an item, 'rise' going back up, 'instant' */
+  var swapTl = null;
   function swapView(node, mode, fromItem){
+    /* a jump (Back, Forward, a link) can arrive mid-transition: drop the one in flight and clear what it left */
+    if (swapTl){ swapTl.kill(); swapTl = null; bury(dying.slice()); setBusy(false); }
     var old = view;
     if (mode === 'instant'){
       bury(old.items.concat(old.links));
@@ -320,7 +325,7 @@ export function createScene(o){
     retire(old);
     view = { node:node, items:[], links:[] };
     var oldList = old.items.concat(old.links);
-    var t = gsap.timeline({ onComplete:function(){ bury(oldList); setBusy(false); } });
+    var t = swapTl = gsap.timeline({ onComplete:function(){ bury(oldList); setBusy(false); swapTl = null; } });
     if (mode === 'dive' && fromItem){
       nodesG.appendChild(fromItem.g);
       t.to(fromItem, { x:W / 2, y:H / 2, r:Math.hypot(W, H) * .62, duration:D(.85), ease:'power3.inOut' }, 0);

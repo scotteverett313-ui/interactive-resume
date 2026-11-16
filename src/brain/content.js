@@ -18,7 +18,12 @@
        lede:  one line, shown big under the title
        story: a paragraph
        list:  array of strings, shown as bullets under the story
-       proof: caption for the proof panel (image, link, embed later)
+       proof: caption for the proof panel
+       image: optional picture for the proof panel, a file in public/proof,
+              written as '/proof/name.webp'
+       more:  optional extra pictures for the "More" strip, same form
+       action: optional button, { label: '...', go: 'studio' } opens the
+              Work with me page
        links: [{ to: '<node id>', why: 'one line' }]
               these become the "Connects to" buttons and can jump
               anywhere in the brain, up or down any branch.
@@ -95,7 +100,9 @@ export const ROOT = { id:'root', label:'Brain', kids:[
         lede:'Design research that shaped services for 2M+ Michigan residents.',
         story:'Sr. UX/UI Designer and Design Researcher at Civilla, a small but mighty team. I conducted interviews, defined problems, ideated, prototyped, user tested, and helped implement across state and government institutions. It is where I learned to really be part of a team.',
         list:['Built 75+ web and mobile prototypes for state and federal initiatives','User research informing services for 2M+ residents','Design lead on a multi-agency benefits platform','Developed core journey map design and facilitation, walkthroughs, and brand collateral','Worked with the Michigan Secretary of State, Michigan Health and Human Services, Starfish, Deloitte, and more'],
-        proof:'civilla.com',
+        proof:'Journey maps, Civilla',
+        image:'/proof/civilla-journey-maps.webp',
+        more:['/proof/civilla-renewal-notice.webp','/proof/civilla-mobile-prototypes.webp'],
         links:[{ to:'c2', why:'The design thinking I practiced here is what I teach now.' },{ to:'sedstudio', why:'Brought the same process to small businesses.' },{ to:'systems', why:'Forms and flows for state agencies.' }] }},
       { id:'systems', label:'Component systems', page:{
         lede:'Build the pieces once, use them everywhere.',
@@ -111,10 +118,18 @@ export const ROOT = { id:'root', label:'Brain', kids:[
         lede:'My on-demand design studio for small businesses, nonprofits, and entrepreneurs.',
         story:'Working with entrepreneurs and small businesses to level up their brand is my jam. Monthly design partnerships instead of one-off projects, with the same research-first process I used at Civilla.',
         list:['Partners include Local Butcher, Robear Detroit, C4 Combat, and [Viacon]'],
-        links:[{ to:'civilla', why:'Same process, smaller scale.' },{ to:'web', why:'Most partnerships include the site.' }] }},
+        action:{ label:'See partnership levels', go:'studio' },
+        links:[{ to:'civilla', why:'Same process, smaller scale.' },{ to:'web', why:'Most partnerships include the site.' },{ to:'robear', why:'A studio partner.' }] }},
+      { id:'robear', label:'Robear Detroit', page:{
+        lede:'Custom landing page, 2025.',
+        story:'[The brief, what I built, and what changed for them]',
+        proof:'[Screens of the landing page]',
+        links:[{ to:'sedstudio', why:'A studio partnership.' },{ to:'brand', why:'I also worked on their brand identity.' }] }},
       { id:'brand', label:'Brand identity', page:{
         lede:'Logos and the systems around them.',
         list:['iRule logo','Robear Detroit','C4 Combat','Local Butcher'],
+        proof:'Brand system, SE|Design',
+        image:'/proof/brand-system.webp',
         links:[{ to:'roots', why:'The hand behind the marks.' },{ to:'irule', why:'I designed the iRule logo.' }] }},
       { id:'pack', label:'Packaging', page:{
         lede:'Where illustration meets the shelf.',
@@ -147,7 +162,13 @@ export const ROOT = { id:'root', label:'Brain', kids:[
       { id:'c7', label:'Information and Experience Design', page:{ links:[{ to:'civilla', why:'Journey maps and walkthroughs.' }] }} ]},
     { id:'workshops', label:'Workshops', page:{
       lede:'Managed and facilitated workshops.',
-      links:[{ to:'civilla', why:'Facilitation started with journey mapping sessions.' }] }} ]},
+      links:[{ to:'civilla', why:'Facilitation started with journey mapping sessions.' }] }},
+    { id:'intern', label:'Internships', page:{
+      lede:'Not hiring at the moment, but I love seeing new talent.',
+      story:'While there are no open roles right now, I am always interested in connecting with creative thinkers, design researchers, and community-minded collaborators.',
+      action:{ label:'Introduce yourself', go:'studio' },
+      proof:'[Past interns and what they made]',
+      links:[{ to:'sedstudio', why:'Where interns would work.' },{ to:'umf', why:'Where I meet most new designers.' }] }} ]},
   { id:'improve', label:'Improve', kids:[
     { id:'ai', label:'AI', kids:[
       { id:'cc', label:'Claude Code + React', page:{
@@ -171,7 +192,8 @@ export const ROOT = { id:'root', label:'Brain', kids:[
       lede:'Where I always land on my feet. The base of it all.',
       story:'Wesson Art is where my digital art lives, mostly drawn on iPad: portraits, animals, and editorial work.',
       list:['20+ portraits for How I Built This','Four years of John Templeton Prize laureate portraits','Mural at the Ann Arbor District Library','A few MOCAD drawing challenges'],
-      proof:'Wessonart.com',
+      proof:'Ann Arbor District Library, Black History Bicentennial',
+      image:'/proof/aadl-bicentennial.webp',
       links:[{ to:'sketch', why:'Where the pieces start.' },{ to:'vault', why:'The idea came from my own digital art.' }] }},
     { id:'dirtrich', label:'Dirt Rich', page:{
       lede:'A garden tracker built in Detroit.',

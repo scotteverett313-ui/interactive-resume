@@ -88,6 +88,56 @@ not need to touch any component to change the content.
   anywhere in the brain, up or down any branch. Links are one-way; add the
   reverse on the other node if you want it both ways.
 
+### Addresses
+
+Every place in the brain has its own link, so anything can be shared, bookmarked,
+or found by a search engine. Arriving on any link but the front door skips the
+intro and lands straight on that place. The Back and Forward buttons work.
+
+| Address | What it shows |
+|---|---|
+| `/` | The opening screen, then the map |
+| `/learn`, `/learn/ui-ux` | A level of the map |
+| `/learn/ui-ux/civilla` | A page |
+| `/orbit`, `/orbit/gardening` | The outer orbit's pages |
+| `/work-with-me` | The SE\|Design services page |
+| `/notes`, `/notes/<slug>` | The list of notes, and one note |
+| `/resume` | The classic resume |
+
+A node's part of the address comes from its label ("UI/UX" becomes `ui-ux`).
+Renaming a node changes its address. To pin it, give the node a `slug` in
+`content.js`. The rules are in `src/brain/routes.js`.
+
+### Work with me
+
+The services page is the old scotteverett.design site folded into the brain. All
+of its words, prices, the booking link, and the social links are in
+`src/brain/studio.js`. Its layout is `src/brain/StudioPage.js`. The contact form
+sends through EmailJS using the settings in `src/emailConfig.js`, the same ones
+the resume's form uses.
+
+A node's page can link to it with `action: { label: '...', go: 'studio' }`.
+
+### Notes
+
+The blog. Each note is one entry in `src/brain/notes.js`, newest first. To post,
+add an entry at the top; the comment in that file lists the fields. A note's
+`links` become "Connects to" buttons that jump into the brain.
+
+### Pictures on pages
+
+Put a picture in `public/proof/` and point a page at it with
+`image: '/proof/name.webp'`. Extra pictures for the "More" strip go in
+`more: [...]`. Pages without one keep the striped placeholder.
+
+### Old addresses
+
+`vercel.json` sends the old Wix addresses to their new homes, so existing links
+keep working once the domain points here: `/partnershiplevels`, `/contact`, and
+`/stopguessing` go to `/work-with-me`, `/work` to `/learn`, `/about` to `/`,
+`/blog` to `/notes`, and `/post/<slug>` to `/notes/<slug>`. They are temporary
+redirects for now; change `"permanent": false` to `true` once the move is final.
+
 ### The titles
 
 The headline on the opening screen and the one on the map are `TITLES` at the
@@ -226,6 +276,10 @@ along the zoom is.
 | `src/brain/character.js` | The character, brain, and backdrop art and their measurements. |
 | `src/brain/BrainMap.js` | The map: blob morph loop, hover reach, drag and spring back, dive and rise, outer orbit. |
 | `src/brain/NodePage.js` | The page layout and its Connects to buttons. |
+| `src/brain/routes.js` | Addresses: which link shows what. |
+| `src/brain/studio.js`, `StudioPage.js` | The Work with me page: its words, and its layout. |
+| `src/brain/notes.js`, `NotesPage.js` | The notes: the writing, and the layout. |
+| `src/brain/ContactForm.js`, `Sheet.js`, `SiteNav.js` | The message form, the full-screen page frame, and the two site buttons. |
 | `src/brain/DotNav.js`, `Crumbs.js` | Depth dots and the breadcrumb trail. |
 | `src/brain/palettes.js` | The light and dark palettes. The only place colors are defined. |
 | `src/brain/ThemeToggle.js` | The light / dark button, and remembering the visitor's choice. |

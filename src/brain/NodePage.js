@@ -13,8 +13,9 @@ function Ph({ text }){
    node:     the node to show, or null to close
    instant:  when node is null, hide right away instead of fading
    stack:    current map stack, for the crumb line
-   onBack, onGoToNode(node), onDiveTo(hubId), onOpenPage(node) */
-export default function NodePage({ node, instant, stack, reduce, onBack, onGoToNode, onDiveTo, onOpenPage }){
+   onBack, onGoToNode(node), onDiveTo(hubId), onOpenPage(node)
+   onAction(action): the page's optional button, for example opening the Work with me page */
+export default function NodePage({ node, instant, stack, reduce, onBack, onGoToNode, onDiveTo, onOpenPage, onAction }){
   var pageRef = useRef(null), titleRef = useRef(null), guardRef = useRef(0);
   useEffect(function(){ return function(){ clearTimeout(guardRef.current); }; }, []);
   var D = function(x){ return reduce ? 0 : x; };
@@ -93,6 +94,9 @@ export default function NodePage({ node, instant, stack, reduce, onBack, onGoToN
               {items.map(function(s, i){ return <li key={i}><Ph text={s} /></li>; })}
             </ul>
           </div>
+          {p.action && (
+            <div><button type="button" className="chip-btn solid" onClick={function(){ onAction(p.action); }}>{p.action.label} →</button></div>
+          )}
           <div>
             <h2>Connects to</h2>
             <div className="conn" id="pConn">
@@ -115,11 +119,15 @@ export default function NodePage({ node, instant, stack, reduce, onBack, onGoToN
           <div>
             <h2>More</h2>
             <div className="thumbs" aria-label="More work, scrolls sideways">
-              <div /><div /><div /><div /><div /><span className="arrow" aria-hidden="true">→</span>
+              {(p.more && p.more.length)
+                ? p.more.map(function(src){ return <div key={src}><img src={src} alt="" loading="lazy" /></div>; })
+                : <><div /><div /><div /><div /><div /></>}
+              <span className="arrow" aria-hidden="true">→</span>
             </div>
           </div>
         </div>
-        <div className="proof" id="pProof">
+        <div className={'proof' + (p.image ? ' has-image' : '')} id="pProof">
+          {p.image && <img src={p.image} alt={p.proof || n.label} />}
           <div className="cap" id="pProofCap">{p.proof ? 'Proof: ' + p.proof : '[Proof: image, video, live embed, or link]'}</div>
         </div>
       </div>

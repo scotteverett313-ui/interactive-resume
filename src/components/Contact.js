@@ -4,11 +4,7 @@ import { useInView } from 'react-intersection-observer';
 import { FiMail, FiPhone, FiGlobe, FiMapPin, FiSend, FiCheck, FiAlertCircle } from 'react-icons/fi';
 import emailjs from '@emailjs/browser';
 
-// ─── Replace these with your EmailJS credentials ───────────────────────────
-const EMAILJS_SERVICE_ID  = 'service_475hvm6';   // from EmailJS → Email Services
-const EMAILJS_TEMPLATE_ID = 'template_yro89le';  // from EmailJS → Email Templates
-const EMAILJS_PUBLIC_KEY  = 'lV9djCOssav_tktHc4nT8';   // from EmailJS → Account
-// ───────────────────────────────────────────────────────────────────────────
+import { EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, EMAILJS_PUBLIC_KEY } from '../emailConfig';
 
 const Contact = () => {
   const [ref, inView] = useInView({

@@ -1,3 +1,45 @@
 {
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+  "redirects": [
+    {
+      "source": "/partnershiplevels",
+      "destination": "/work-with-me",
+      "permanent": false
+    },
+    {
+      "source": "/contact",
+      "destination": "/work-with-me",
+      "permanent": false
+    },
+    {
+      "source": "/stopguessing",
+      "destination": "/work-with-me",
+      "permanent": false
+    },
+    {
+      "source": "/about",
+      "destination": "/",
+      "permanent": false
+    },
+    {
+      "source": "/work",
+      "destination": "/learn",
+      "permanent": false
+    },
+    {
+      "source": "/blog",
+      "destination": "/notes",
+      "permanent": false
+    },
+    {
+      "source": "/post/:slug",
+      "destination": "/notes/:slug",
+      "permanent": false
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
 }

@@ -52,8 +52,9 @@ const ResumePage = () => {
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<BrainExperience />} />
       <Route path="/resume" element={<ResumePage />} />
+      {/* every other address belongs to the brain, which reads it itself (src/brain/routes.js) */}
+      <Route path="*" element={<BrainExperience />} />
     </Routes>
   );
 }
