@@ -28,7 +28,7 @@ export default function ContactForm({ subject }){
         <input name="email" type="email" autoComplete="email" required value={v.email} onChange={set} />
       </label>
       <label>Message
-        <textarea name="message" rows="5" required value={v.message} onChange={set} />
+        <textarea name="message" rows="4" required value={v.message} onChange={set} />
       </label>
       <div className="form-foot">
         <button className="chip-btn solid" type="submit" disabled={state === 'sending'}>

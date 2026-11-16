@@ -228,7 +228,7 @@ export default function BrainExperience(){
             onGoTo={function(d){ setSheet(null); goTo(d); }} />
           <NodePage node={page.node} instant={page.instant} stack={stack} reduce={reduce}
             onBack={function(){ closePage(); }} onGoToNode={goToNode} onDiveTo={diveTo} onOpenPage={openPage} onAction={onAction} />
-          {sheet && sheet.type === 'studio' && <StudioPage onClose={closeSheet} />}
+          {sheet && sheet.type === 'studio' && <StudioPage onClose={closeSheet} onGoToNode={goToNodeFromSheet} />}
           {sheet && sheet.type === 'notes' && (
             <NotesPage slug={sheet.slug} onClose={closeSheet} onOpenNote={openNote} onGoToNode={goToNodeFromSheet} onStudio={openStudio} />
           )}

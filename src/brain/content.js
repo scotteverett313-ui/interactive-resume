@@ -118,7 +118,7 @@ export const ROOT = { id:'root', label:'Brain', kids:[
         lede:'My on-demand design studio for small businesses, nonprofits, and entrepreneurs.',
         story:'Working with entrepreneurs and small businesses to level up their brand is my jam. Monthly design partnerships instead of one-off projects, with the same research-first process I used at Civilla.',
         list:['Partners include Local Butcher, Robear Detroit, C4 Combat, and [Viacon]'],
-        action:{ label:'See partnership levels', go:'studio' },
+        action:{ label:'Work with me', go:'studio' },
         links:[{ to:'civilla', why:'Same process, smaller scale.' },{ to:'web', why:'Most partnerships include the site.' },{ to:'robear', why:'A studio partner.' }] }},
       { id:'robear', label:'Robear Detroit', page:{
         lede:'Custom landing page, 2025.',

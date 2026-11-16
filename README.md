@@ -110,11 +110,12 @@ Renaming a node changes its address. To pin it, give the node a `slug` in
 
 ### Work with me
 
-The services page is the old scotteverett.design site folded into the brain. All
-of its words, prices, the booking link, and the social links are in
-`src/brain/studio.js`. Its layout is `src/brain/StudioPage.js`. The contact form
-sends through EmailJS using the settings in `src/emailConfig.js`, the same ones
-the resume's form uses.
+One short page at `/work-with-me`: a headline, three ways to work with me, a
+button to book a call, and a message form. Its words, the booking link, and the
+social links are in `src/brain/studio.js`. Each of the three ways names a node
+in `content.js` with `see`, and links to that place in the brain. The layout is
+`src/brain/StudioPage.js`. The form sends through EmailJS using the settings in
+`src/emailConfig.js`, the same ones the resume's form uses.
 
 A node's page can link to it with `action: { label: '...', go: 'studio' }`.
 
