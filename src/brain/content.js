@@ -51,8 +51,8 @@
      map:  on the map, once you are inside the brain.
    `sub` is the small line under the title; leave it as '' for none. */
 export const TITLES = {
-  home: { title: "Inside Scott's Brain", sub: 'Scott Everett · Sr. UX/UI Designer & Educator' },
-  map:  { title: 'What I learn, teach, and improve', sub: '' }
+  home: { title: 'What up doe.', sub: "I'm Scott Everett, Omni Designer. I design, teach, and build in Detroit." },
+  map:  { title: 'It all connects.', sub: '' }
 };
 
 /* Shown on a page when that field is still blank. */
