@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Sheet from './Sheet';
 import PictureViewer from './PictureViewer';
 import { ROOT, GALLERY } from './content';
-import { picturesIn } from './gallery';
+import { picturesIn, thumbOf, fullOnError } from './gallery';
 
 /* Text in [brackets] is a placeholder: dashed-underlined, so it is obvious what is still blank. */
 function Ph({ text }){
@@ -94,7 +94,7 @@ export default function GalleryPage({ node, reduce, onClose, onGoToNode }){
                   <button type="button" key={pc.src} className={pc.hub ? 'in-' + pc.hub.id : undefined}
                     aria-label={'View larger: ' + pc.caption + (pc.page ? ', from ' + pc.page.label : '') + ', picture ' + (i + 1) + ' of ' + pics.length}
                     onClick={function(e){ openPic(i, e.currentTarget); }}>
-                    <img src={pc.src} alt="" loading="lazy" />
+                    <img src={thumbOf(pc.src)} onError={fullOnError(pc.src)} alt="" loading="lazy" />
                   </button>
                 );
               })}

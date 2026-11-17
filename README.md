@@ -223,7 +223,15 @@ if it runs to two pages.
 
 Put a picture in `public/proof/` and point a page at it with
 `image: '/proof/name.webp'`. Extra pictures for the "More" strip go in
-`more: [...]`. Pages without one keep the striped placeholder. To give a
+`more: [...]`. Pictures can sit in a folder per page (`/proof/krw/1.webp`).
+The large picture is cropped to fill its panel; `focus: 'top'` (or `bottom`,
+`left`, `right`) says which part to keep when the middle is the wrong part.
+`fit: 'whole'` shows the entire picture in the panel instead of a crop.
+Each picture has a small copy beside it, `name.thumb.webp` (about 520px),
+used for the "More" strip, the Gallery wall and the featured blobs so those
+load fast; the full picture is used in the large panel and the viewer. If a
+small copy is missing, the full picture is used in its place.
+Pages without a picture keep the striped placeholder. To give a
 "More" picture its own caption, write it as
 `{ src: '/proof/name.webp', caption: '...' }` instead of just the path.
 

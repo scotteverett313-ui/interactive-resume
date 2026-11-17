@@ -65,6 +65,12 @@
        proof: caption for the proof panel
        image: optional picture for the proof panel, a file in public/proof,
               written as '/proof/name.webp'
+       focus: optional. The large picture is cropped to fill its panel;
+              this says which part to keep: 'top', 'bottom', 'left',
+              'right' (the middle is kept when it is left out)
+       fit:   optional. 'whole' shows the entire large picture inside
+              the panel instead of cropping it to fill. Good for a
+              mockup on a plain background.
        more:  optional extra pictures for the "More" strip, same form.
               To give one its own caption write it as
               { src: '/proof/name.webp', caption: '...' }
@@ -157,7 +163,7 @@ export const ROOT = { id:'root', label:'Brain', kids:[
      its first page, and Next and Previous on the page step through the rest of its pages in order */
   { id:'work', label:'Work', blurb:'[Short blurb]', featured:[
       { as:'Civilla', pages:['civoverview'] },
-      { as:'SE|Design', image:'/proof/brand-system.webp', pages:['robear','martez','krw'] }
+      { as:'SE|Design', pages:['mmm','robear','martez','krw'] }
     ], kids:[
     { id:'does', label:'What I Do', blurb:'[Short blurb]', kids:[
       { id:'sedesign', label:'SE|Design', blurb:'My on-demand design studio for small businesses, nonprofits, and entrepreneurs.', kids:[
@@ -166,17 +172,50 @@ export const ROOT = { id:'root', label:'Brain', kids:[
             lede:'Custom landing page, 2025.',
             story:'Robear Detroit needed [what they needed]. I designed and built a custom landing page and [brand work], so they could [result]. [What changed for them after launch.]',
             tags:['Site','Branding'],
-            proof:'[Screens of the landing page]',
+            proof:'Landing page, Robear Detroit',
+            image:'/proof/robear/1.webp',
+            fit:'whole',
+            more:[
+              { src:'/proof/robear/2.webp', caption:'About screen on a phone' },
+              { src:'/proof/robear/3.webp', caption:'Brand board' }
+            ],
             links:[{ to:'sedesign', why:'A studio partnership.' }] }},
           { id:'martez', label:'Martez Hurd', page:{
             lede:'[One line: the project]',
             story:'[Martez Hurd is / does ___]. He needed a site and a brand that [goal]. I built [what you made], and now [what changed].',
-            tags:['Site','Branding'] }},
+            tags:['Site','Branding'],
+            proof:'Brand board, Martez Hurd',
+            image:'/proof/martez-hurd/1.webp' }},
           { id:'krw', label:'KRW', page:{
             lede:'[One line: the project]',
             story:'KRW came to me for [brand need]. I designed [logo, brand system, social templates], so they could show up consistently on social. [Result.] Their website is next.',
             tags:['Branding','Social Media'],
-            links:[{ to:'krwsite', why:'Their website is next.' }] }} ]},
+            proof:'Stylescape, KRW Music',
+            image:'/proof/krw/1.webp',
+            focus:'top',
+            more:[
+              { src:'/proof/krw/2.webp', caption:'Primary logo' },
+              { src:'/proof/krw/3.webp', caption:'Brandmark, icon and color palette' },
+              { src:'/proof/krw/4.webp', caption:'Logo on red' },
+              { src:'/proof/krw/5.webp', caption:'Wordmark' },
+              { src:'/proof/krw/6.webp', caption:'Record icon' },
+              { src:'/proof/krw/7.webp', caption:'Stylescape detail' },
+              { src:'/proof/krw/8.webp', caption:'Badge logo' }
+            ],
+            links:[{ to:'krwsite', why:'Their website is next.' }] }},
+          { id:'mmm', label:'Micro Money Management', page:{
+            lede:'[One line: the project]',
+            story:'[Micro Money Management is / does ___]. They needed [brand need]. I designed [what you made], so they could [result].',
+            tags:['Branding','Social Media'],
+            proof:'Brand identity, Micro Money Management',
+            image:'/proof/micro-money-management/1.webp',
+            more:[
+              { src:'/proof/micro-money-management/2.webp', caption:'Stylescape' },
+              { src:'/proof/micro-money-management/3.webp', caption:'Stylescape detail' },
+              { src:'/proof/micro-money-management/4.webp', caption:'Brand voice' },
+              { src:'/proof/micro-money-management/5.webp', caption:'Logo' },
+              { src:'/proof/micro-money-management/6.webp', caption:'Brochure' }
+            ] }} ]},
         /* pressing this opens the site's Gallery, narrowed to the level it sits in (SE|Design).
            `gallery` lists pictures that belong to no page of their own: { src, tag, caption }, with `tag` one of the tags above it */
         { id:'gallery', label:'Gallery', go:'gallery', page:{
@@ -184,7 +223,21 @@ export const ROOT = { id:'root', label:'Brain', kids:[
           story:'A wall of the work. Logos, sites, packaging, posts, and illustrations from SE|Design projects. Filter by what you’re looking for.',
           tags:['Branding','Site','Social Media','Packaging','Illustration'],
           gallery:[
-            { src:'/proof/brand-system.webp', tag:'Branding', caption:'Brand system, SE|Design' }
+            { src:'/proof/gallery/5.webp', tag:'Graphic Design', caption:'Home health care survey, ClearPath Home Care' },
+            { src:'/proof/gallery/6.webp', tag:'Graphic Design', caption:'FATE HS Program guide' },
+            { src:'/proof/gallery/7.webp', tag:'Graphic Design', caption:'Brochure, Chalkbeat Detroit' },
+            { src:'/proof/gallery/9.webp', tag:'App Design', caption:'Dye. app' },
+            { src:'/proof/gallery/10.webp', tag:'App Design', caption:'Goodwoolf app' },
+            { src:'/proof/gallery/11.webp', tag:'App Design', caption:'FordPass app' },
+            { src:'/proof/gallery/12.webp', tag:'App Design', caption:'AFA app' },
+            { src:'/proof/gallery/14.webp', tag:'App Design', caption:'Driver Appeal Integrated System' },
+            { src:'/proof/gallery/15.webp', tag:'App Design', caption:'App and interface mockups' },
+            { src:'/proof/gallery/17.webp', tag:'Site', caption:'Viacon Packaging Solutions website' },
+            { src:'/proof/gallery/18.webp', tag:'Site', caption:'The Local Butcher website' },
+            { src:'/proof/gallery/22.webp', tag:'Branding', caption:'JB Cinematic Media logo' },
+            { src:'/proof/gallery/29.webp', tag:'Illustration', caption:'Ready Set Culture tee' },
+            { src:'/proof/gallery/31.webp', tag:'Social Media', caption:'Family Tactical Solutions' },
+            { src:'/proof/gallery/32.webp', tag:'Social Media', caption:'Kiss N\' Cakes Cupcake Studio' }
           ] }},
         /* not a page of its own: pressing it opens the Work with me page (studio.js) */
         { id:'workwithme', label:'Work with me', go:'studio' } ]},
@@ -227,6 +280,25 @@ export const ROOT = { id:'root', label:'Brain', kids:[
           tags:['Illustration','Portraits','Editorial'],
           proof:'Ann Arbor District Library, Black History Bicentennial',
           image:'/proof/aadl-bicentennial.webp',
+          more:[
+            { src:'/proof/wesson/portrait-fur-coat.webp', caption:'Portrait' },
+            { src:'/proof/wesson/raffe.webp', caption:'Raffe' },
+            { src:'/proof/wesson/clukincrazy.webp', caption:'Clukincrazy' },
+            { src:'/proof/wesson/pugalisious.webp', caption:'Pugalisious' },
+            { src:'/proof/wesson/vigo.webp', caption:'Vigo' },
+            { src:'/proof/wesson/portrait-scorpion-shirt.webp', caption:'Portrait' },
+            { src:'/proof/wesson/doodlage-2.webp', caption:'Doodlage 2' },
+            { src:'/proof/wesson/cat-black.webp', caption:'Cat' },
+            { src:'/proof/wesson/smile.webp', caption:'Smile' },
+            { src:'/proof/wesson/donut-drip.webp', caption:'Donut Drip' },
+            { src:'/proof/wesson/cat-grey.webp', caption:'Cat' },
+            { src:'/proof/wesson/portrait-paper-crown.webp', caption:'Portrait' },
+            { src:'/proof/wesson/pain.webp', caption:'Pain' },
+            { src:'/proof/wesson/doodlage-1.webp', caption:'Doodlage 1' },
+            { src:'/proof/wesson/hydra.webp', caption:'Hydra' },
+            { src:'/proof/wesson/thumb.webp', caption:'Thumb' },
+            { src:'/proof/wesson/portraits-three.webp', caption:'Portraits' }
+          ],
           action:{ label:'Visit wessonart.com', url:'https://wessonart.com' },
           links:[{ to:'sketch', why:'Where the pieces start.' },{ to:'vault', why:'The idea came from my own digital art.' }] }},
         { id:'sketch', label:'Sketchbook', page:{
@@ -343,7 +415,12 @@ export const ROOT = { id:'root', label:'Brain', kids:[
         lede:'A prehistoric survival game where you guide your people through their shaman.',
         story:'A Tamagotchi-style game I am building and drawing myself, sprite by sprite. I am learning to draw and animate the pixel art on iPad with Procreate and Procreate Dreams.',
         tags:['Game','Pixel Art'],
-        proof:'[First Fire screenshots]',
+        proof:'Title art, First Fire',
+        image:'/proof/first-fire/1.webp',
+        more:[
+          { src:'/proof/first-fire/2.webp', caption:'Key art' },
+          { src:'/proof/first-fire/3.webp', caption:'Icon' }
+        ],
         links:[{ to:'thissite', why:'Built with Claude Code.' }] }} ]},
     { id:'software', label:'Software', kids:[
       { id:'vault', label:'VaultMark', page:{

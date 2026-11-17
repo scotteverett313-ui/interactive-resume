@@ -257,6 +257,8 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
 #page .doc-pages img{display:block;width:100%;height:auto;max-width:none;border:2px solid var(--ink);border-radius:6px;box-sizing:border-box}
 #page .proof.has-image{background:var(--ground)}
 #page .proof img{position:absolute;inset:0;width:100%;height:100%;max-width:none;object-fit:cover}
+/* fit:'whole' in content.js: the entire picture, not a crop, with a little air around it */
+#page .proof img.whole{object-fit:contain;inset:24px;width:calc(100% - 48px);height:calc(100% - 48px)}
 /* the large picture is a button that fills the panel and opens the viewer. Its corner mark says so;
    the focus ring is drawn inside the picture, in ink over paper, so it shows on any image */
 #page .proof .pic-open{position:absolute;inset:0;border:0;padding:0;background:none;cursor:zoom-in;outline:none}
@@ -381,6 +383,11 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
   #page .pager{padding-right:12px}
   #page .pager .chip-btn{padding:0 10px;font-size:13px;max-width:34%}
   .brain .wall{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  /* on a phone a long row of tag filters scrolls sideways on one line, so the pictures stay near the top */
+  .brain .filters.small{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-right:-56px;padding-right:56px}
+  .brain .filters.small::-webkit-scrollbar{display:none}
+  .brain .filters.small .chip-btn{flex:0 0 auto;white-space:nowrap}
+  #page .proof img.whole{inset:10px;width:calc(100% - 20px);height:calc(100% - 20px)}
   /* three site buttons have to fit beside the light and dark toggle on a phone */
   #siteNav{gap:6px}
   #siteNav .chip-btn{padding:0 12px;font-size:13px}

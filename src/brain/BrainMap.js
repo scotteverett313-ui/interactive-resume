@@ -346,7 +346,10 @@ export function createScene(o){
       var cid = 'featClip' + (++clipN);
       clip = el('clipPath', { id:cid }); clipPath = el('path', {}); clip.appendChild(clipPath);
       svg.querySelector('defs').appendChild(clip);
-      img = el('image', { href:src, preserveAspectRatio:'xMidYMid slice', 'clip-path':'url(#' + cid + ')' });
+      /* the small copy of the picture is plenty for a blob; fall back to the full one if there is no small copy */
+      var small = src.replace(/\.webp$/, '.thumb.webp');
+      img = el('image', { href:small, preserveAspectRatio:'xMidYMid slice', 'clip-path':'url(#' + cid + ')' });
+      if (small !== src) img.addEventListener('error', function(){ if (img.getAttribute('href') !== src) img.setAttribute('href', src); });
       edge = el('path', { 'class':'edge' });
     }
     var lines = wrapLabel(name);

@@ -2,6 +2,7 @@ import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { CURIO_ROOT, BYID, PH_LEDE, PH_STORY, hubName } from './content';
 import PictureViewer from './PictureViewer';
+import { thumbOf, fullOnError } from './gallery';
 
 /* Text in [brackets] is a placeholder: show it dashed-underlined so it is obvious what is still blank.
    Brackets can sit anywhere in a sentence; only the bracketed parts are marked. */
@@ -284,7 +285,7 @@ export default function NodePage({ node, instant, seq, stack, reduce, onBack, on
                     return (
                       <button type="button" key={pc.src} aria-label={'View larger: ' + pc.caption + ', picture ' + (k + 1) + ' of ' + pics.length}
                         onClick={function(e){ openPic(k, e.currentTarget); }}>
-                        <img src={pc.src} alt="" loading="lazy" />
+                        <img src={thumbOf(pc.src)} onError={fullOnError(pc.src)} alt="" loading="lazy" />
                       </button>
                     );
                   })
@@ -297,7 +298,7 @@ export default function NodePage({ node, instant, seq, stack, reduce, onBack, on
         <div className={'proof' + (p.image ? ' has-image' : '')} id="pProof">
           {p.image && (
             <button type="button" className="pic-open" aria-label={'View larger: ' + (p.proof || n.label)} onClick={function(e){ openPic(0, e.currentTarget); }}>
-              <img src={p.image} alt="" />
+              <img src={p.image} alt="" className={p.fit === 'whole' ? 'whole' : undefined} style={p.focus ? { objectPosition:p.focus } : undefined} />
               <span className="pic-hint" aria-hidden="true">{EXPAND}</span>
             </button>
           )}

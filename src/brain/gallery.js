@@ -17,6 +17,14 @@ import { ROOT, CURIO_ROOT } from './content';
      line   ids of every level above it, for narrowing to one level
    ============================================================ */
 
+/* A picture can have a small copy beside it for strips, walls and blobs: name.webp -> name.thumb.webp.
+   If the small copy is missing the full picture is used instead (see `fullOnError`). */
+export function thumbOf(src){ return /\.thumb\.webp$/.test(src) ? src : src.replace(/\.webp$/, '.thumb.webp'); }
+/* put this on an <img> showing a thumb: if the small copy does not exist, fall back to the full picture once */
+export function fullOnError(src){
+  return function(e){ if (e.currentTarget.getAttribute('src') !== src) e.currentTarget.setAttribute('src', src); };
+}
+
 function written(s){ return s && !/^\[.*\]$/.test(s); }
 
 export const PICTURES = (function(){
