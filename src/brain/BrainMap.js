@@ -203,14 +203,15 @@ export function createScene(o){
        under it, the scatter keeps them from overlapping, and the node's id seeds it so it never changes */
     var n = kids.length, fs = clamp(M * .026, 14, 20);
     var boxes = kids.map(function(k){
-      var deeper = !!(k.kids && k.kids.length), r = M * (deeper ? .062 : .045);
+      /* a page is the thing to open, so its blob is the bigger one; a node that only goes deeper is smaller */
+      var deeper = !!(k.kids && k.kids.length), r = M * (deeper ? .054 : .07);
       var lines = wrapLabel(k.label), chars = Math.max.apply(null, lines.map(function(x){ return x.length; }));
       return { r:r, hw: Math.max(r, chars * fs * .3, 38) + 10, up: r + 8, down: r + fs + 6 + fs * 1.1 * (lines.length - 1) + 18 + 16 };
     });
     if (n === 1) return [{ x:W / 2, y:H * .5, r:boxes[0].r }];
     /* where centers may go: clear of the crumbs along the top, the depth dots on the right, the legend and toggle below */
     /* on narrow screens the crumbs wrap onto a second line, so start lower */
-    var full = { x0:16, y0: W < 600 ? 108 : 78, x1:W - 62, y1:H - 60 };
+    var full = { x0:16, y0: W < 600 ? 118 : 78, x1:W - 62, y1:H - 60 };
     /* the depth tag sits beside the dots on the right, level with this level's dot: keep nodes off it.
        The dots are five 28px rows, 2px apart, centered on the screen; this level's row is its depth plus one */
     var depth = 0; for (var up = node; up && up !== ROOT; up = up.parent) depth++;
