@@ -21,7 +21,7 @@ function isHome(v){ return v.stack.length === 1 && !v.pageNode && !v.sheet; }
 /* Owns the pieces of state the brain has:
      stack:  nodes from ROOT down to the level on the map
      page:   { node, instant, seq } the open page, or null. seq is the list it was opened from
-             (a level's featured pages), which its Next and Previous step through
+             (a level's featured previews), which its Next and Previous step through
      sheet:  a full-screen page over the brain: the services page, the notes, or the gallery, or null
      done:   whether the intro has finished
    Those four decide the address in the browser, and the address decides them (see routes.js).

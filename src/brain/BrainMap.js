@@ -193,17 +193,47 @@ export function createScene(o){
     });
   }
 
-  /* what a level shows: its kids, plus one extra blob for each of its featured previews (see `featured` in
-     content.js). A preview's blob stands for its first page and carries its whole list of pages */
+  /* the small tag under a blob's name: what a press leads to. `feature` and `promote` are the featured kinds (see entries) */
+  function tagOf(node, feature, promote){
+    var deeper = !!(node.kids && node.kids.length), inside = null, ends = null;
+    for (var one = only(node); one; one = only(one)){
+      if (one.kids && one.kids.length) inside = one; else { ends = one; break; }
+    }
+    if (feature) return 'featured';
+    if (promote) return ends ? ends.label + ' · featured' : 'featured';
+    return ends ? ends.label : (inside ? inside.label + ' · ' + inside.kids.length + ' inside' : (deeper ? node.kids.length + ' inside' : 'page'));
+  }
+  /* does pressing this kid already open that page? Either it is the page, or it is a single-item level that ends in it */
+  function leadsTo(kid, page){
+    if (kid === page) return true;
+    for (var one = only(kid); one; one = only(one)) if (one === page) return true;
+    return false;
+  }
+  /* what a level shows: its kids, plus its featured previews (see `featured` in content.js).
+     A preview whose page is already one press away on this level does not get a second blob: the blob that
+     is already there is promoted instead (bigger, with the picture). Any other preview gets a blob of its own,
+     standing for its first page.
+     Each carries `seq`, the list its page's Next and Previous step through: the preview's own pages when it has
+     several, otherwise the level's single-page previews together (soft: the page's own neighbors win if it has any) */
   function entries(node){
-    var out = (node.kids || []).map(function(k){ return { node:k, feature:null }; });
+    var out = (node.kids || []).map(function(k){ return { node:k, feature:null, promote:null }; });
     if (node === ROOT) return out;
+    var previews = [];
     (node.featured || []).forEach(function(f){
       var pages = (f.pages || []).map(function(id){
         var n = BYID[id];
         return n && !(n.kids && n.kids.length) && !n.go ? { node:n, name:n.label } : null;
       }).filter(Boolean);
-      if (pages.length) out.push({ node:pages[0].node, feature:{ pages:pages, name:f.as || pages[0].name, image:f.image || null } });
+      if (pages.length) previews.push({ f:f, pages:pages });
+    });
+    var singles = previews.filter(function(pv){ return pv.pages.length === 1; }).map(function(pv){ return pv.pages[0]; });
+    previews.forEach(function(pv){
+      var first = pv.pages[0].node;
+      var seq = pv.pages.length > 1 ? { pages:pv.pages, soft:false } : { pages:singles, soft:true };
+      var image = pv.f.image || (first.page && first.page.image) || null;
+      var home = out.filter(function(e){ return !e.feature && leadsTo(e.node, first); })[0];
+      if (home) home.promote = { seq:seq, image:image };
+      else out.push({ node:first, feature:{ seq:seq, name:pv.f.as || pv.pages[0].name, image:image }, promote:null });
     });
     return out;
   }
@@ -225,12 +255,15 @@ export function createScene(o){
         var deeper = !!(kid.kids && kid.kids.length);
         /* a level that ends in a single page opens that page, so it is drawn as one */
         for (var one = only(kid); one && deeper; one = only(one)) if (!(one.kids && one.kids.length)) deeper = false;
-        /* the featured blob holds a picture, so it is the biggest thing on the level */
-        var r = M * (ent.feature ? .1 : (deeper ? .054 : .07)) * k;
+        /* a featured blob holds a picture, so it is the biggest thing on the level */
+        var big = ent.feature || ent.promote;
+        var r = M * (big ? .1 : (deeper ? .054 : .07)) * k;
         var lines = wrapLabel(ent.feature ? ent.feature.name : kid.label), chars = Math.max.apply(null, lines.map(function(x){ return x.length; }));
         /* a picture blob is big enough that its wobble needs a little more air around it */
-        var air = ent.feature ? r * .12 + 8 : 0;
-        return { r:r, hw: Math.max(r + air, chars * fs * .3, 38) + 10, up: r + 8 + air, down: r + fs + 6 + fs * 1.1 * (lines.length - 1) + 18 + 16 };
+        var air = big ? r * .12 + 8 : 0;
+        /* the tag under the name can be the widest thing, so it counts toward the room the node needs */
+        var tagHalf = tagOf(kid, ent.feature, ent.promote).length * 3.9;
+        return { r:r, hw: Math.max(r + air, chars * fs * .3, tagHalf, 38) + 10, up: r + 8 + air, down: r + fs + 6 + fs * 1.1 * (lines.length - 1) + 18 + 16 };
       });
     }
     function areaOf(bs){ return bs.reduce(function(sum, b){ return sum + 2 * b.hw * (b.up + b.down); }, 0); }
@@ -289,7 +322,7 @@ export function createScene(o){
   }
 
   var clipN = 0;
-  function makeItem(node, pos, i, feature){
+  function makeItem(node, pos, i, feature, promote){
     var isHub = !feature && node.parent === ROOT, deeper = !!(node.kids && node.kids.length);
     /* a level with one thing inside is passed straight through. `inside` is the single level it leads into,
        if there is one; `ends` is the single page at the end of the line, if there is one. A level that ends
@@ -300,15 +333,15 @@ export function createScene(o){
     }
     var opens = !deeper || !!ends;
     /* in-<hub> gives the node its hub's colors; is-hub and is-deep say which of them it uses (see brain.css) */
-    var cls = 'node in-' + node.hub.id + (isHub ? ' is-hub' : (opens ? ' is-leaf' : ' is-deep')) + (feature ? ' is-featured' : '');
+    var cls = 'node in-' + node.hub.id + (isHub ? ' is-hub' : (opens ? ' is-leaf' : ' is-deep')) + (feature || promote ? ' is-featured' : '');
     var name = feature ? feature.name : node.label;
     var g = el('g', { 'class':cls, tabindex:0, role:'button',
       'aria-label': feature ? 'Featured: ' + name + ', open page'
-        : node.label + (ends ? ', open page: ' + ends.label : (inside ? ', go deeper: ' + inside.label : (deeper ? ', go deeper' : ', open page'))) });
+        : node.label + (ends ? ', open page: ' + ends.label : (inside ? ', go deeper: ' + inside.label : (deeper ? ', go deeper' : ', open page'))) + (promote ? ', featured' : '') });
     var path = el('path', {});
     /* the featured blob shows its page's picture, cut to the blob's shape, with an ink edge drawn over it.
        The same outline is written to all three each frame: the blob, the cut, and the edge */
-    var clip = null, clipPath = null, img = null, edge = null, src = feature && (feature.image || (node.page && node.page.image));
+    var clip = null, clipPath = null, img = null, edge = null, src = feature ? feature.image : (promote ? promote.image : null);
     if (src){
       var cid = 'featClip' + (++clipN);
       clip = el('clipPath', { id:cid }); clipPath = el('path', {}); clip.appendChild(clipPath);
@@ -321,7 +354,7 @@ export function createScene(o){
     var spans = lines.map(function(s, j){ var ts = el('tspan', { dy: j ? '1.1em' : '0' }); ts.textContent = s; lbl.appendChild(ts); return ts; });
     var sub = el('text', { 'class':'sub', 'text-anchor':'middle' });
     /* the small tag under the name says what a press leads to */
-    sub.textContent = feature ? 'featured' : (ends ? ends.label : (inside ? inside.label + ' · ' + inside.kids.length + ' inside' : (deeper ? node.kids.length + ' inside' : 'page')));
+    sub.textContent = tagOf(node, feature, promote);
     g.appendChild(path);
     if (img){ g.appendChild(img); g.appendChild(edge); }
     g.appendChild(lbl); g.appendChild(sub);
@@ -332,7 +365,7 @@ export function createScene(o){
     var gap = null;
     if (!isHub){ gap = el('rect', { fill:'black', rx:5 }); linkMask.appendChild(gap); }
     var it = { node:node, g:g, path:path, lbl:lbl, spans:spans, sub:sub, isHub:isHub, deeper:deeper, ends:ends, lines:lines.length,
-      feature:feature || null, clip:clip, clipPath:clipPath, img:img, edge:edge,
+      feature:feature || null, promote:promote || null, clip:clip, clipPath:clipPath, img:img, edge:edge,
       idx:i, gap:gap, tw:0, twFs:0, x:pos.x, y:pos.y, r:pos.r, s:1, o:1, hs:1, lx:0, ly:0, px:0, py:0, dragX:0, dragY:0, hover:false,
       seed:i * 1.7 + node.label.length * .37, amp: isHub ? .09 : .07 };
     g.addEventListener('pointerenter', function(){ it.hover = true; });
@@ -351,7 +384,7 @@ export function createScene(o){
 
   function buildView(node){
     var pos = layout(node);
-    var items = entries(node).map(function(e, i){ return makeItem(e.node, pos[i], i, e.feature); });
+    var items = entries(node).map(function(e, i){ return makeItem(e.node, pos[i], i, e.feature, e.promote); });
     return { node:node, items:items, links:makeLinks(node, items) };
   }
 
@@ -434,13 +467,13 @@ export function createScene(o){
     if (it.feature){
       /* the featured blob opens its page as the first of the level's featured list */
       gsap.to(it, { s:1.25, duration:D(.3), yoyo:true, repeat:1 });
-      o.onOpenPage(it.node, it.feature.pages);
+      o.onOpenPage(it.node, it.feature.seq);
     } else if (it.deeper && !it.ends){
       setBusy(true); /* the dive starts on the next render; block double taps until then */
       o.onDive(it.node, it);
     } else {
       gsap.to(it, { s:1.5, duration:D(.3), yoyo:true, repeat:1 });
-      o.onOpenPage(it.ends || it.node);
+      o.onOpenPage(it.ends || it.node, it.promote ? it.promote.seq : null);
     }
   }
 

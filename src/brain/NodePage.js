@@ -47,9 +47,9 @@ var EXPAND = (
    so it can fade out after the node it was showing is already gone.
 
    node:     the node to show, or null to close
-   seq:      the list this page was opened from, if any: [{ node, name }], a level's featured pages.
-             Next and Previous step through it. Without one they step through the page's neighbors,
-             the other pages in the same level
+   seq:      the list this page was opened from, if any: { pages:[{ node, name }], soft }, from a level's
+             featured previews. Next and Previous step through it. Without one they step through the
+             page's neighbors, the other pages in the same level
    instant:  when node is null, hide right away instead of fading
    stack:    current map stack, for the crumb line
    onBack, onGoToNode(node), onDiveTo(hubId), onOpenPage(node)
@@ -110,11 +110,14 @@ export default function NodePage({ node, instant, seq, stack, reduce, onBack, on
   var slideRef = useRef(0), turnRef = useRef(null), touchRef = useRef(null);
   var list = null, inSeq = false;
   if (shown){
-    /* a list of one has nowhere to go, so that page steps through its neighbors like any other */
-    if (seq && seq.length > 1 && seq.some(function(e){ return e.node === shown; })){ list = seq; inSeq = true; }
-    else list = ((shown.parent && shown.parent.kids) || [])
+    var near = ((shown.parent && shown.parent.kids) || [])
       .filter(function(k){ return !(k.kids && k.kids.length) && !k.go; })
       .map(function(k){ return { node:k, name:k.label }; });
+    /* the list it was opened from wins when it has somewhere to go. A soft list (a level's single previews
+       gathered together) only steps in for a page that has no neighbors of its own */
+    var mine = seq && seq.pages.length > 1 && seq.pages.some(function(e){ return e.node === shown; });
+    if (mine && !(seq.soft && near.length > 1)){ list = seq.pages; inSeq = true; }
+    else list = near;
   }
   var at = -1;
   if (list) list.forEach(function(e, i){ if (e.node === shown) at = i; });

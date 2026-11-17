@@ -32,13 +32,18 @@
    A level can carry `featured`: previews of pages offered straight
    from that level, however deep they really sit. Each entry is one
    extra blob with a picture in it:
-       as:     the name under the blob
+       as:     the name under the blob (the page's own name if left out)
        pages:  page ids. Pressing the blob opens the first one, and
                Next and Previous on the page step through the rest.
                With a single page, they step through that page's
-               neighbors instead.
+               neighbors; if it has none, through the level's other
+               single-page previews.
        image:  optional picture for the blob. Without it the blob
-               uses the first page's own picture.
+               uses the first page's own picture, or stays a plain
+               color blob until that page has one.
+   If a featured page is already one press away on that level, no
+   second blob is added: the blob that is already there becomes the
+   big one.
 
    NEXT AND PREVIOUS
    Every page that has neighbors (other pages in the same level) gets
@@ -279,7 +284,7 @@ export const ROOT = { id:'root', label:'Brain', kids:[
       { id:'about', label:'About', page:{
         lede:'[One line: who I am]',
         story:'[About me, in my words]' }} ]} ]},
-  { id:'teach', label:'Teach', blurb:'[Short blurb]', kids:[
+  { id:'teach', label:'Teach', blurb:'[Short blurb]', featured:[{ pages:['c2'] }, { pages:['c6'] }], kids:[
     { id:'umf', label:'UofM Flint', page:{
       lede:'I teach the way I learned, by making.',
       story:'I started teaching at the University of Michigan-Flint, where I designed and taught multiple curriculums and managed and facilitated workshops.',
@@ -320,7 +325,9 @@ export const ROOT = { id:'root', label:'Brain', kids:[
         lede:'[One line: what this course is about]',
         story:'[What students learn, and one project they make]',
         tags:['Teaching'] }} ]} ]},
-  { id:'build', label:'Build', blurb:'[Short blurb]', kids:[
+  /* First Fire and VaultMark are already one press away here (through Games and Software), so featuring them
+     makes those two blobs the big ones instead of adding duplicates */
+  { id:'build', label:'Build', blurb:'[Short blurb]', featured:[{ pages:['ff'] }, { pages:['vault'] }], kids:[
     { id:'stack', label:'My stack', page:{
       lede:'The tools I reach for every day, from sketching on iPad to shipping with code.',
       story:'[Icons of the software]',

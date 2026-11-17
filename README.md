@@ -164,12 +164,20 @@ featured:[
 Each entry is one extra blob on that level, bigger than the rest, with a
 picture inside and the tag "featured". `as` is the name under it. Pressing it
 opens the first of its `pages`. The picture is the entry's `image`, or the
-first page's own picture when there is none. Only Work has previews today.
+first page's own picture when there is none; with no picture at all it is a
+plain color blob until that page gets one. Work, Teach and Build have
+previews.
+
+If a featured page is already one press away on that level, no second blob is
+added: the one already there becomes the big one. That is how Build features
+First Fire and VaultMark, which sit behind Games and Software.
 
 Every page with neighbors has a bar at the bottom with Previous and Next.
 Opened from a featured blob with several pages, they step through that list
 in order. Opened any other way, or from a preview with one page, they step
-through the other pages in the same level.
+through the other pages in the same level. A single-page preview whose page
+has no neighbors steps through the level's other single-page previews instead
+(First Fire and VaultMark).
 The left and right arrow keys and a sideways swipe do the same, and the list
 wraps around at the ends.
 
