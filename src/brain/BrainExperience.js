@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { ROOT, CURIO_ROOT, TITLES, BYID, CURIO_BY_ID } from './content';
+import { ROOT, CURIO_ROOT, TITLES, BYID, CURIO_BY_ID, only } from './content';
 import Intro from './Intro';
 import BrainMap from './BrainMap';
 import NodePage from './NodePage';
@@ -9,7 +9,8 @@ import Crumbs from './Crumbs';
 import SiteNav from './SiteNav';
 import StudioPage from './StudioPage';
 import NotesPage from './NotesPage';
-import { pathFor, parsePath, titleFor } from './routes';
+import GalleryPage from './GalleryPage';
+import { pathFor, parsePath, titleFor, settle, sheetFor, lineOf } from './routes';
 import { PALETTES, paletteVars } from './palettes';
 import ThemeToggle, { readThemeChoice, saveThemeChoice } from './ThemeToggle';
 import './brain.css';
@@ -20,7 +21,7 @@ function isHome(v){ return v.stack.length === 1 && !v.pageNode && !v.sheet; }
 /* Owns the pieces of state the brain has:
      stack:  nodes from ROOT down to the level on the map
      page:   { node, instant } the open page, or null
-     sheet:  a full-screen page over the brain: the services page or the notes, or null
+     sheet:  a full-screen page over the brain: the services page, the notes, or the gallery, or null
      done:   whether the intro has finished
    Those four decide the address in the browser, and the address decides them (see routes.js).
    Everything animated lives in refs and GSAP, not here. */
@@ -104,9 +105,9 @@ export default function BrainExperience(){
     };
   }, [palette]);
 
-  /* open a node's page. A leaf marked go:'studio' has no page of its own: it opens the Work with me page */
+  /* open a node's page. A leaf marked `go` has no page of its own: it opens Work with me, or the gallery */
   var openPage = useCallback(function(node){
-    if (node && node.go === 'studio'){ setSheet({ type:'studio' }); return; }
+    if (node && node.go){ setSheet(sheetFor(node)); return; }
     setPage({ node:node, instant:false });
   }, []);
   var closePage = useCallback(function(instant){
@@ -120,6 +121,8 @@ export default function BrainExperience(){
     if (pageRef.current.node) closePage();
     var s = stackRef.current;
     if (depth >= s.length) return;
+    /* a level with one thing inside is never shown on its own, so going up skips past it */
+    while (depth > 1 && only(s[depth - 1])) depth--;
     modeRef.current = { mode:'rise' };
     setStack(s.slice(0, depth));
   }, [closePage]);
@@ -127,28 +130,29 @@ export default function BrainExperience(){
   /* a map item was pressed: go one level deeper, diving out of that item */
   var onDive = useCallback(function(node, item){
     modeRef.current = { mode:'dive', fromItem:item };
-    setStack(stackRef.current.concat(node));
+    /* a level holding a single level carries straight on into it */
+    setStack(settle(stackRef.current.concat(node), null).stack);
   }, []);
 
   /* jump anywhere in the brain from a "Connects to" link: rebuild the path, then land on the page or the level */
   var goToNode = useCallback(function(n){
     if (busyRef.current) return;
-    var path = [];
-    for (var x = n; x; x = x.parent) path.unshift(x);
-    if (path[0] !== ROOT) return;
+    /* an outer-orbit curiosity has no level of its own: its page opens over wherever the map is */
+    if (n.curio){ closePage(true); openPage(n); return; }
+    var line = lineOf(n);
+    if (line[0] !== ROOT) return;
     closePage(true);
     modeRef.current = { mode:'instant' };
-    if (n.kids && n.kids.length){
-      setStack(path);
-    } else {
-      setStack(path.slice(0, -1));
-      openPage(n);
-    }
+    /* single-item levels are passed through on the way, the same as on the map */
+    var at = n.kids && n.kids.length ? settle(line, null) : settle(line.slice(0, -1), n);
+    setStack(at.stack);
+    if (at.go) openPage(at.go); else if (at.pageNode) openPage(at.pageNode);
   }, [closePage, openPage]);
 
   /* the full-screen pages over the brain */
   var openStudio = useCallback(function(){ setSheet({ type:'studio' }); }, []);
   var openNote = useCallback(function(slug){ setSheet({ type:'notes', slug:slug || null }); }, []);
+  var openGallery = useCallback(function(){ setSheet({ type:'gallery', node:null }); }, []);
   var closeSheet = useCallback(function(){ setSheet(null); }, []);
   /* a node page's own button, for example "See partnership levels" */
   var onAction = useCallback(function(action){ if (action && action.go === 'studio') openStudio(); }, [openStudio]);
@@ -246,12 +250,13 @@ export default function BrainExperience(){
           <button id="skip" className="chip-btn" type="button" hidden={done} onClick={finishIntro}>Skip intro</button>
           <button id="replay" className="chip-btn" type="button" hidden={!done} onClick={replayIntro}>Replay intro</button>
           <ThemeToggle mode={mode} onToggle={toggleTheme} />
-          <SiteNav onStudio={openStudio} onNotes={function(){ openNote(null); }} />
+          <SiteNav onStudio={openStudio} onNotes={function(){ openNote(null); }} onGallery={openGallery} />
           <DotNav done={done} stack={stack} pageNode={page.node || sheet} tagRef={dotTagRef} onReplay={replayIntro}
             onGoTo={function(d){ setSheet(null); goTo(d); }} />
           <NodePage node={page.node} instant={page.instant} stack={stack} reduce={reduce}
             onBack={function(){ closePage(); }} onGoToNode={goToNode} onDiveTo={diveTo} onOpenPage={openPage} onAction={onAction} />
           {sheet && sheet.type === 'studio' && <StudioPage onClose={closeSheet} onGoToNode={goToNodeFromSheet} />}
+          {sheet && sheet.type === 'gallery' && <GalleryPage node={sheet.node} reduce={reduce} onClose={closeSheet} onGoToNode={goToNodeFromSheet} />}
           {sheet && sheet.type === 'notes' && (
             <NotesPage slug={sheet.slug} onClose={closeSheet} onOpenNote={openNote} onGoToNode={goToNodeFromSheet} onStudio={openStudio} />
           )}

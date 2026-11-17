@@ -2,7 +2,10 @@ import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 /* The picture viewer: one of a page's pictures shown whole, full screen, on a dark ground.
 
-     pics:    [{ src, caption }] every picture on the page, the large one first
+     pics:    [{ src, caption }] every picture on the page, the large one first.
+              A picture can also carry goLabel, the name of the place it is from
+     onGo:    optional. When given, a picture with a goLabel gets a button that calls it with that picture,
+              so the gallery can lead through to the page
      index:   which one is showing
      onIndex: called with a new index (arrows, swipes)
      onClose: called to close (Escape, the close button, a press outside the picture)
@@ -18,7 +21,7 @@ var MAX = 5;      /* how many times bigger the picture can get */
 var STEP = 2.5;   /* how far one click, double-tap, or press of the Zoom button goes */
 function clamp(v, a, b){ return Math.max(a, Math.min(b, v)); }
 
-export default function PictureViewer({ pics, index, onIndex, onClose, reduce }){
+export default function PictureViewer({ pics, index, onIndex, onClose, reduce, onGo }){
   var rootRef = useRef(null), stageRef = useRef(null), imgRef = useRef(null), closeRef = useRef(null);
   var z = useRef({ s:1, x:0, y:0 });
   var ptrs = useRef({}), gest = useRef(null), last = useRef({ moved:false, onImg:false, x:0, y:0, touch:false }), tapAt = useRef(0);
@@ -178,6 +181,11 @@ export default function PictureViewer({ pics, index, onIndex, onClose, reduce })
 
   return (
     <div id="viewer" ref={rootRef} className={zoomed ? 'zoomed' : undefined} role="dialog" aria-modal="true" aria-label={'Picture viewer' + (n > 1 ? ', ' + n + ' pictures' : '')}>
+      {onGo && pic.goLabel && (
+        <button type="button" className="chip-btn viewer-go" aria-label={'Go to ' + pic.goLabel} onClick={function(){ onGo(pic); }}>
+          <span>{pic.goLabel}</span> →
+        </button>
+      )}
       <div className="viewer-top">
         <button type="button" className="chip-btn icon" aria-label={zoomed ? 'Zoom out' : 'Zoom in'} aria-pressed={zoomed} onClick={function(){ toggleZoom(); }}>
           <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">

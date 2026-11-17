@@ -1,5 +1,5 @@
 import React from 'react';
-import { MAX_DEPTH } from './content';
+import { MAX_DEPTH, only } from './content';
 
 /* Depth dots down the right edge: one for the intro, one for each level the map can go
    (the brain, a gravity point, and however many levels sit inside it), and one for a page.
@@ -14,7 +14,8 @@ export default function DotNav({ done, stack, pageNode, tagRef, onReplay, onGoTo
   var rows = [];
   for (var i = 0; i < DOT_COUNT; i++){
     (function(i){
-      var on = i === depth, reachable = done && i < depth;
+      /* a level with one thing inside is passed through, so its dot is not a stop */
+      var on = i === depth, reachable = done && i < depth && !(i > 0 && only(stack[i - 1]));
       rows.push(
         <div className="row" key={i}>
           {on && <span className="tag" id="dotTag" ref={tagRef}>{!done ? 'Intro' : (tags[i] || '')}</span>}

@@ -1,6 +1,6 @@
 import React, { useEffect, useLayoutEffect, useRef } from 'react';
 import { gsap } from 'gsap';
-import { ROOT, CURIO_ROOT } from './content';
+import { ROOT, CURIO_ROOT, only } from './content';
 import { DOT_COUNT } from './DotNav';
 import { blobPath, rng, clamp, wrapLabel, curvePath, curvePoint, seedOf, scatter, webLinks } from './blob';
 
@@ -206,7 +206,10 @@ export function createScene(o){
     function boxesAt(k){
       return kids.map(function(kid){
         /* a page is the thing to open, so its blob is the bigger one; a node that only goes deeper is smaller */
-        var deeper = !!(kid.kids && kid.kids.length), r = M * (deeper ? .054 : .07) * k;
+        var deeper = !!(kid.kids && kid.kids.length);
+        /* a level that ends in a single page opens that page, so it is drawn as one */
+        for (var one = only(kid); one && deeper; one = only(one)) if (!(one.kids && one.kids.length)) deeper = false;
+        var r = M * (deeper ? .054 : .07) * k;
         var lines = wrapLabel(kid.label), chars = Math.max.apply(null, lines.map(function(x){ return x.length; }));
         return { r:r, hw: Math.max(r, chars * fs * .3, 38) + 10, up: r + 8, down: r + fs + 6 + fs * 1.1 * (lines.length - 1) + 18 + 16 };
       });
@@ -230,7 +233,7 @@ export function createScene(o){
     var rowY = H / 2 - (DOT_COUNT * 30 - 2) / 2 + 14 + (depth + 1) * 30;
     var tag = { x0:W - 52 - tagW - 10, y0:rowY - 20, x1:W, y1:rowY + 20 };
     /* the site buttons sit in the bottom-left corner, with the legend above them on wide screens */
-    var corner = W <= 820 ? { x0:0, y0:H - 66, x1:220, y1:H } : { x0:0, y0:H - 100, x1:300, y1:H };
+    var corner = W <= 820 ? { x0:0, y0:H - 66, x1:Math.min(W - 62, 310), y1:H } : { x0:0, y0:H - 100, x1:340, y1:H };
     var fw = full.x1 - full.x0, fh = full.y1 - full.y0;
     /* a crowded level on a small screen: shrink the blobs a step at a time until the level fills
        no more than about half the room, so the scatter can still pull everything apart */
@@ -268,16 +271,25 @@ export function createScene(o){
 
   function makeItem(node, pos, i){
     var isHub = node.parent === ROOT, deeper = !!(node.kids && node.kids.length);
+    /* a level with one thing inside is passed straight through. `inside` is the single level it leads into,
+       if there is one; `ends` is the single page at the end of the line, if there is one. A level that ends
+       in a page behaves like a page: pressing it opens that page */
+    var inside = null, ends = null;
+    for (var one = only(node); one; one = only(one)){
+      if (one.kids && one.kids.length) inside = one; else { ends = one; break; }
+    }
+    var opens = !deeper || !!ends;
     /* in-<hub> gives the node its hub's colors; is-hub and is-deep say which of them it uses (see brain.css) */
-    var cls = 'node in-' + node.hub.id + (isHub ? ' is-hub' : (deeper ? ' is-deep' : ' is-leaf'));
+    var cls = 'node in-' + node.hub.id + (isHub ? ' is-hub' : (opens ? ' is-leaf' : ' is-deep'));
     var g = el('g', { 'class':cls, tabindex:0, role:'button',
-      'aria-label': node.label + (deeper ? ', go deeper' : ', open page') });
+      'aria-label': node.label + (ends ? ', open page: ' + ends.label : (inside ? ', go deeper: ' + inside.label : (deeper ? ', go deeper' : ', open page'))) });
     var path = el('path', {});
     var lines = wrapLabel(node.label);
     var lbl = el('text', { 'class':'lbl', 'text-anchor':'middle' });
     var spans = lines.map(function(s, j){ var ts = el('tspan', { dy: j ? '1.1em' : '0' }); ts.textContent = s; lbl.appendChild(ts); return ts; });
     var sub = el('text', { 'class':'sub', 'text-anchor':'middle' });
-    sub.textContent = deeper ? (node.kids.length + ' inside') : 'page';
+    /* the small tag under the name says what a press leads to */
+    sub.textContent = ends ? ends.label : (inside ? inside.label + ' · ' + inside.kids.length + ' inside' : (deeper ? node.kids.length + ' inside' : 'page'));
     g.appendChild(path); g.appendChild(lbl); g.appendChild(sub);
     nodesG.appendChild(g);
     /* a label that sits on the ground cuts a gap in the connection lines, so a line passes behind the words
@@ -285,7 +297,7 @@ export function createScene(o){
        on the blob, which already covers the lines.) */
     var gap = null;
     if (!isHub){ gap = el('rect', { fill:'black', rx:5 }); linkMask.appendChild(gap); }
-    var it = { node:node, g:g, path:path, lbl:lbl, spans:spans, sub:sub, isHub:isHub, deeper:deeper, lines:lines.length,
+    var it = { node:node, g:g, path:path, lbl:lbl, spans:spans, sub:sub, isHub:isHub, deeper:deeper, ends:ends, lines:lines.length,
       idx:i, gap:gap, tw:0, twFs:0, x:pos.x, y:pos.y, r:pos.r, s:1, o:1, hs:1, lx:0, ly:0, px:0, py:0, dragX:0, dragY:0, hover:false,
       seed:i * 1.7 + node.label.length * .37, amp: isHub ? .09 : .07 };
     g.addEventListener('pointerenter', function(){ it.hover = true; });
@@ -383,12 +395,12 @@ export function createScene(o){
 
   function activate(it){
     if (busy() || !done || it.o < .5) return;
-    if (it.deeper){
+    if (it.deeper && !it.ends){
       setBusy(true); /* the dive starts on the next render; block double taps until then */
       o.onDive(it.node, it);
     } else {
       gsap.to(it, { s:1.5, duration:D(.3), yoyo:true, repeat:1 });
-      o.onOpenPage(it.node);
+      o.onOpenPage(it.ends || it.node);
     }
   }
 

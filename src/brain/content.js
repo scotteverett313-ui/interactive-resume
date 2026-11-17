@@ -21,7 +21,18 @@
      the breadcrumbs when you are inside that level. A blurb still in
      [brackets] is not shown.
    - A leaf with `go:'studio'` instead of a page opens the Work with me
-     page when pressed.
+     page when pressed. A leaf with `go:'gallery'` opens the Gallery,
+     narrowed to the level it sits in.
+   - A level with only one thing inside is passed straight through:
+     pressing it opens that one page (or lands inside that one level),
+     and Back skips it too. Add a second item and the level shows up
+     as a level again.
+
+   THE GALLERY
+   The Gallery button (bottom left, always there) shows every picture
+   on the site in one wall: each page's `image` and `more`, plus any
+   `gallery` extras. Nothing to maintain: add a picture to a page and
+   it is on the wall. Its title and one line are in GALLERY below.
    - `page` is optional. Any field inside it is optional too:
        lede:  one line, shown big under the title
        story: a paragraph
@@ -40,10 +51,10 @@
        action: optional button, { label: '...', go: 'studio' } opens the
               Work with me page; { label: '...', url: 'https://...' }
               opens another site in a new tab
-       gallery: makes the page a wall of pictures with filter buttons
-              instead of the usual layout: an array of
+       gallery: only on a `go:'gallery'` leaf: extra pictures for the
+              Gallery that belong to no page of their own, an array of
               { src: '/proof/name.webp', tag: 'Branding', caption: '...' }.
-              `tag` should be one of the page's `tags`.
+              `tag` should be one of that leaf's `tags`.
        doc:   optional document shown on the page instead of the usual
               layout, { file: '/cv/name.pdf', pages: ['/cv/page-1.webp'] }.
               `file` is what downloads; `pages` are pictures of its pages,
@@ -107,6 +118,12 @@ export const STICKERS = {
   audio: { label: 'What I am listening to, on Spotify', go: 'https://open.spotify.com/playlist/0DJIRlDoAI6vq1X7ILXecI' }
 };
 
+/* The Gallery: every picture on the site in one wall, opened from the Gallery button. */
+export const GALLERY = {
+  title: 'Gallery',
+  intro: 'Every picture on the site, in one place. Filter by what you’re looking for.'
+};
+
 /* Shown on a page when that field is still blank. */
 export const PH_LEDE = '[One line: what this is to me]';
 export const PH_STORY = '[The story: how I got here and why it stuck]';
@@ -133,8 +150,9 @@ export const ROOT = { id:'root', label:'Brain', kids:[
             story:'KRW came to me for [brand need]. I designed [logo, brand system, social templates], so they could show up consistently on social. [Result.] Their website is next.',
             tags:['Branding','Social Media'],
             links:[{ to:'krwsite', why:'Their website is next.' }] }} ]},
-        /* a wall of pictures with filters. Each picture: { src, tag, caption }. `tag` is one of the page's tags */
-        { id:'gallery', label:'Gallery', page:{
+        /* pressing this opens the site's Gallery, narrowed to the level it sits in (SE|Design).
+           `gallery` lists pictures that belong to no page of their own: { src, tag, caption }, with `tag` one of the tags above it */
+        { id:'gallery', label:'Gallery', go:'gallery', page:{
           lede:'[Short blurb]',
           story:'A wall of the work. Logos, sites, packaging, posts, and illustrations from SE|Design projects. Filter by what you’re looking for.',
           tags:['Branding','Site','Social Media','Packaging','Illustration'],
@@ -350,6 +368,9 @@ ROOT.kids.forEach(function(h){ h.hub = h; });
 
 export const CURIO_BY_ID = {};
 CURIO_ROOT.kids.forEach(function(k){ k.parent = CURIO_ROOT; k.curio = true; CURIO_BY_ID[k.id] = k; });
+
+/* A level with exactly one thing inside is passed straight through. This is that one thing, or null. */
+export function only(n){ return n && n.kids && n.kids.length === 1 ? n.kids[0] : null; }
 
 /* The deepest the map goes: how many levels a stack can hold, counting the brain itself. The depth dots use it. */
 export const MAX_DEPTH = (function deepest(n){

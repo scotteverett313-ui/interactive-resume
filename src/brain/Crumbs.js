@@ -1,4 +1,5 @@
 import React from 'react';
+import { only } from './content';
 
 /* Breadcrumb trail across the top: Back chip, then each level of the stack.
    On a narrow screen only the last two levels show, after a "…", so a deep trail stays on two lines
@@ -24,7 +25,10 @@ export default function Crumbs({ done, stack, pageNode, onBack, onGoTo }){
             {i > 0 && <span className={'sep' + (i - 1 < stack.length - 2 ? ' far' : '')}>/</span>}
             {last
               ? <span className="crumb" aria-current="location">{n.label}</span>
-              : <button type="button" className={'crumb' + far} onClick={function(){ onGoTo(i + 1); }}>{n.label}</button>}
+              : (only(n)
+                /* a level with one thing inside is never shown on its own: it is part of the trail, but not a stop */
+                ? <span className={'crumb pass' + far}>{n.label}</span>
+                : <button type="button" className={'crumb' + far} onClick={function(){ onGoTo(i + 1); }}>{n.label}</button>)}
           </React.Fragment>
         );
       })}

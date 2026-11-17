@@ -1,4 +1,4 @@
-import { ROOT, CURIO_ROOT } from './content';
+import { ROOT, CURIO_ROOT, only } from './content';
 import { NOTE_BY_SLUG } from './notes';
 
 /* ============================================================
@@ -12,6 +12,8 @@ import { NOTE_BY_SLUG } from './notes';
      /orbit                         the "Can't stop thinking about" page
      /orbit/gardening               a curiosity's page
      /work-with-me                  the SE|Design services page
+     /gallery                       every picture on the site
+     /work/what-i-do/se-design/gallery   the gallery, narrowed to SE|Design
      /notes  and  /notes/<slug>     the notes list, and one note
 
    A node's part of the address is made from its label ("Case studies"
@@ -22,6 +24,32 @@ import { NOTE_BY_SLUG } from './notes';
 export const STUDIO_PATH = '/work-with-me';
 export const NOTES_PATH = '/notes';
 export const ORBIT_PATH = '/orbit';
+export const GALLERY_PATH = '/gallery';
+
+/* a node's ancestors from the brain down to the node itself: [ROOT, ..., node] */
+export function lineOf(node){
+  var line = [];
+  for (var x = node; x; x = x.parent) line.unshift(x);
+  return line;
+}
+
+/* A level with one thing inside is never shown on its own (see `only` in content.js). Given where someone is
+   trying to stand, this returns where they actually end up:
+     - a stack ending on such a level carries on into the one level inside it, or
+     - if the one thing inside is a page, that page opens and the stack backs out to the last real level
+   A page that is already open keeps the same rule: the stack under it never ends on a pass-through level. */
+export function settle(stack, pageNode){
+  stack = stack.slice();
+  for (;;){
+    var kid = only(stack[stack.length - 1]);
+    if (!kid || !(kid.kids && kid.kids.length)) break;
+    stack.push(kid);
+  }
+  var last = only(stack[stack.length - 1]);
+  if (last && !pageNode && !last.go) pageNode = last;
+  if (pageNode || last) while (stack.length > 1 && only(stack[stack.length - 1])) stack.pop();
+  return { stack:stack, pageNode:pageNode || null, go:last && last.go ? last : null };
+}
 
 export function slugify(s){
   return s.toLowerCase().replace(/&/g, ' and ').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
@@ -32,11 +60,14 @@ export function slugOf(node){ return node.slug || slugify(node.label); }
    view: { stack, pageNode, sheet }  sheet is null, { type:'studio' } or { type:'notes', slug } */
 export function pathFor(view){
   var sheet = view.sheet, pageNode = view.pageNode;
-  if (sheet) return sheet.type === 'studio' ? STUDIO_PATH : (sheet.slug ? NOTES_PATH + '/' + sheet.slug : NOTES_PATH);
+  if (sheet && sheet.type === 'studio') return STUDIO_PATH;
+  if (sheet && sheet.type === 'notes') return sheet.slug ? NOTES_PATH + '/' + sheet.slug : NOTES_PATH;
+  /* the gallery narrowed to a level lives at the address of the node that opens it */
+  if (sheet && sheet.type === 'gallery') return sheet.node ? '/' + lineOf(sheet.node).slice(1).map(slugOf).join('/') : GALLERY_PATH;
   if (pageNode && pageNode.curio) return pageNode === CURIO_ROOT ? ORBIT_PATH : ORBIT_PATH + '/' + slugOf(pageNode);
-  var parts = view.stack.slice(1).map(slugOf);
-  if (pageNode) parts.push(slugOf(pageNode));
-  return '/' + parts.join('/');
+  /* a page's address is its own place in the tree, whatever level is showing behind it */
+  if (pageNode) return '/' + lineOf(pageNode).slice(1).map(slugOf).join('/');
+  return '/' + view.stack.slice(1).map(slugOf).join('/');
 }
 
 /* What an address shows. Anything it does not recognise comes back as the top of the brain with found:false. */
@@ -46,6 +77,7 @@ export function parsePath(pathname){
   if (!parts.length) return home;
   var first = '/' + parts[0];
   if (first === STUDIO_PATH && parts.length === 1) return { stack:[ROOT], pageNode:null, sheet:{ type:'studio' }, found:true };
+  if (first === GALLERY_PATH) return { stack:[ROOT], pageNode:null, sheet:{ type:'gallery', node:null }, found:parts.length === 1 };
   if (first === NOTES_PATH){
     if (parts.length === 1) return { stack:[ROOT], pageNode:null, sheet:{ type:'notes', slug:null }, found:true };
     if (parts.length === 2 && NOTE_BY_SLUG[parts[1]]) return { stack:[ROOT], pageNode:null, sheet:{ type:'notes', slug:parts[1] }, found:true };
@@ -62,21 +94,32 @@ export function parsePath(pathname){
     for (var k = 0; k < kids.length; k++) if (slugOf(kids[k]) === slug) return kids[k];
     return null;
   }
+  /* where the walk ended, with single-item levels passed through */
+  function land(stack, pageNode, found){
+    var at = settle(stack, pageNode);
+    return { stack:at.stack, pageNode:at.pageNode, sheet:at.go ? sheetFor(at.go) : null, found:found };
+  }
   var stack = [ROOT], node = ROOT;
   for (var i = 0; i < parts.length; i++){
     var next = kidCalled(node, parts[i]);
-    if (!next) return { stack:stack, pageNode:null, sheet:null, found:false };
-    if (next.go === 'studio') return { stack:stack, pageNode:null, sheet:{ type:'studio' }, found:true };
+    if (!next) return land(stack, null, false);
+    if (next.go) return { stack:settle(stack, next).stack, pageNode:null, sheet:sheetFor(next), found:true };
     if (next.kids && next.kids.length){ stack.push(next); node = next; }
-    else return { stack:stack, pageNode:next, sheet:null, found: i === parts.length - 1 };
+    else return land(stack, next, i === parts.length - 1);
   }
-  return { stack:stack, pageNode:null, sheet:null, found:true };
+  return land(stack, null, true);
+}
+
+/* The full-screen page a `go` leaf opens: Work with me, or the gallery narrowed to the level the leaf sits in. */
+export function sheetFor(node){
+  return node.go === 'gallery' ? { type:'gallery', node:node } : { type:'studio' };
 }
 
 /* The browser tab's text for what is on screen. */
 export function titleFor(view, site){
   var name = null;
-  if (view.sheet) name = view.sheet.type === 'studio' ? 'Work with me' : (view.sheet.slug && NOTE_BY_SLUG[view.sheet.slug] ? NOTE_BY_SLUG[view.sheet.slug].title : 'Notes');
+  if (view.sheet && view.sheet.type === 'gallery') name = 'Gallery';
+  else if (view.sheet) name = view.sheet.type === 'studio' ? 'Work with me' : (view.sheet.slug && NOTE_BY_SLUG[view.sheet.slug] ? NOTE_BY_SLUG[view.sheet.slug].title : 'Notes');
   else if (view.pageNode) name = view.pageNode.label;
   else if (view.stack.length > 1) name = view.stack[view.stack.length - 1].label;
   return name ? name + ' · ' + site : site;

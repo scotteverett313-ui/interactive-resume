@@ -91,7 +91,7 @@ not need to touch any component to change the content.
 - `tags` are the disciplines and skills a page shows, drawn as small chips
   under its one-liner.
 - A leaf written as `{ id, label, go:'studio' }` has no page: pressing it
-  opens the Work with me page.
+  opens the Work with me page. `go:'gallery'` opens the Gallery.
 - `links` become the **Connects to** buttons on the page. They can jump
   anywhere in the brain, up or down any branch. Links are one-way; add the
   reverse on the other node if you want it both ways.
@@ -110,6 +110,7 @@ intro and lands straight on that place. The Back and Forward buttons work.
 | `/work/resume/resume-pdf` | The resume, shown on screen with a download button |
 | `/orbit`, `/orbit/gardening` | The outer orbit's pages |
 | `/work-with-me` | The SE\|Design services page |
+| `/gallery` | Every picture on the site |
 | `/notes`, `/notes/<slug>` | The list of notes, and one note |
 | `/resume` | The classic resume |
 
@@ -133,10 +134,29 @@ A page button can also leave the site: `action: { label: '...', url:
 
 ### The gallery
 
-A page with a `gallery` list is a wall of pictures instead of the usual
-layout. Each entry is `{ src: '/proof/name.webp', tag: 'Branding', caption:
-'...' }`. The page's `tags` become filter buttons above the wall, and `tag`
-says which button shows the picture. Every picture opens in the viewer.
+The Gallery button sits with Work with me and Notes, bottom left, on the
+opening screen and the map. One press shows every picture on the site in one
+wall, at `/gallery`. There is nothing to maintain: the wall is gathered from
+`content.js` (each page's `image` and `more`), so adding a picture to a page
+puts it on the wall. Filters narrow it by gravity point and by tag. Pressing a
+picture opens the viewer, where a button in the top left leads to the page
+that picture is from. Its title and one line are `GALLERY` in `content.js`;
+the gathering is `src/brain/gallery.js` and the page is
+`src/brain/GalleryPage.js`.
+
+A leaf written with `go:'gallery'` (the Gallery node under SE|Design) opens
+the same wall narrowed to the level it sits in. Its `tags` are the filter
+buttons, and its `gallery` list holds extra pictures that belong to no page:
+`{ src: '/proof/name.webp', tag: 'Branding', caption: '...' }`.
+
+### Single-item levels
+
+A level with only one thing inside is passed straight through, so nobody
+presses twice to reach one page. Pressing Apps opens Dirt Rich; pressing the
+UX role lands inside Civilla. Back, Escape, and the breadcrumbs skip those
+levels on the way up too. Nothing marks a level as pass-through: it is any
+level with exactly one item, so adding a second item makes it a normal level
+again. Addresses do not change (`/build/apps/dirt-rich`).
 
 ### Notes
 
@@ -356,6 +376,7 @@ along the zoom is.
 | `src/brain/Intro.js` | The character layers and the scroll-scrubbed GSAP timeline. |
 | `src/brain/Stickers.js` | The sticker buttons on the opening screen: the bolt and the sound marks. |
 | `src/brain/PictureViewer.js` | The full-screen picture viewer that opens from a page's pictures. |
+| `src/brain/gallery.js`, `GalleryPage.js` | The Gallery: every picture gathered from the content, and the wall that shows them. |
 | `src/brain/character.js` | The character, brain, and backdrop art and their measurements. |
 | `src/brain/BrainMap.js` | The map: blob morph loop, hover reach, drag and spring back, dive and rise, outer orbit. |
 | `src/brain/NodePage.js` | The page layout and its Connects to buttons. |
