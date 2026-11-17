@@ -24,7 +24,11 @@
        proof: caption for the proof panel
        image: optional picture for the proof panel, a file in public/proof,
               written as '/proof/name.webp'
-       more:  optional extra pictures for the "More" strip, same form
+       more:  optional extra pictures for the "More" strip, same form.
+              To give one its own caption write it as
+              { src: '/proof/name.webp', caption: '...' }
+              Pressing any picture opens it full screen, and the arrows
+              step through the page's pictures: `image` first, then `more`.
        action: optional button, { label: '...', go: 'studio' } opens the
               Work with me page
        doc:   optional document shown on the page instead of the usual
@@ -104,7 +108,7 @@ export const ROOT = { id:'root', label:'Brain', kids:[
         list:['Built 75+ web and mobile prototypes for state and federal initiatives','User research informing services for 2M+ residents','Design lead on a multi-agency benefits platform','Developed core journey map design and facilitation, walkthroughs, and brand collateral','Worked with the Michigan Secretary of State, Michigan Health and Human Services, Starfish, Deloitte, and more'],
         proof:'Journey maps, Civilla',
         image:'/proof/civilla-journey-maps.webp',
-        more:['/proof/civilla-renewal-notice.webp','/proof/civilla-mobile-prototypes.webp'],
+        more:[{ src:'/proof/civilla-renewal-notice.webp', caption:'Renewal notice, Civilla' },{ src:'/proof/civilla-mobile-prototypes.webp', caption:'Mobile prototypes, Civilla' }],
         links:[{ to:'c2', why:'The design thinking I practiced here is what I teach now.' },{ to:'sedstudio', why:'Brought the same process to small businesses.' },{ to:'systems', why:'Forms and flows for state agencies.' }] }},
       { id:'irule', label:'iRule / On Controls', page:{
         lede:'Where I cut my teeth in user interface design.',

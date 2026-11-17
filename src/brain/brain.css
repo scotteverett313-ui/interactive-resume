@@ -222,8 +222,11 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
 #page .conn button.lk span{font-size:13px;color:var(--muted);line-height:1.4}
 #page .conn button.lk:hover span{color:var(--paper)}
 #page .thumbs{display:flex;gap:12px;overflow-x:auto;padding-bottom:6px;margin-top:auto}
-#page .thumbs div{flex:0 0 112px;height:84px;border:2px solid var(--ink);background:repeating-linear-gradient(135deg,transparent 0 10px,color-mix(in srgb,var(--ink) 12%,transparent) 10px 11px),var(--ground)}
-#page .thumbs div img{display:block;width:100%;height:100%;max-width:none;object-fit:cover}
+#page .thumbs > div,#page .thumbs > button{flex:0 0 112px;height:84px;border:2px solid var(--ink);background:repeating-linear-gradient(135deg,transparent 0 10px,color-mix(in srgb,var(--ink) 12%,transparent) 10px 11px),var(--ground)}
+/* a real picture in the strip is a button: it opens in the viewer */
+#page .thumbs > button{padding:0;cursor:zoom-in;overflow:hidden}
+#page .thumbs > button:hover{border-color:var(--hub,var(--ink))}
+#page .thumbs img{display:block;width:100%;height:100%;max-width:none;object-fit:cover}
 #page .thumbs .arrow{flex:0 0 auto;border:0;background:none;display:grid;place-items:center;font-size:24px;width:30px}
 #page .proof{position:relative;min-height:320px;border-left:2px solid var(--ink);display:flex;align-items:flex-end;padding:24px;padding-right:max(64px,env(safe-area-inset-right,0px));
   background:repeating-linear-gradient(135deg,transparent 0 18px,color-mix(in srgb,var(--ink) 14%,transparent) 18px 20px),var(--ground)}
@@ -236,7 +239,40 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
 #page .doc-pages img{display:block;width:100%;height:auto;max-width:none;border:2px solid var(--ink);border-radius:6px;box-sizing:border-box}
 #page .proof.has-image{background:var(--ground)}
 #page .proof img{position:absolute;inset:0;width:100%;height:100%;max-width:none;object-fit:cover}
+/* the large picture is a button that fills the panel and opens the viewer. Its corner mark says so;
+   the focus ring is drawn inside the picture, in ink over paper, so it shows on any image */
+#page .proof .pic-open{position:absolute;inset:0;border:0;padding:0;background:none;cursor:zoom-in;outline:none}
+#page .proof .pic-hint{position:absolute;top:calc(12px + env(safe-area-inset-top,0px));left:12px;width:34px;height:34px;display:grid;place-items:center;border-radius:50%;
+  background:var(--paper);color:var(--ink);border:2px solid var(--ink)}
+#page .proof .pic-open:hover .pic-hint,#page .proof .pic-open:focus-visible .pic-hint{background:var(--ink);color:var(--paper)}
+#page .proof .pic-open::after{content:'';position:absolute;inset:6px;border:3px solid var(--ink);outline:3px solid var(--paper);opacity:0;pointer-events:none}
+#page .proof .pic-open:focus-visible::after{opacity:1}
 #page .proof .cap{position:relative;background:var(--paper);border:2px solid var(--ink);padding:10px 14px;font-family:var(--mono);font-size:12px;letter-spacing:.04em;max-width:100%}
+
+/* ---- the picture viewer (PictureViewer.js): a page's picture shown whole, over everything ----
+   It is always dark with light controls, whichever mode the site is in: inside it, ink and ground
+   are re-pointed so the usual chip buttons and focus rings come out light on dark */
+.brain{--viewer-ground:var(--ink);--viewer-ink:var(--ground)}
+.brain[data-scheme="dark"]{--viewer-ground:var(--ground);--viewer-ink:var(--ink)}
+#viewer{--ink:var(--viewer-ink);--ground:var(--viewer-ground);--paper:var(--viewer-ground);
+  position:absolute;inset:0;z-index:20;background:var(--ground);color:var(--ink);animation:brain-viewer-in .2s ease both}
+@keyframes brain-viewer-in{from{opacity:0}to{opacity:1}}
+#viewer .viewer-top{position:absolute;top:calc(12px + env(safe-area-inset-top,0px));right:calc(12px + env(safe-area-inset-right,0px));display:flex;gap:8px;z-index:1}
+#viewer .chip-btn{min-height:0;height:44px;padding:0 16px;box-sizing:border-box}
+#viewer .chip-btn.icon{width:44px;padding:0;display:grid;place-items:center;font-size:18px}
+/* the picture's stage: everything between the buttons above and the caption below. Fingers on it belong to the viewer */
+#viewer .viewer-stage{position:absolute;inset:calc(68px + env(safe-area-inset-top,0px)) 0 calc(84px + env(safe-area-inset-bottom,0px));
+  overflow:hidden;touch-action:none;cursor:default;-webkit-user-select:none;user-select:none}
+/* centered, and never larger than the stage: the whole picture is always in view until it is zoomed */
+#viewer .viewer-stage img{display:block;position:absolute;inset:0;margin:auto;max-width:calc(100% - 24px);max-height:100%;width:auto;height:auto;cursor:zoom-in;
+  -webkit-user-drag:none;-webkit-touch-callout:none;animation:brain-viewer-in .25s ease both}
+#viewer.zoomed .viewer-stage img{cursor:grab}
+#viewer .viewer-bar{position:absolute;left:calc(12px + env(safe-area-inset-left,0px));right:calc(12px + env(safe-area-inset-right,0px));bottom:calc(12px + env(safe-area-inset-bottom,0px));
+  height:60px;display:flex;align-items:center;gap:12px}
+#viewer .viewer-bar p{flex:1;min-width:0;margin:0;display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;
+  font-family:var(--mono);font-size:12px;line-height:1.35;letter-spacing:.04em}
+#viewer .viewer-bar p span:first-child{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+#viewer .viewer-bar .count{opacity:.7}
 
 /* ---- sheets: the full-screen pages over the brain (Work with me, Notes) ---- */
 .brain .sheet{position:absolute;inset:0;z-index:8;background:var(--ground);overflow:auto;overscroll-behavior:contain;animation:brain-sheet-in .35s ease both}
@@ -314,6 +350,6 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
   .brain .ways .go{display:none}
 }
 @media (prefers-reduced-motion:reduce){
-  .brain .grain,#hint span.line,#mapTitle,#homeTitle .bubble,.brain .sheet,.brain .sticker-art,.brain .mark{animation:none}
+  .brain .grain,#hint span.line,#mapTitle,#homeTitle .bubble,.brain .sheet,.brain .sticker-art,.brain .mark,#viewer,#viewer .viewer-stage img{animation:none}
   .brain,.brain *{transition:none!important}
 }

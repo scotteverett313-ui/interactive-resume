@@ -1,11 +1,29 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { CURIO_ROOT, BYID, PH_LEDE, PH_STORY, hubName } from './content';
+import PictureViewer from './PictureViewer';
 
 /* Text in [brackets] is a placeholder: show it dashed-underlined so it is obvious what is still blank. */
 function Ph({ text }){
   return /^\[.*\]$/.test(text) ? <span className="ph">{text}</span> : <>{text}</>;
 }
+
+/* Every picture on a node's page, in the order the viewer steps through them: the large one, then the "More" strip.
+   An entry in `more` is either a path, or { src, caption } when it has words of its own. */
+function picsOf(n){
+  var p = n.page || {}, out = [];
+  if (p.image) out.push({ src:p.image, caption:p.proof || n.label });
+  (p.more || []).forEach(function(m){
+    out.push(typeof m === 'string' ? { src:m, caption:n.label } : { src:m.src, caption:m.caption || n.label });
+  });
+  return out;
+}
+/* the small corner mark on a picture that says it opens larger */
+var EXPAND = (
+  <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7" />
+  </svg>
+);
 
 /* The "Main" page layout from the sketch. It stays mounted and hides itself,
    so it can fade out after the node it was showing is already gone.
@@ -20,6 +38,16 @@ export default function NodePage({ node, instant, stack, reduce, onBack, onGoToN
   useEffect(function(){ return function(){ clearTimeout(guardRef.current); }; }, []);
   var D = function(x){ return reduce ? 0 : x; };
   var [shown, setShown] = useState(null);
+  /* the picture viewer: which picture is open (null for none), and the button that opened it, to hand focus back to */
+  var [view, setView] = useState(null), openerRef = useRef(null);
+  function openPic(i, from){ openerRef.current = from; setView(i); }
+  function closePic(){
+    setView(null);
+    var from = openerRef.current; openerRef.current = null;
+    if (from && document.contains(from)) from.focus({ preventScroll:true });
+  }
+  /* leaving the page (Back, a link, the browser's Back) closes the viewer with it */
+  useEffect(function(){ setView(null); }, [node]);
 
   /* open: reveal and fade in if we were hidden; change: just swap content. close: fade then hide. */
   useLayoutEffect(function(){
@@ -52,7 +80,7 @@ export default function NodePage({ node, instant, stack, reduce, onBack, onGoToN
   }, [shown]);
 
   var n = shown;
-  var body = null;
+  var body = null, pics = n ? picsOf(n) : [];
   if (n){
     var p = n.page || {}, hub = n.hub || n;
     var trail = stack.slice(1).map(function(x){ return x.label; });
@@ -143,14 +171,27 @@ export default function NodePage({ node, instant, stack, reduce, onBack, onGoToN
             <h2>More</h2>
             <div className="thumbs" aria-label="More work, scrolls sideways">
               {(p.more && p.more.length)
-                ? p.more.map(function(src){ return <div key={src}><img src={src} alt="" loading="lazy" /></div>; })
+                ? p.more.map(function(m, i){
+                    var k = i + (p.image ? 1 : 0), pc = pics[k];
+                    return (
+                      <button type="button" key={pc.src} aria-label={'View larger: ' + pc.caption + ', picture ' + (k + 1) + ' of ' + pics.length}
+                        onClick={function(e){ openPic(k, e.currentTarget); }}>
+                        <img src={pc.src} alt="" loading="lazy" />
+                      </button>
+                    );
+                  })
                 : <><div /><div /><div /><div /><div /></>}
               <span className="arrow" aria-hidden="true">→</span>
             </div>
           </div>
         </div>
         <div className={'proof' + (p.image ? ' has-image' : '')} id="pProof">
-          {p.image && <img src={p.image} alt={p.proof || n.label} />}
+          {p.image && (
+            <button type="button" className="pic-open" aria-label={'View larger: ' + (p.proof || n.label)} onClick={function(e){ openPic(0, e.currentTarget); }}>
+              <img src={p.image} alt="" />
+              <span className="pic-hint" aria-hidden="true">{EXPAND}</span>
+            </button>
+          )}
           <div className="cap" id="pProofCap">{p.proof ? 'Proof: ' + p.proof : '[Proof: image, video, live embed, or link]'}</div>
         </div>
       </div>
@@ -158,9 +199,14 @@ export default function NodePage({ node, instant, stack, reduce, onBack, onGoToN
   }
 
   return (
-    <article id="page" ref={pageRef} hidden aria-labelledby="pTitle">
-      {body}
-    </article>
+    <>
+      <article id="page" ref={pageRef} hidden aria-labelledby="pTitle">
+        {body}
+      </article>
+      {view !== null && pics[view] && (
+        <PictureViewer pics={pics} index={view} onIndex={setView} onClose={closePic} reduce={reduce} />
+      )}
+    </>
   );
 }
 

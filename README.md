@@ -148,7 +148,18 @@ if it runs to two pages.
 
 Put a picture in `public/proof/` and point a page at it with
 `image: '/proof/name.webp'`. Extra pictures for the "More" strip go in
-`more: [...]`. Pages without one keep the striped placeholder.
+`more: [...]`. Pages without one keep the striped placeholder. To give a
+"More" picture its own caption, write it as
+`{ src: '/proof/name.webp', caption: '...' }` instead of just the path.
+
+Pressing any picture opens it in the viewer: the whole picture, uncropped,
+full screen on a dark ground with its caption. Arrows, the arrow keys, and
+swipes step through the page's pictures (`image` first, then `more`). Pinch,
+double-tap, click, the mouse wheel, the Zoom button, or the + and - keys get
+closer, and dragging moves around. Escape, Close, or a press outside the
+picture closes it. The viewer is `src/brain/PictureViewer.js`. How sharp a
+picture stays when zoomed depends on the file, so save pictures with detail
+worth inspecting at about 2400px on the long side.
 
 ### Old addresses
 
@@ -321,6 +332,7 @@ along the zoom is.
 | `src/brain/BrainExperience.js` | Owns the state: current level, open page, intro done. |
 | `src/brain/Intro.js` | The character layers and the scroll-scrubbed GSAP timeline. |
 | `src/brain/Stickers.js` | The sticker buttons on the opening screen: the bolt and the sound marks. |
+| `src/brain/PictureViewer.js` | The full-screen picture viewer that opens from a page's pictures. |
 | `src/brain/character.js` | The character, brain, and backdrop art and their measurements. |
 | `src/brain/BrainMap.js` | The map: blob morph loop, hover reach, drag and spring back, dive and rise, outer orbit. |
 | `src/brain/NodePage.js` | The page layout and its Connects to buttons. |
