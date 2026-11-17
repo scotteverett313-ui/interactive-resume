@@ -47,11 +47,14 @@ var EXPAND = (
    so it can fade out after the node it was showing is already gone.
 
    node:     the node to show, or null to close
+   seq:      the list this page was opened from, if any: [{ node, name }], a level's featured pages.
+             Next and Previous step through it. Without one they step through the page's neighbors,
+             the other pages in the same level
    instant:  when node is null, hide right away instead of fading
    stack:    current map stack, for the crumb line
    onBack, onGoToNode(node), onDiveTo(hubId), onOpenPage(node)
    onAction(action): the page's optional button, for example opening the Work with me page */
-export default function NodePage({ node, instant, stack, reduce, onBack, onGoToNode, onDiveTo, onOpenPage, onAction }){
+export default function NodePage({ node, instant, seq, stack, reduce, onBack, onGoToNode, onDiveTo, onOpenPage, onAction }){
   var pageRef = useRef(null), titleRef = useRef(null), guardRef = useRef(0);
   useEffect(function(){ return function(){ clearTimeout(guardRef.current); }; }, []);
   var D = function(x){ return reduce ? 0 : x; };
@@ -95,10 +98,85 @@ export default function NodePage({ node, instant, stack, reduce, onBack, onGoToN
     if (!shown || !titleRef.current) return;
     pageRef.current.scrollTop = 0;
     titleRef.current.focus({ preventScroll:true });
+    /* arriving by Next or Previous: the new page slides in from the side it came from */
+    var dir = slideRef.current; slideRef.current = 0;
+    if (dir && pageRef.current.firstElementChild){
+      gsap.fromTo(pageRef.current.firstElementChild, { x:36 * dir, opacity:0 }, { x:0, opacity:1, duration:D(.28), ease:'power2.out', clearProps:'transform,opacity' });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shown]);
+
+  /* ---- Next and Previous: through the list the page was opened from, or else its neighbors ---- */
+  var slideRef = useRef(0), turnRef = useRef(null), touchRef = useRef(null);
+  var list = null, inSeq = false;
+  if (shown){
+    if (seq && seq.some(function(e){ return e.node === shown; })){ list = seq; inSeq = true; }
+    else list = ((shown.parent && shown.parent.kids) || [])
+      .filter(function(k){ return !(k.kids && k.kids.length) && !k.go; })
+      .map(function(k){ return { node:k, name:k.label }; });
+  }
+  var at = -1;
+  if (list) list.forEach(function(e, i){ if (e.node === shown) at = i; });
+  var many = !!list && list.length > 1 && at >= 0;
+  var prev = many ? list[(at - 1 + list.length) % list.length] : null, next = many ? list[(at + 1) % list.length] : null;
+  function turn(dir){
+    if (!many) return;
+    slideRef.current = dir;
+    onOpenPage((dir > 0 ? next : prev).node, inSeq ? seq : null);
+  }
+  turnRef.current = many ? turn : null;
+  /* the arrow keys and a swipe turn the page, unless something is open on top of it or the keys are needed for typing */
+  useEffect(function(){
+    function onKey(e){
+      if (!turnRef.current || e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
+      if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+      var page = pageRef.current, a = document.activeElement;
+      if (!page || page.hidden || page.parentNode.querySelector('.sheet, #viewer')) return;
+      if (a && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)) return;
+      e.preventDefault();
+      turnRef.current(e.key === 'ArrowRight' ? 1 : -1);
+    }
+    /* a quick sideways swipe turns the page too. It is heard on the whole screen, not just the page, because the
+       depth dots sit on top of the page's right side, which is where a swipe to the next page usually starts.
+       Swipes that begin at the screen's edge belong to the browser; ones on the picture strip or the pager belong to those */
+    function onTouchStart(e){
+      var t = e.touches[0], page = pageRef.current;
+      touchRef.current = null;
+      if (!turnRef.current || e.touches.length !== 1 || !page || page.hidden) return;
+      if (page.parentNode.querySelector('.sheet, #viewer') || !page.parentNode.contains(e.target)) return;
+      if (e.target.closest && e.target.closest('.thumbs, .pager')) return;
+      if (t.clientX <= 24 || t.clientX >= window.innerWidth - 24) return;
+      touchRef.current = { x:t.clientX, y:t.clientY, at:Date.now() };
+    }
+    function onTouchEnd(e){
+      var s = touchRef.current, t = e.changedTouches[0];
+      touchRef.current = null;
+      if (!s || !t || !turnRef.current) return;
+      var dx = t.clientX - s.x, dy = t.clientY - s.y;
+      if (Math.abs(dx) > 64 && Math.abs(dx) > Math.abs(dy) * 2.2 && Date.now() - s.at < 700) turnRef.current(dx < 0 ? 1 : -1);
+    }
+    function onTouchCancel(){ touchRef.current = null; }
+    document.addEventListener('keydown', onKey);
+    document.addEventListener('touchstart', onTouchStart, { passive:true });
+    document.addEventListener('touchend', onTouchEnd, { passive:true });
+    document.addEventListener('touchcancel', onTouchCancel, { passive:true });
+    return function(){
+      document.removeEventListener('keydown', onKey);
+      document.removeEventListener('touchstart', onTouchStart);
+      document.removeEventListener('touchend', onTouchEnd);
+      document.removeEventListener('touchcancel', onTouchCancel);
+    };
+  }, []);
 
   var n = shown;
   var body = null, pics = n ? picsOf(n) : [];
+  var pager = many ? (
+    <nav className="pager" aria-label={inSeq ? 'Featured work' : 'More in ' + (n.parent ? n.parent.label : 'this level')}>
+      <button type="button" className="chip-btn" aria-label={'Previous: ' + prev.name} onClick={function(){ turn(-1); }}>← <span>{prev.name}</span></button>
+      <span className="pager-count">{(inSeq ? 'Featured · ' : '') + (at + 1) + ' / ' + list.length}</span>
+      <button type="button" className="chip-btn" aria-label={'Next: ' + next.name} onClick={function(){ turn(1); }}><span>{next.name}</span> →</button>
+    </nav>
+  ) : null;
   if (n){
     var p = n.page || {}, hub = n.hub || n;
     /* the crumb line is the page's own place in the tree, whatever level is showing behind it.
@@ -148,6 +226,7 @@ export default function NodePage({ node, instant, stack, reduce, onBack, onGoToN
         <div className="doc-pages">
           {p.doc.pages.map(function(src, i){ return <img key={src} src={src} alt={n.label + ', page ' + (i + 1)} />; })}
         </div>
+        {pager}
       </div>
     );
     else body = (
@@ -209,6 +288,7 @@ export default function NodePage({ node, instant, stack, reduce, onBack, onGoToN
               <span className="arrow" aria-hidden="true">→</span>
             </div>
           </div>
+          {pager}
         </div>
         <div className={'proof' + (p.image ? ' has-image' : '')} id="pProof">
           {p.image && (

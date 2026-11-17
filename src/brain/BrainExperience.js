@@ -20,7 +20,8 @@ function isHome(v){ return v.stack.length === 1 && !v.pageNode && !v.sheet; }
 
 /* Owns the pieces of state the brain has:
      stack:  nodes from ROOT down to the level on the map
-     page:   { node, instant } the open page, or null
+     page:   { node, instant, seq } the open page, or null. seq is the list it was opened from
+             (a level's featured pages), which its Next and Previous step through
      sheet:  a full-screen page over the brain: the services page, the notes, or the gallery, or null
      done:   whether the intro has finished
    Those four decide the address in the browser, and the address decides them (see routes.js).
@@ -106,9 +107,9 @@ export default function BrainExperience(){
   }, [palette]);
 
   /* open a node's page. A leaf marked `go` has no page of its own: it opens Work with me, or the gallery */
-  var openPage = useCallback(function(node){
+  var openPage = useCallback(function(node, seq){
     if (node && node.go){ setSheet(sheetFor(node)); return; }
-    setPage({ node:node, instant:false });
+    setPage({ node:node, instant:false, seq:seq || null });
   }, []);
   var closePage = useCallback(function(instant){
     if (!pageRef.current.node) return;
@@ -253,7 +254,7 @@ export default function BrainExperience(){
           <SiteNav onStudio={openStudio} onNotes={function(){ openNote(null); }} onGallery={openGallery} />
           <DotNav done={done} stack={stack} pageNode={page.node || sheet} tagRef={dotTagRef} onReplay={replayIntro}
             onGoTo={function(d){ setSheet(null); goTo(d); }} />
-          <NodePage node={page.node} instant={page.instant} stack={stack} reduce={reduce}
+          <NodePage node={page.node} instant={page.instant} seq={page.seq} stack={stack} reduce={reduce}
             onBack={function(){ closePage(); }} onGoToNode={goToNode} onDiveTo={diveTo} onOpenPage={openPage} onAction={onAction} />
           {sheet && sheet.type === 'studio' && <StudioPage onClose={closeSheet} onGoToNode={goToNodeFromSheet} />}
           {sheet && sheet.type === 'gallery' && <GalleryPage node={sheet.node} reduce={reduce} onClose={closeSheet} onGoToNode={goToNodeFromSheet} />}

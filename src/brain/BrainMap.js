@@ -1,6 +1,6 @@
 import React, { useEffect, useLayoutEffect, useRef } from 'react';
 import { gsap } from 'gsap';
-import { ROOT, CURIO_ROOT, only } from './content';
+import { ROOT, CURIO_ROOT, BYID, only } from './content';
 import { DOT_COUNT } from './DotNav';
 import { blobPath, rng, clamp, wrapLabel, curvePath, curvePoint, seedOf, scatter, webLinks } from './blob';
 
@@ -193,6 +193,18 @@ export function createScene(o){
     });
   }
 
+  /* what a level shows: its kids, plus one extra blob for its featured pages if it has any (see `featured`
+     in content.js). That blob stands for the first featured page and carries the whole list */
+  function entries(node){
+    var out = (node.kids || []).map(function(k){ return { node:k, feature:null }; });
+    var pages = (node.featured || []).map(function(f){
+      var id = typeof f === 'string' ? f : f.to, n = BYID[id];
+      return n && !(n.kids && n.kids.length) && !n.go ? { node:n, name:(typeof f !== 'string' && f.as) || n.label } : null;
+    }).filter(Boolean);
+    if (node !== ROOT && pages.length) out.push({ node:pages[0].node, feature:{ pages:pages, name:pages[0].name } });
+    return out;
+  }
+
   function layout(node){
     var kids = node.kids || [];
     if (node === ROOT){
@@ -202,15 +214,17 @@ export function createScene(o){
     }
     /* inside a hub: a loose scatter, not a ring. Each node gets room for its blob plus the label and tag
        under it, the scatter keeps them from overlapping, and the node's id seeds it so it never changes */
-    var n = kids.length, fs = clamp(M * .026, 14, 20);
+    var ents = entries(node), n = ents.length, fs = clamp(M * .026, 14, 20);
     function boxesAt(k){
-      return kids.map(function(kid){
+      return ents.map(function(ent){
+        var kid = ent.node;
         /* a page is the thing to open, so its blob is the bigger one; a node that only goes deeper is smaller */
         var deeper = !!(kid.kids && kid.kids.length);
         /* a level that ends in a single page opens that page, so it is drawn as one */
         for (var one = only(kid); one && deeper; one = only(one)) if (!(one.kids && one.kids.length)) deeper = false;
-        var r = M * (deeper ? .054 : .07) * k;
-        var lines = wrapLabel(kid.label), chars = Math.max.apply(null, lines.map(function(x){ return x.length; }));
+        /* the featured blob holds a picture, so it is the biggest thing on the level */
+        var r = M * (ent.feature ? .1 : (deeper ? .054 : .07)) * k;
+        var lines = wrapLabel(ent.feature ? ent.feature.name : kid.label), chars = Math.max.apply(null, lines.map(function(x){ return x.length; }));
         return { r:r, hw: Math.max(r, chars * fs * .3, 38) + 10, up: r + 8, down: r + fs + 6 + fs * 1.1 * (lines.length - 1) + 18 + 16 };
       });
     }
@@ -269,8 +283,9 @@ export function createScene(o){
     });
   }
 
-  function makeItem(node, pos, i){
-    var isHub = node.parent === ROOT, deeper = !!(node.kids && node.kids.length);
+  var clipN = 0;
+  function makeItem(node, pos, i, feature){
+    var isHub = !feature && node.parent === ROOT, deeper = !!(node.kids && node.kids.length);
     /* a level with one thing inside is passed straight through. `inside` is the single level it leads into,
        if there is one; `ends` is the single page at the end of the line, if there is one. A level that ends
        in a page behaves like a page: pressing it opens that page */
@@ -280,17 +295,31 @@ export function createScene(o){
     }
     var opens = !deeper || !!ends;
     /* in-<hub> gives the node its hub's colors; is-hub and is-deep say which of them it uses (see brain.css) */
-    var cls = 'node in-' + node.hub.id + (isHub ? ' is-hub' : (opens ? ' is-leaf' : ' is-deep'));
+    var cls = 'node in-' + node.hub.id + (isHub ? ' is-hub' : (opens ? ' is-leaf' : ' is-deep')) + (feature ? ' is-featured' : '');
+    var name = feature ? feature.name : node.label;
     var g = el('g', { 'class':cls, tabindex:0, role:'button',
-      'aria-label': node.label + (ends ? ', open page: ' + ends.label : (inside ? ', go deeper: ' + inside.label : (deeper ? ', go deeper' : ', open page'))) });
+      'aria-label': feature ? 'Featured: ' + name + ', open page'
+        : node.label + (ends ? ', open page: ' + ends.label : (inside ? ', go deeper: ' + inside.label : (deeper ? ', go deeper' : ', open page'))) });
     var path = el('path', {});
-    var lines = wrapLabel(node.label);
+    /* the featured blob shows its page's picture, cut to the blob's shape, with an ink edge drawn over it.
+       The same outline is written to all three each frame: the blob, the cut, and the edge */
+    var clip = null, clipPath = null, img = null, edge = null, src = feature && node.page && node.page.image;
+    if (src){
+      var cid = 'featClip' + (++clipN);
+      clip = el('clipPath', { id:cid }); clipPath = el('path', {}); clip.appendChild(clipPath);
+      svg.querySelector('defs').appendChild(clip);
+      img = el('image', { href:src, preserveAspectRatio:'xMidYMid slice', 'clip-path':'url(#' + cid + ')' });
+      edge = el('path', { 'class':'edge' });
+    }
+    var lines = wrapLabel(name);
     var lbl = el('text', { 'class':'lbl', 'text-anchor':'middle' });
     var spans = lines.map(function(s, j){ var ts = el('tspan', { dy: j ? '1.1em' : '0' }); ts.textContent = s; lbl.appendChild(ts); return ts; });
     var sub = el('text', { 'class':'sub', 'text-anchor':'middle' });
     /* the small tag under the name says what a press leads to */
-    sub.textContent = ends ? ends.label : (inside ? inside.label + ' · ' + inside.kids.length + ' inside' : (deeper ? node.kids.length + ' inside' : 'page'));
-    g.appendChild(path); g.appendChild(lbl); g.appendChild(sub);
+    sub.textContent = feature ? 'featured' : (ends ? ends.label : (inside ? inside.label + ' · ' + inside.kids.length + ' inside' : (deeper ? node.kids.length + ' inside' : 'page')));
+    g.appendChild(path);
+    if (img){ g.appendChild(img); g.appendChild(edge); }
+    g.appendChild(lbl); g.appendChild(sub);
     nodesG.appendChild(g);
     /* a label that sits on the ground cuts a gap in the connection lines, so a line passes behind the words
        instead of through them. Nothing is drawn around the text itself. (Gravity points carry their label
@@ -298,6 +327,7 @@ export function createScene(o){
     var gap = null;
     if (!isHub){ gap = el('rect', { fill:'black', rx:5 }); linkMask.appendChild(gap); }
     var it = { node:node, g:g, path:path, lbl:lbl, spans:spans, sub:sub, isHub:isHub, deeper:deeper, ends:ends, lines:lines.length,
+      feature:feature || null, clip:clip, clipPath:clipPath, img:img, edge:edge,
       idx:i, gap:gap, tw:0, twFs:0, x:pos.x, y:pos.y, r:pos.r, s:1, o:1, hs:1, lx:0, ly:0, px:0, py:0, dragX:0, dragY:0, hover:false,
       seed:i * 1.7 + node.label.length * .37, amp: isHub ? .09 : .07 };
     g.addEventListener('pointerenter', function(){ it.hover = true; });
@@ -316,7 +346,7 @@ export function createScene(o){
 
   function buildView(node){
     var pos = layout(node);
-    var items = (node.kids || []).map(function(k, i){ return makeItem(k, pos[i], i); });
+    var items = entries(node).map(function(e, i){ return makeItem(e.node, pos[i], i, e.feature); });
     return { node:node, items:items, links:makeLinks(node, items) };
   }
 
@@ -345,6 +375,7 @@ export function createScene(o){
     list.forEach(function(x){
       var e = x.g || x.p; if (e && e.parentNode) e.parentNode.removeChild(e);
       if (x.gap && x.gap.parentNode) x.gap.parentNode.removeChild(x.gap);
+      if (x.clip && x.clip.parentNode) x.clip.parentNode.removeChild(x.clip);
     });
     dying = dying.filter(function(x){ return list.indexOf(x) < 0; });
   }
@@ -395,7 +426,11 @@ export function createScene(o){
 
   function activate(it){
     if (busy() || !done || it.o < .5) return;
-    if (it.deeper && !it.ends){
+    if (it.feature){
+      /* the featured blob opens its page as the first of the level's featured list */
+      gsap.to(it, { s:1.25, duration:D(.3), yoyo:true, repeat:1 });
+      o.onOpenPage(it.node, it.feature.pages);
+    } else if (it.deeper && !it.ends){
       setBusy(true); /* the dive starts on the next render; block double taps until then */
       o.onDive(it.node, it);
     } else {
@@ -433,7 +468,15 @@ export function createScene(o){
       cx = W / 2 + (adx * co - ady * si) * A.k; cy = H / 2 + (adx * si + ady * co) * A.k;
       rr *= A.k; arrO = A.o; arrK = A.k;
     }
-    it.path.setAttribute('d', blobPath(cx, cy, rr, t, it.seed, it.amp, it.px + it.dragX * .7, it.py + it.dragY * .7));
+    var outline = blobPath(cx, cy, rr, t, it.seed, it.amp, it.px + it.dragX * .7, it.py + it.dragY * .7);
+    it.path.setAttribute('d', outline);
+    if (it.img){
+      /* the picture is a square a little bigger than the blob, so the wobble and the stretch never show its corners */
+      var half = rr * 1.45;
+      it.clipPath.setAttribute('d', outline); it.edge.setAttribute('d', outline);
+      it.img.setAttribute('x', (cx - half).toFixed(1)); it.img.setAttribute('y', (cy - half).toFixed(1));
+      it.img.setAttribute('width', (half * 2).toFixed(1)); it.img.setAttribute('height', (half * 2).toFixed(1));
+    }
     it.g.style.opacity = it.o * arrO;
     var fs, ly, sy;
     if (it.isHub){
@@ -580,7 +623,7 @@ export default function BrainMap({ stack, done, reduce, busyRef, modeRef, sceneR
       linkMask:maskRef.current, linkMaskAll:maskAllRef.current,
       mapShowing:function(){ return cb.current.mapShowing(); },
       onDive:function(n, it){ cb.current.onDive(n, it); },
-      onOpenPage:function(n){ cb.current.onOpenPage(n); }
+      onOpenPage:function(n, seq){ cb.current.onOpenPage(n, seq); }
     });
     scene.init();
     sceneRef.current = scene;

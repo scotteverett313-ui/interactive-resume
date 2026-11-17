@@ -28,6 +28,19 @@
      and Back skips it too. Add a second item and the level shows up
      as a level again.
 
+   FEATURED
+   A level can carry `featured`: a short list of page ids to offer
+   straight from that level, however deep they really sit. It shows as
+   one extra blob with the first page's picture in it. Pressing it
+   opens that page, and Next and Previous on the page step through the
+   list in order. An entry is an id, or { to:'<id>', as:'<name>' }
+   when the page's own name ("Overview") needs a clearer one here.
+
+   NEXT AND PREVIOUS
+   Every page that has neighbors (other pages in the same level) gets
+   Next and Previous at the bottom. Arrow keys and a sideways swipe do
+   the same.
+
    THE GALLERY
    The Gallery button (bottom left, always there) shows every picture
    on the site in one wall: each page's `image` and `more`, plus any
@@ -131,7 +144,9 @@ export const PH_STORY = '[The story: how I got here and why it stuck]';
 /* Content from "Inside Scott's Brain: Site Content" (Scott's words, plus drafts where a line is still blank).
    links: { to: node id, why: one line } become "Connects to" jumps anywhere in the brain. */
 export const ROOT = { id:'root', label:'Brain', kids:[
-  { id:'work', label:'Work', blurb:'[Short blurb]', kids:[
+  /* featured: the case stories offered straight from this level, as one picture blob. The first is the one
+     the blob shows; opening it, Next and Previous step through the rest in this order */
+  { id:'work', label:'Work', blurb:'[Short blurb]', featured:[{ to:'civoverview', as:'Civilla' }, 'robear', 'martez', 'krw'], kids:[
     { id:'does', label:'What I Do', blurb:'[Short blurb]', kids:[
       { id:'sedesign', label:'SE|Design', blurb:'My on-demand design studio for small businesses, nonprofits, and entrepreneurs.', kids:[
         { id:'cases', label:'Case Studies', blurb:'[Short blurb]', kids:[

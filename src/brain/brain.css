@@ -63,6 +63,9 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
    A gravity point, and any node that only opens a page, takes its hub's color. A node that goes deeper is ink. */
 .brain .node path{fill:var(--hub);stroke:none}
 .brain .node.is-deep path{fill:var(--ink)}
+/* the featured blob holds a picture, so it gets an ink edge to hold its shape against the ground */
+.brain .node.is-featured path.edge{fill:none;stroke:var(--ink);stroke-width:3px}
+.brain .node.is-featured image{pointer-events:none}
 /* the one time a blob gets an edge: keyboard focus, in whichever color shows against the blob */
 .brain .node:focus-visible path{stroke:var(--ink);stroke-width:5px}
 .brain .node.is-deep:focus-visible path{stroke:var(--hub)}
@@ -238,6 +241,13 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
 #page .thumbs .arrow{flex:0 0 auto;border:0;background:none;display:grid;place-items:center;font-size:24px;width:30px}
 #page .proof{position:relative;min-height:320px;border-left:2px solid var(--ink);display:flex;align-items:flex-end;padding:24px;padding-right:max(64px,env(safe-area-inset-right,0px));
   background:repeating-linear-gradient(135deg,transparent 0 18px,color-mix(in srgb,var(--ink) 14%,transparent) 18px 20px),var(--ground)}
+/* Next and Previous: a bar that stays at the bottom of the page's words while they scroll */
+#page .pager{position:sticky;bottom:0;margin-bottom:-32px;display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:10px 0 calc(10px + env(safe-area-inset-bottom,0px));background:var(--ground);border-top:2px solid var(--ink)}
+#page .pager .chip-btn{min-height:0;height:44px;padding:0 14px;box-sizing:border-box;display:inline-flex;align-items:center;gap:6px;max-width:40%;white-space:nowrap}
+#page .pager .chip-btn span{overflow:hidden;text-overflow:ellipsis}
+#page .pager-count{font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+#page .page-doc .pager{margin-bottom:-64px}
 /* a document page (the resume): its pages as pictures, on a white sheet like paper, with the download button above */
 #page .page-doc{max-width:980px;margin:0 auto;padding:calc(20px + env(safe-area-inset-top,0px)) 72px 64px 24px;display:flex;flex-direction:column;gap:22px}
 #page .doc-head{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap}
@@ -356,7 +366,7 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
 
 /* switching modes eases the colors across instead of snapping */
 .brain .grain{transition:background-color .35s ease,opacity .35s ease}
-.brain,.brain .stage,#mapLayer,#page,.brain .chip-btn,#dots .tag,#hint span,#page .proof,#page .proof .cap,#page .thumbs div,#page .conn button{
+.brain,.brain .stage,#mapLayer,#page,.brain .chip-btn,#dots .tag,#hint span,#page .pager,#page .proof,#page .proof .cap,#page .thumbs div,#page .conn button{
   transition:background-color .35s ease,color .35s ease,border-color .35s ease}
 .brain .node path,.brain .lbl,.brain .sub,.brain .link,.brain .clink,.brain .cpulse,.brain .net-line,.brain .net-dot,.brain .curio .vis,.brain .curio text,#wm,#backdrop,.brain .dots-ground,.brain .dots-dot,#angleTag,
 .brain .sticker .edge,.brain .sticker .face,.brain .sticker .ring,#homeTitle .tail path{
@@ -367,6 +377,9 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
   #page .proof{order:-1;min-height:0;aspect-ratio:16/10;border-left:0;border-bottom:2px solid var(--ink)}
   #page .page-text{padding-right:max(56px,env(safe-area-inset-right,0px))}
   #page .page-doc{padding-right:56px;padding-left:16px}
+  /* on a phone the light and dark toggle sits in the bottom-right corner: keep Next clear of it */
+  #page .pager{padding-right:12px}
+  #page .pager .chip-btn{padding:0 10px;font-size:13px;max-width:34%}
   .brain .wall{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
   /* three site buttons have to fit beside the light and dark toggle on a phone */
   #siteNav{gap:6px}
