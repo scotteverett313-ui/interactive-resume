@@ -7,7 +7,8 @@ import { STICKERS } from './content';
    so their positions are in the same 800 x 600 space as the character.
 
    Each sticker is a real button: it takes keyboard focus, has a name for screen
-   readers, and answers Enter and Space. Colors are not set here: the shapes carry
+   readers, and answers Enter and Space. A sticker that goes to a web address is
+   a real link instead, and opens in a new tab. Colors are not set here: the shapes carry
    classes (edge, face) and brain.css paints them from the palette.
 
      onPress: called with the sticker's `go` from content.js */
@@ -29,6 +30,17 @@ function Sticker({ id, name, transform, onPress, children }){
   function press(){ onPress(s.go); }
   function onKey(e){
     if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); press(); }
+  }
+  /* a web address: a link the browser handles itself, in a new tab */
+  if (/^https?:\/\//.test(s.go)){
+    return (
+      <g transform={transform}>
+        <a id={id} className="sticker" href={s.go} target="_blank" rel="noopener noreferrer" aria-label={s.label + ' (opens in a new tab)'}>
+          <title>{s.label}</title>
+          {children}
+        </a>
+      </g>
+    );
   }
   return (
     <g transform={transform}>

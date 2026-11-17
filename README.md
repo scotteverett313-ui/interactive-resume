@@ -178,7 +178,9 @@ control them:
 
 - `STICKERS` in `src/brain/content.js`: each sticker's `label` (what a screen
   reader calls it) and `go` (where pressing it lands). `go` is any node id,
-  or `'studio'` for Work with me, or `'notes'`.
+  `'curio'` for the Can't Stop Thinking About page, `'studio'` for Work with
+  me, `'notes'`, or a web address starting with `https://` (a Spotify
+  playlist, say), which opens in a new tab.
 - `STICKER_SPOTS` in `src/brain/character.js`: where each one sits on the
   character (`x`, `y` in the 800 x 600 drawing), its `size`, the bolt's
   `rotate`, and the direction the sound marks spread (`aim`). On a phone the

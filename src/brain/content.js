@@ -74,13 +74,20 @@ export const TITLES = {
 
 /* The stickers on the opening screen. Each one is a button.
      label: what a screen reader calls it, and the tooltip
-     go:    where pressing it lands. Any node id from this file (a gravity point,
-            a page, or an outer-orbit curiosity), or 'studio' for Work with me,
-            or 'notes' for the notes.
+     go:    where pressing it lands. One of:
+              a node id from this file (a gravity point, a page, or an
+                outer-orbit curiosity)
+              'curio'   the "Can't Stop Thinking About" page
+              'studio'  Work with me
+              'notes'   the notes
+              a web address starting with https://, which opens in a new tab
+                (a Spotify playlist, for example)
    Where each sticker sits on the character is in character.js. */
 export const STICKERS = {
-  bolt:  { label: 'Build: what I am making now', go: 'build' },
-  audio: { label: 'Podcasts: what I am listening to', go: 'podcasts' }
+  bolt:  { label: "Can't stop thinking about", go: 'curio' },
+  /* waiting on the Spotify playlist link. When it is ready, replace 'podcasts' with the
+     playlist's address, for example 'https://open.spotify.com/playlist/...' */
+  audio: { label: 'What I am listening to', go: 'podcasts' }
 };
 
 /* Shown on a page when that field is still blank. */

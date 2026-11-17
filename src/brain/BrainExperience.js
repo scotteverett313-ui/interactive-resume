@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { ROOT, TITLES, BYID, CURIO_BY_ID } from './content';
+import { ROOT, CURIO_ROOT, TITLES, BYID, CURIO_BY_ID } from './content';
 import Intro from './Intro';
 import BrainMap from './BrainMap';
 import NodePage from './NodePage';
@@ -155,7 +155,7 @@ export default function BrainExperience(){
   var onSticker = useCallback(function(go){
     if (go === 'studio'){ openStudio(); return; }
     if (go === 'notes'){ openNote(null); return; }
-    var n = BYID[go] || CURIO_BY_ID[go];
+    var n = go === CURIO_ROOT.id ? CURIO_ROOT : (BYID[go] || CURIO_BY_ID[go]);
     if (!n || n === ROOT) return;
     setDone(true);
     if (n.curio) openPage(n); else goToNode(n);
