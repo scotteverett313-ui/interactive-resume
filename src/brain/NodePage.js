@@ -110,7 +110,8 @@ export default function NodePage({ node, instant, seq, stack, reduce, onBack, on
   var slideRef = useRef(0), turnRef = useRef(null), touchRef = useRef(null);
   var list = null, inSeq = false;
   if (shown){
-    if (seq && seq.some(function(e){ return e.node === shown; })){ list = seq; inSeq = true; }
+    /* a list of one has nowhere to go, so that page steps through its neighbors like any other */
+    if (seq && seq.length > 1 && seq.some(function(e){ return e.node === shown; })){ list = seq; inSeq = true; }
     else list = ((shown.parent && shown.parent.kids) || [])
       .filter(function(k){ return !(k.kids && k.kids.length) && !k.go; })
       .map(function(k){ return { node:k, name:k.label }; });

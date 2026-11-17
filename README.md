@@ -151,21 +151,25 @@ buttons, and its `gallery` list holds extra pictures that belong to no page:
 
 ### Featured pages, and Next and Previous
 
-A level can offer a few pages straight from its own screen, however deep they
-really sit. Give the level a `featured` list in `content.js`:
+A level can offer previews of pages straight from its own screen, however
+deep they really sit. Give the level a `featured` list in `content.js`:
 
 ```js
-{ id:'work', label:'Work', featured:[{ to:'civoverview', as:'Civilla' }, 'robear', 'martez', 'krw'], kids:[ ... ] }
+featured:[
+  { as:'Civilla', pages:['civoverview'] },
+  { as:'SE|Design', image:'/proof/brand-system.webp', pages:['robear','martez','krw'] }
+]
 ```
 
-It shows as one extra blob on that level, the biggest one, with the first
-page's picture inside it and the tag "featured". Pressing it opens that page.
-An entry is a page id, or `{ to, as }` when the page's own name needs a
-clearer one here ("Overview" becomes "Civilla"). Only Work has one today.
+Each entry is one extra blob on that level, bigger than the rest, with a
+picture inside and the tag "featured". `as` is the name under it. Pressing it
+opens the first of its `pages`. The picture is the entry's `image`, or the
+first page's own picture when there is none. Only Work has previews today.
 
 Every page with neighbors has a bar at the bottom with Previous and Next.
-Opened from a featured blob, they step through the featured list in order.
-Opened any other way, they step through the other pages in the same level.
+Opened from a featured blob with several pages, they step through that list
+in order. Opened any other way, or from a preview with one page, they step
+through the other pages in the same level.
 The left and right arrow keys and a sideways swipe do the same, and the list
 wraps around at the ends.
 

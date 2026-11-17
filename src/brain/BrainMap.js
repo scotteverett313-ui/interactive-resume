@@ -193,15 +193,18 @@ export function createScene(o){
     });
   }
 
-  /* what a level shows: its kids, plus one extra blob for its featured pages if it has any (see `featured`
-     in content.js). That blob stands for the first featured page and carries the whole list */
+  /* what a level shows: its kids, plus one extra blob for each of its featured previews (see `featured` in
+     content.js). A preview's blob stands for its first page and carries its whole list of pages */
   function entries(node){
     var out = (node.kids || []).map(function(k){ return { node:k, feature:null }; });
-    var pages = (node.featured || []).map(function(f){
-      var id = typeof f === 'string' ? f : f.to, n = BYID[id];
-      return n && !(n.kids && n.kids.length) && !n.go ? { node:n, name:(typeof f !== 'string' && f.as) || n.label } : null;
-    }).filter(Boolean);
-    if (node !== ROOT && pages.length) out.push({ node:pages[0].node, feature:{ pages:pages, name:pages[0].name } });
+    if (node === ROOT) return out;
+    (node.featured || []).forEach(function(f){
+      var pages = (f.pages || []).map(function(id){
+        var n = BYID[id];
+        return n && !(n.kids && n.kids.length) && !n.go ? { node:n, name:n.label } : null;
+      }).filter(Boolean);
+      if (pages.length) out.push({ node:pages[0].node, feature:{ pages:pages, name:f.as || pages[0].name, image:f.image || null } });
+    });
     return out;
   }
 
@@ -225,7 +228,9 @@ export function createScene(o){
         /* the featured blob holds a picture, so it is the biggest thing on the level */
         var r = M * (ent.feature ? .1 : (deeper ? .054 : .07)) * k;
         var lines = wrapLabel(ent.feature ? ent.feature.name : kid.label), chars = Math.max.apply(null, lines.map(function(x){ return x.length; }));
-        return { r:r, hw: Math.max(r, chars * fs * .3, 38) + 10, up: r + 8, down: r + fs + 6 + fs * 1.1 * (lines.length - 1) + 18 + 16 };
+        /* a picture blob is big enough that its wobble needs a little more air around it */
+        var air = ent.feature ? r * .12 + 8 : 0;
+        return { r:r, hw: Math.max(r + air, chars * fs * .3, 38) + 10, up: r + 8 + air, down: r + fs + 6 + fs * 1.1 * (lines.length - 1) + 18 + 16 };
       });
     }
     function areaOf(bs){ return bs.reduce(function(sum, b){ return sum + 2 * b.hw * (b.up + b.down); }, 0); }
@@ -303,7 +308,7 @@ export function createScene(o){
     var path = el('path', {});
     /* the featured blob shows its page's picture, cut to the blob's shape, with an ink edge drawn over it.
        The same outline is written to all three each frame: the blob, the cut, and the edge */
-    var clip = null, clipPath = null, img = null, edge = null, src = feature && node.page && node.page.image;
+    var clip = null, clipPath = null, img = null, edge = null, src = feature && (feature.image || (node.page && node.page.image));
     if (src){
       var cid = 'featClip' + (++clipN);
       clip = el('clipPath', { id:cid }); clipPath = el('path', {}); clip.appendChild(clipPath);

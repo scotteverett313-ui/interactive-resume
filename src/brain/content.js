@@ -29,12 +29,16 @@
      as a level again.
 
    FEATURED
-   A level can carry `featured`: a short list of page ids to offer
-   straight from that level, however deep they really sit. It shows as
-   one extra blob with the first page's picture in it. Pressing it
-   opens that page, and Next and Previous on the page step through the
-   list in order. An entry is an id, or { to:'<id>', as:'<name>' }
-   when the page's own name ("Overview") needs a clearer one here.
+   A level can carry `featured`: previews of pages offered straight
+   from that level, however deep they really sit. Each entry is one
+   extra blob with a picture in it:
+       as:     the name under the blob
+       pages:  page ids. Pressing the blob opens the first one, and
+               Next and Previous on the page step through the rest.
+               With a single page, they step through that page's
+               neighbors instead.
+       image:  optional picture for the blob. Without it the blob
+               uses the first page's own picture.
 
    NEXT AND PREVIOUS
    Every page that has neighbors (other pages in the same level) gets
@@ -144,9 +148,12 @@ export const PH_STORY = '[The story: how I got here and why it stuck]';
 /* Content from "Inside Scott's Brain: Site Content" (Scott's words, plus drafts where a line is still blank).
    links: { to: node id, why: one line } become "Connects to" jumps anywhere in the brain. */
 export const ROOT = { id:'root', label:'Brain', kids:[
-  /* featured: the case stories offered straight from this level, as one picture blob. The first is the one
-     the blob shows; opening it, Next and Previous step through the rest in this order */
-  { id:'work', label:'Work', blurb:'[Short blurb]', featured:[{ to:'civoverview', as:'Civilla' }, 'robear', 'martez', 'krw'], kids:[
+  /* featured: case stories offered straight from this level. Each entry is one picture blob. Pressing it opens
+     its first page, and Next and Previous on the page step through the rest of its pages in order */
+  { id:'work', label:'Work', blurb:'[Short blurb]', featured:[
+      { as:'Civilla', pages:['civoverview'] },
+      { as:'SE|Design', image:'/proof/brand-system.webp', pages:['robear','martez','krw'] }
+    ], kids:[
     { id:'does', label:'What I Do', blurb:'[Short blurb]', kids:[
       { id:'sedesign', label:'SE|Design', blurb:'My on-demand design studio for small businesses, nonprofits, and entrepreneurs.', kids:[
         { id:'cases', label:'Case Studies', blurb:'[Short blurb]', kids:[
