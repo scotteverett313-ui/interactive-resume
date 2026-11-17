@@ -85,9 +85,8 @@ export const TITLES = {
    Where each sticker sits on the character is in character.js. */
 export const STICKERS = {
   bolt:  { label: "Can't stop thinking about", go: 'curio' },
-  /* waiting on the Spotify playlist link. When it is ready, replace 'podcasts' with the
-     playlist's address, for example 'https://open.spotify.com/playlist/...' */
-  audio: { label: 'What I am listening to', go: 'podcasts' }
+  /* a Spotify playlist. To change it, paste another playlist's address here */
+  audio: { label: 'What I am listening to, on Spotify', go: 'https://open.spotify.com/playlist/0DJIRlDoAI6vq1X7ILXecI' }
 };
 
 /* Shown on a page when that field is still blank. */
