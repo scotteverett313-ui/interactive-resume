@@ -4,6 +4,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 import { CHARACTER as C, BRAIN as B, BACKDROP as K, MONO } from './character';
 import { blobPath } from './blob';
+import Stickers from './Stickers';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -20,6 +21,7 @@ gsap.registerPlugin(ScrollTrigger);
      #brainWrap  the brain, lifts out and zooms (contains one .bv image per angle)
      #angleTag   "angle n / 8" caption
      #boil       the hand-drawn line wobble filter (slit, and the map links)
+     #stickerSvg the sticker buttons, in their own drawing laid over this one (see Stickers.js)
 
    The art and its measurements live in character.js.
 
@@ -41,6 +43,7 @@ gsap.registerPlugin(ScrollTrigger);
      dotTagRef:   the depth-nav tag, written with the scroll percent
      done:        true once the intro is finished or skipped; false again on replay
      onFinish:    called when the scrub reaches the end
+     onSticker:   called with where a sticker goes when it is pressed
 
    The ref handle exposes mapShowing() so the map only draws once it is on screen. */
 
@@ -50,8 +53,8 @@ var ZOOM = 11;
    so it never stalls at the start or rushes at the end */
 function zoomEase(p){ return (Math.pow(ZOOM, p) - 1) / (ZOOM - 1); }
 
-var Intro = forwardRef(function Intro({ stageRef, sectionRef, mapLayerRef, dotTagRef, reduce, done, onFinish, onMapArrival }, ref){
-  var svgRef = useRef(null), boilRef = useRef(null), backdropRef = useRef(null), backdropClipRef = useRef(null);
+var Intro = forwardRef(function Intro({ stageRef, sectionRef, mapLayerRef, dotTagRef, reduce, done, onFinish, onMapArrival, onSticker }, ref){
+  var svgRef = useRef(null), stickRef = useRef(null), boilRef = useRef(null), backdropRef = useRef(null), backdropClipRef = useRef(null);
   var tlRef = useRef(null), triggerRef = useRef(null);
   var onFinishRef = useRef(onFinish); onFinishRef.current = onFinish;
   var onArriveRef = useRef(onMapArrival); onArriveRef.current = onMapArrival;
@@ -89,6 +92,8 @@ var Intro = forwardRef(function Intro({ stageRef, sectionRef, mapLayerRef, dotTa
     tl.to(hint, { opacity:0, duration:.5 }, 0)
       /* the opening title lifts away as the scroll begins */
       .to(homeTitle, { opacity:0, y:-14, duration:.9, ease:'power1.in' }, 0)
+      /* the stickers go with it; autoAlpha also hides them, so they cannot be pressed or tabbed to once gone */
+      .fromTo(stickRef.current, { autoAlpha:1, y:0 }, { autoAlpha:0, y:-14, duration:.7, ease:'power1.in' }, 0)
 
       /* 1. the cut draws across the forehead */
       .fromTo(slit, { opacity:0 }, { opacity:1, duration:.3 }, 0)
@@ -179,7 +184,9 @@ var Intro = forwardRef(function Intro({ stageRef, sectionRef, mapLayerRef, dotTa
   useEffect(function(){
     function fitIntro(){
       var r = stageRef.current.getBoundingClientRect();
-      svgRef.current.setAttribute('viewBox', r.width / r.height < .8 ? '190 30 420 570' : '0 0 800 600');
+      var box = r.width / r.height < .8 ? '190 30 420 570' : '0 0 800 600';
+      svgRef.current.setAttribute('viewBox', box);
+      stickRef.current.setAttribute('viewBox', box); /* the stickers stay locked to the character */
     }
     fitIntro();
     window.addEventListener('resize', fitIntro);
@@ -321,6 +328,7 @@ var Intro = forwardRef(function Intro({ stageRef, sectionRef, mapLayerRef, dotTa
           <text id="angleTag" x="400" y="570" textAnchor="middle" fontFamily="DM Mono, monospace" fontSize="14" opacity="0">{'angle 1 / ' + B.frames.length}</text>
         </g>
       </svg>
+      <Stickers svgRef={stickRef} mono={MONO} onPress={onSticker} />
       <div id="hint"><span>Scroll to open</span><span className="line" /></div>
     </>
   );

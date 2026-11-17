@@ -167,6 +167,27 @@ top of `src/brain/content.js`. Each has a `title` and an optional small `sub`
 line. The opening title fades as the intro starts; the map title shows at the
 top level of the map and gives way to the breadcrumbs once you go into a hub.
 
+The opening title sits in a speech bubble with a tail pointing at the
+character. The bubble is as wide as the headline, and the small line wraps
+under it. Its look is the `#homeTitle` rules in `src/brain/brain.css`.
+
+### The stickers
+
+The lightning bolt and the sound marks by the ear are buttons. Two places
+control them:
+
+- `STICKERS` in `src/brain/content.js`: each sticker's `label` (what a screen
+  reader calls it) and `go` (where pressing it lands). `go` is any node id,
+  or `'studio'` for Work with me, or `'notes'`.
+- `STICKER_SPOTS` in `src/brain/character.js`: where each one sits on the
+  character (`x`, `y` in the 800 x 600 drawing), its `size`, the bolt's
+  `rotate`, and the direction the sound marks spread (`aim`). On a phone the
+  drawing is cropped to x 190 to 610, so keep stickers inside that range.
+
+Their bright fill is the `spark` color in `src/brain/palettes.js`; the edge
+is `ink`. The shapes are drawn in `src/brain/Stickers.js`. They fade with
+the title as soon as scrolling starts, and come back on Replay intro.
+
 ### Adding a node
 
 1. Find the parent inside `ROOT` and add an object to its `kids`.
@@ -215,7 +236,8 @@ through the locs and skin-toned across the forehead. Its shape and colors are
 
 The scroll timeline in `src/brain/Intro.js` moves these layers by id, so keep
 the names: `backdropG`, `insideG`, `rimG`, `bodyG`, `headG` (with two `.pupil` groups), `capG`, `slit`,
-`brainWrap` (with one `.bv` image per angle), and `angleTag`.
+`brainWrap` (with one `.bv` image per angle), and `angleTag`. The stickers
+are a second drawing, `stickerSvg`, laid exactly over the first.
 
 ### Colors, light mode and dark mode
 
@@ -229,6 +251,7 @@ It holds two palettes, `light` and `dark`, and each fills the same roles:
 | `paper` | Small surfaces on the ground: buttons, tags, chips |
 | `ink` | Lines and text |
 | `muted` | Secondary text |
+| `spark` | The bright fill of the stickers on the opening screen |
 | `hubs.work`, `hubs.teach`, `hubs.build` | Each gravity point: `fill` for the blob, `text` for the label on it |
 
 On the map, blobs are flat shapes with no outline. A node that only opens a
@@ -258,7 +281,7 @@ for one visit, which is useful for sharing a link. This lives in
 `src/brain/ThemeToggle.js`.
 
 `BrainExperience.js` sets the active palette on the brain root as CSS custom
-properties (`--ground`, `--paper`, `--ink`, `--muted`, `--work`, `--teach`,
+properties (`--ground`, `--paper`, `--ink`, `--muted`, `--spark`, `--work`, `--teach`,
 `--build`, and a `-text` version of each hub). `brain.css` and the SVG use
 only those, so there are no hex codes anywhere else. The one exception is
 `character.js`, which holds colors that belong to the character art itself
@@ -295,6 +318,7 @@ along the zoom is.
 | `src/brain/content.js` | The content tree. The only file you need to edit. |
 | `src/brain/BrainExperience.js` | Owns the state: current level, open page, intro done. |
 | `src/brain/Intro.js` | The character layers and the scroll-scrubbed GSAP timeline. |
+| `src/brain/Stickers.js` | The sticker buttons on the opening screen: the bolt and the sound marks. |
 | `src/brain/character.js` | The character, brain, and backdrop art and their measurements. |
 | `src/brain/BrainMap.js` | The map: blob morph loop, hover reach, drag and spring back, dive and rise, outer orbit. |
 | `src/brain/NodePage.js` | The page layout and its Connects to buttons. |

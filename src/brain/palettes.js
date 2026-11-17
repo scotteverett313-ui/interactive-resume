@@ -14,6 +14,8 @@
      muted      secondary text
      hubs       the three gravity points (work, teach, build), each { fill, text }
                 fill is the blob, text is the label that sits on it
+     spark      the bright fill of the stickers on the opening screen
+                (the lightning bolt, the sound marks by the ear)
 
    On the map, a node that only opens a page takes its hub's fill.
    A node that goes deeper uses ink.
@@ -38,6 +40,7 @@ export const PALETTES = {
     paper: '#E2DAC2',
     ink: '#222A2A',
     muted: '#525A57',
+    spark: '#F39120',
     hubs: {
       work:  { fill: '#4FBBBC', text: '#222A2A' },
       teach: { fill: '#EC4624', text: '#222A2A' },
@@ -54,6 +57,7 @@ export const PALETTES = {
     paper: '#222A2A',
     ink: '#E2DAC2',
     muted: '#B8B19C',
+    spark: '#F39120',
     hubs: {
       work:  { fill: '#4FBBBC', text: '#222A2A' },
       teach: { fill: '#F39120', text: '#222A2A' },
@@ -70,6 +74,7 @@ export function paletteVars(p){
     '--paper': p.paper,
     '--ink': p.ink,
     '--muted': p.muted,
+    '--spark': p.spark,
     '--work': p.hubs.work.fill, '--work-text': p.hubs.work.text,
     '--teach': p.hubs.teach.fill, '--teach-text': p.hubs.teach.text,
     '--build': p.hubs.build.fill, '--build-text': p.hubs.build.text

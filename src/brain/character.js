@@ -125,3 +125,28 @@ export const BACKDROP = {
   seed: 2.4, amp: 0.045,
   dots: { gap: 8, r: 1.7 }
 };
+
+/* ============================================================
+   The stickers on the opening screen.
+
+   Small drawn buttons stuck around the character. What each one
+   says and where it goes is in content.js (STICKERS); this is only
+   where they sit. Their colors come from the palette (see the
+   "stickers" rules in brain.css).
+
+   x, y:   where the sticker's anchor sits in the 800 x 600 drawing.
+           For the bolt that is its center. For the sound marks it is
+           the point on the ear they spread out from.
+   size:   bolt: its height. sound marks: how far the outer mark
+           reaches from the ear.
+   rotate: bolt: tilt in degrees, clockwise.
+   aim:    sound marks: the direction they spread, in degrees
+           (180 is straight left, 225 is up and to the left, 270 is up)
+
+   On a phone the drawing is cropped to x 190 to 610, so keep
+   stickers inside that range or they fall off the screen.
+   ============================================================ */
+export const STICKER_SPOTS = {
+  bolt:  { x: 538, y: 128, size: 78, rotate: 8 },
+  audio: { x: 234, y: 319, size: 44, aim: 222 }
+};

@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { ROOT, TITLES } from './content';
+import { ROOT, TITLES, BYID, CURIO_BY_ID } from './content';
 import Intro from './Intro';
 import BrainMap from './BrainMap';
 import NodePage from './NodePage';
@@ -151,6 +151,16 @@ export default function BrainExperience(){
   /* a note's "Connects to": leave the notes and land in the brain */
   var goToNodeFromSheet = useCallback(function(n){ setSheet(null); goToNode(n); }, [goToNode]);
 
+  /* a sticker on the opening screen was pressed: leave the intro and land where it points */
+  var onSticker = useCallback(function(go){
+    if (go === 'studio'){ openStudio(); return; }
+    if (go === 'notes'){ openNote(null); return; }
+    var n = BYID[go] || CURIO_BY_ID[go];
+    if (!n || n === ROOT) return;
+    setDone(true);
+    if (n.curio) openPage(n); else goToNode(n);
+  }, [openStudio, openNote, openPage, goToNode]);
+
   /* from a curiosity page, jump straight into the hub it feeds */
   var diveTo = useCallback(function(id){
     closePage(true);
@@ -203,14 +213,23 @@ export default function BrainExperience(){
         <div className={'stage' + (done ? ' is-done' : '')} id="stage" ref={stageRef}>
           <div className="grain" aria-hidden="true" />
           <Intro ref={introRef} stageRef={stageRef} sectionRef={sectionRef} mapLayerRef={mapLayerRef} dotTagRef={dotTagRef}
-            reduce={reduce} done={done} onFinish={finishIntro} onMapArrival={onMapArrival} />
+            reduce={reduce} done={done} onFinish={finishIntro} onMapArrival={onMapArrival} onSticker={onSticker} />
           <BrainMap stack={stack} done={done} reduce={reduce}
             busyRef={busyRef} modeRef={modeRef} sceneRef={sceneRef} mapLayerRef={mapLayerRef}
             mapShowing={mapShowing} onDive={onDive} onOpenPage={openPage} />
-          {/* the opening title stays mounted so the intro can fade it; the map title shows at the top level of the map */}
+          {/* the opening title is a speech bubble; it stays mounted so the intro can fade it.
+              The map title shows at the top level of the map */}
           <div id="homeTitle" className="site-title" aria-hidden={done}>
-            <h1>{TITLES.home.title}</h1>
-            {TITLES.home.sub && <p>{TITLES.home.sub}</p>}
+            <div className="bubble">
+              <h1>{TITLES.home.title}</h1>
+              {TITLES.home.sub && <p>{TITLES.home.sub}</p>}
+              {/* the bubble's tail, pointing down at the character */}
+              <svg className="tail" viewBox="0 0 46 40" width="46" height="40" aria-hidden="true">
+                <path className="tail-shade" d="M7 7.5 L45 44 L33 7.5 Z" />
+                <path className="tail-fill" d="M2 -0.5 L2 1.5 L40 38 L28 1.5 L28 -0.5 Z" />
+                <path className="tail-line" d="M2 1.5 L40 38 L28 1.5" />
+              </svg>
+            </div>
           </div>
           {done && atTop && !page.node && !sheet && (
             <div id="mapTitle" className="site-title">

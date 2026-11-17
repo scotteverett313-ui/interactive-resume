@@ -3,7 +3,7 @@
 
    COLOR: there are no hex codes in this file. Every color is one of the tokens that
    BrainExperience sets on the .brain root from the active palette in palettes.js:
-     --ground  --map-ground  --paper  --ink  --muted
+     --ground  --map-ground  --paper  --ink  --muted  --spark
      --work  --teach  --build   and  --work-text  --teach-text  --build-text
    Inside a hub, --hub and --hub-text point at that hub's pair (see "which hub" below). */
 .brain{
@@ -119,7 +119,32 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
 #backdrop{stroke:var(--ink);stroke-width:3.5px}
 #angleTag{fill:var(--ink);stroke:var(--ground);stroke-width:5px;paint-order:stroke}
 /* optional grayscale character and brain, switched on by MONO in character.js */
-#introSvg.mono{filter:grayscale(1)}
+#introSvg.mono,#stickerSvg.mono{filter:grayscale(1)}
+
+/* stickers: the drawn buttons around the character (Stickers.js). An ink edge, a bright face, and the thick ink side
+   that makes them read as stuck on. Only the stickers themselves take presses; the rest of the layer lets them through */
+#stickerSvg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.stage.is-done #stickerSvg{visibility:hidden}
+.brain .sticker{pointer-events:auto;cursor:pointer;outline:none;-webkit-tap-highlight-color:transparent}
+.brain .sticker .edge{fill:var(--ink);stroke:var(--ink);stroke-width:3px;stroke-linejoin:round}
+.brain .sticker .face{fill:var(--spark)}
+/* the sound marks are lines, so their edge and face are strokes of different widths */
+#stickerAudio .edge{fill:none;stroke-width:8px;stroke-linecap:round}
+#stickerAudio .face{fill:none;stroke:var(--spark);stroke-width:3.4px;stroke-linecap:round}
+.brain .sticker .ring{fill:none;stroke:var(--ink);stroke-width:2px;stroke-dasharray:5 5;stroke-linecap:round;opacity:0}
+.brain .sticker:focus-visible .ring{opacity:1}
+/* slapped on when the page opens, lifts under the pointer, presses down when pushed */
+.brain .sticker-art{transform-box:fill-box;transform-origin:center;transition:transform .16s ease;animation:brain-slap .45s cubic-bezier(.3,1.4,.5,1) backwards}
+#stickerBolt .sticker-art{animation-delay:.5s}
+#stickerAudio .sticker-art{animation-delay:.7s}
+.brain .sticker:hover .sticker-art,.brain .sticker:focus-visible .sticker-art{transform:translate(-1.5px,-2px) rotate(-5deg) scale(1.06)}
+.brain .sticker:active .sticker-art{transform:translate(1px,1.5px) scale(.94)}
+@keyframes brain-slap{from{opacity:0;transform:scale(1.7) rotate(-16deg)}to{opacity:1;transform:none}}
+/* the sound marks ripple outward from the ear, one after the other */
+.brain .mark{animation:brain-sound 2s ease-in-out infinite}
+.brain .mark-1{animation-delay:.16s}
+.brain .mark-2{animation-delay:.32s}
+@keyframes brain-sound{0%,45%,100%{transform:none}20%{transform:translate(var(--nx),var(--ny))}}
 @keyframes brain-drip{0%{transform:scaleY(.2)}50%{transform:scaleY(1)}100%{transform:scaleY(.2)}}
 .stage.is-done #hint{opacity:0}
 
@@ -128,6 +153,22 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
 .brain .site-title h1{font-family:var(--display);font-weight:800;line-height:1;letter-spacing:-.02em;margin:0;text-wrap:balance;color:var(--ink)}
 /* the opening title is the headline; the map's is quieter and has to fit above the outer orbit on a phone */
 #homeTitle h1{font-size:clamp(30px,4.4vw,58px)}
+/* the opening title is a speech bubble: a ground-colored shape with an ink edge and a hard ink shadow, like the stickers.
+   It is as wide as the headline; the small line wraps to fit under it. The tail hangs off the bottom edge.
+   (#homeTitle is what the intro fades; the bubble inside it is what pops in when the page opens) */
+#homeTitle{right:auto;max-width:min(520px,calc(100% - 150px))}
+#homeTitle .bubble{position:relative;padding:14px 16px 16px;background:var(--ground);border:3px solid var(--ink);
+  border-radius:26px 30px 24px 28px / 28px 24px 30px 24px;box-shadow:5px 6px 0 var(--ink);
+  transform-origin:40px calc(100% + 40px);animation:brain-pop .5s cubic-bezier(.3,1.5,.5,1) .15s backwards;
+  transition:background-color .35s ease,border-color .35s ease,box-shadow .35s ease}
+#homeTitle p{width:0;min-width:100%}
+#homeTitle .tail{position:absolute;top:100%;left:26px;overflow:visible;display:block}
+/* on a wide screen the character is off to the right, so the tail moves to that end of the bubble */
+@media (min-aspect-ratio:4/5){#homeTitle .tail{left:auto;right:36px}}
+#homeTitle .tail-shade{fill:var(--ink)}
+#homeTitle .tail-fill{fill:var(--ground)}
+#homeTitle .tail-line{fill:none;stroke:var(--ink);stroke-width:3px;stroke-linejoin:round;stroke-linecap:round}
+@keyframes brain-pop{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:none}}
 #mapTitle h1{font-size:clamp(20px,3vw,38px)}
 .brain .site-title p{font-family:var(--mono);font-size:11px;line-height:1.5;letter-spacing:.08em;text-transform:uppercase;margin:10px 0 0;color:var(--ink)}
 .stage.is-done #homeTitle{visibility:hidden}
@@ -255,7 +296,8 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
 .brain .grain{transition:background-color .35s ease,opacity .35s ease}
 .brain,.brain .stage,#mapLayer,#page,.brain .chip-btn,#dots .tag,#hint span,#page .proof,#page .proof .cap,#page .thumbs div,#page .conn button{
   transition:background-color .35s ease,color .35s ease,border-color .35s ease}
-.brain .node path,.brain .lbl,.brain .sub,.brain .link,.brain .clink,.brain .cpulse,.brain .net-line,.brain .net-dot,.brain .curio .vis,.brain .curio text,#wm,#backdrop,.brain .dots-ground,.brain .dots-dot,#angleTag{
+.brain .node path,.brain .lbl,.brain .sub,.brain .link,.brain .clink,.brain .cpulse,.brain .net-line,.brain .net-dot,.brain .curio .vis,.brain .curio text,#wm,#backdrop,.brain .dots-ground,.brain .dots-dot,#angleTag,
+.brain .sticker .edge,.brain .sticker .face,.brain .sticker .ring,#homeTitle .tail path{
   transition:fill .35s ease,stroke .35s ease}
 
 @media (max-width:820px){
@@ -272,6 +314,6 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
   .brain .ways .go{display:none}
 }
 @media (prefers-reduced-motion:reduce){
-  .brain .grain,#hint span.line,#mapTitle,.brain .sheet{animation:none}
+  .brain .grain,#hint span.line,#mapTitle,#homeTitle .bubble,.brain .sheet,.brain .sticker-art,.brain .mark{animation:none}
   .brain,.brain *{transition:none!important}
 }

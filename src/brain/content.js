@@ -49,6 +49,11 @@
    The headline on the opening screen and the one on the map are in
    TITLES, just below this comment.
 
+   THE STICKERS
+   The stickers on the opening screen (the lightning bolt, the sound
+   marks by the ear) are in STICKERS, below the titles: what each
+   one is called and where pressing it goes.
+
    THE OUTER ORBIT
    CURIO_ROOT holds the curiosities that float around the outside of
    the brain. Each one also has:
@@ -65,6 +70,17 @@
 export const TITLES = {
   home: { title: 'What up doe.', sub: "I'm Scott Everett, Omni Designer. I design, teach, and build in Detroit." },
   map:  { title: 'It all connects.', sub: '' }
+};
+
+/* The stickers on the opening screen. Each one is a button.
+     label: what a screen reader calls it, and the tooltip
+     go:    where pressing it lands. Any node id from this file (a gravity point,
+            a page, or an outer-orbit curiosity), or 'studio' for Work with me,
+            or 'notes' for the notes.
+   Where each sticker sits on the character is in character.js. */
+export const STICKERS = {
+  bolt:  { label: 'Build: what I am making now', go: 'build' },
+  audio: { label: 'Podcasts: what I am listening to', go: 'podcasts' }
 };
 
 /* Shown on a page when that field is still blank. */
