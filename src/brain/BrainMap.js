@@ -1,6 +1,7 @@
 import React, { useEffect, useLayoutEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ROOT, CURIO_ROOT } from './content';
+import { DOT_COUNT } from './DotNav';
 import { blobPath, rng, clamp, wrapLabel, curvePath, curvePoint, seedOf, scatter, webLinks } from './blob';
 
 const NS = 'http://www.w3.org/2000/svg';
@@ -202,30 +203,56 @@ export function createScene(o){
     /* inside a hub: a loose scatter, not a ring. Each node gets room for its blob plus the label and tag
        under it, the scatter keeps them from overlapping, and the node's id seeds it so it never changes */
     var n = kids.length, fs = clamp(M * .026, 14, 20);
-    var boxes = kids.map(function(k){
-      /* a page is the thing to open, so its blob is the bigger one; a node that only goes deeper is smaller */
-      var deeper = !!(k.kids && k.kids.length), r = M * (deeper ? .054 : .07);
-      var lines = wrapLabel(k.label), chars = Math.max.apply(null, lines.map(function(x){ return x.length; }));
-      return { r:r, hw: Math.max(r, chars * fs * .3, 38) + 10, up: r + 8, down: r + fs + 6 + fs * 1.1 * (lines.length - 1) + 18 + 16 };
-    });
-    if (n === 1) return [{ x:W / 2, y:H * .5, r:boxes[0].r }];
+    function boxesAt(k){
+      return kids.map(function(kid){
+        /* a page is the thing to open, so its blob is the bigger one; a node that only goes deeper is smaller */
+        var deeper = !!(kid.kids && kid.kids.length), r = M * (deeper ? .054 : .07) * k;
+        var lines = wrapLabel(kid.label), chars = Math.max.apply(null, lines.map(function(x){ return x.length; }));
+        return { r:r, hw: Math.max(r, chars * fs * .3, 38) + 10, up: r + 8, down: r + fs + 6 + fs * 1.1 * (lines.length - 1) + 18 + 16 };
+      });
+    }
+    function areaOf(bs){ return bs.reduce(function(sum, b){ return sum + 2 * b.hw * (b.up + b.down); }, 0); }
     /* where centers may go: clear of the crumbs along the top, the depth dots on the right, the legend and toggle below */
     /* on narrow screens the crumbs wrap onto a second line, so start lower */
     var full = { x0:16, y0: W < 600 ? 118 : 78, x1:W - 62, y1:H - 60 };
+    /* the crumbs can run deeper than that: a long trail, or the level's blurb under it (Crumbs.js draws both).
+       They are already on the page for this level by the time the map lays itself out, so measure them */
+    var crumbs = mapLayer.parentNode && mapLayer.parentNode.querySelector('#crumbs');
+    if (crumbs && !crumbs.hidden){
+      var cb = crumbs.getBoundingClientRect(), lb = mapLayer.getBoundingClientRect();
+      if (cb.height) full.y0 = Math.max(full.y0, cb.bottom - lb.top + (crumbs.querySelector('#levelBlurb') ? 12 : -22));
+    }
     /* the depth tag sits beside the dots on the right, level with this level's dot: keep nodes off it.
-       The dots are five 28px rows, 2px apart, centered on the screen; this level's row is its depth plus one */
+       The dots are 28px rows, 2px apart, centered on the screen; this level's row is its depth plus one.
+       A long name is cut short in the tag (see #dots .tag in brain.css), so its width is capped the same way */
     var depth = 0; for (var up = node; up && up !== ROOT; up = up.parent) depth++;
-    var tagW = node.label.length * 8 + 18, rowY = H / 2 - 74 + 14 + (depth + 1) * 30;
+    var tagW = Math.min(node.label.length * 8, Math.min(W * .4, 220)) + 18;
+    var rowY = H / 2 - (DOT_COUNT * 30 - 2) / 2 + 14 + (depth + 1) * 30;
     var tag = { x0:W - 52 - tagW - 10, y0:rowY - 20, x1:W, y1:rowY + 20 };
     /* the site buttons sit in the bottom-left corner, with the legend above them on wide screens */
     var corner = W <= 820 ? { x0:0, y0:H - 66, x1:220, y1:H } : { x0:0, y0:H - 100, x1:300, y1:H };
-    /* few nodes on a big screen: keep them in a loose group near the middle instead of flung to the corners */
-    var need = boxes.reduce(function(sum, b){ return sum + 2 * b.hw * (b.up + b.down); }, 0) * 3.2;
     var fw = full.x1 - full.x0, fh = full.y1 - full.y0;
-    var rw = Math.min(fw, Math.sqrt(need * fw / fh)), rh = Math.min(fh, need / rw);
-    rw = Math.min(fw, need / rh);
-    var mx = (full.x0 + full.x1) / 2, my = (full.y0 + full.y1) / 2;
-    var pts = scatter(boxes, { x0:mx - rw / 2, y0:my - rh / 2, x1:mx + rw / 2, y1:my + rh / 2 }, seedOf(node.id), [tag, corner]);
+    /* a crowded level on a small screen: shrink the blobs a step at a time until the level fills
+       no more than about half the room, so the scatter can still pull everything apart */
+    var shrink = 1, boxes = boxesAt(1);
+    while (shrink > .62 && areaOf(boxes) > fw * fh * .52){ shrink -= .1; boxes = boxesAt(shrink); }
+    /* a single node sits in the middle, moved left if the depth tag would be on top of it */
+    if (n === 1){
+      var one = boxes[0], ox = W / 2, oy = Math.max(H * .5, full.y0 + one.up);
+      if (ox + one.hw > tag.x0 && oy + one.down > tag.y0 && oy - one.up < tag.y1) ox = Math.max(full.x0 + one.hw, tag.x0 - one.hw - 6);
+      return [{ x:ox, y:oy, r:one.r }];
+    }
+    /* few nodes on a big screen: keep them in a loose group near the middle instead of flung to the corners */
+    var mx = (full.x0 + full.x1) / 2, my = (full.y0 + full.y1) / 2, pts;
+    for (;;){
+      var need = areaOf(boxes) * 3.2;
+      var rw = Math.min(fw, Math.sqrt(need * fw / fh)), rh = Math.min(fh, need / rw);
+      rw = Math.min(fw, need / rh);
+      pts = scatter(boxes, { x0:mx - rw / 2, y0:my - rh / 2, x1:mx + rw / 2, y1:my + rh / 2 }, seedOf(node.id), [tag, corner]);
+      /* still touching after every try: the level is too full for this screen, so go a size smaller and scatter again */
+      if (pts.clean || shrink <= .52) break;
+      shrink -= .1; boxes = boxesAt(shrink);
+    }
     return pts.map(function(p, i){ return { x:p.x, y:p.y, r:boxes[i].r }; });
   }
 

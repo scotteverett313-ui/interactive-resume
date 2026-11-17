@@ -26,8 +26,8 @@ export const NOTES = [
     date: '2025-12-10',
     summary: "Cookie-cutter websites aren't dead, they're just really bad at their job. And if you're running a nonprofit in Detroit, that's a problem you can't afford to ignore.",
     links: [
-      { to: 'web', why: 'The web design work this comes from.' },
-      { to: 'sedstudio', why: 'The studio behind it.' }
+      { to: 'cases', why: 'The web design work this comes from.' },
+      { to: 'sedesign', why: 'The studio behind it.' }
     ],
     studio: true,
     body: [

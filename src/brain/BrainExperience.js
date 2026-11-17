@@ -104,7 +104,11 @@ export default function BrainExperience(){
     };
   }, [palette]);
 
-  var openPage = useCallback(function(node){ setPage({ node:node, instant:false }); }, []);
+  /* open a node's page. A leaf marked go:'studio' has no page of its own: it opens the Work with me page */
+  var openPage = useCallback(function(node){
+    if (node && node.go === 'studio'){ setSheet({ type:'studio' }); return; }
+    setPage({ node:node, instant:false });
+  }, []);
   var closePage = useCallback(function(instant){
     if (!pageRef.current.node) return;
     setPage({ node:null, instant:!!instant });

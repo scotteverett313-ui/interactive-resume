@@ -29,7 +29,7 @@ export const STUDIO = {
   intro: 'I design, teach, and build. Tell me what you need.',
   ways: [
     { name: 'A project', text: 'Brand, web, or product design.', see: 'cases' },
-    { name: 'An ongoing partner', text: 'Monthly design support, from $299.', see: 'sedstudio' },
+    { name: 'An ongoing partner', text: 'Monthly design support, from $299.', see: 'sedesign' },
     { name: 'Teaching', text: 'Workshops, guest talks, or a full-time role.', see: 'teach' }
   ],
   call: 'Book a free 45-minute call',

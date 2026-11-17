@@ -155,6 +155,8 @@ export function scatter(boxes, region, seed, avoid){
     if (!best || r.cost < best.cost) best = r;
     if (best.cost === 0) break;
   }
+  /* `clean` says whether everything ended up apart; a caller with room to give can try again with smaller boxes */
+  best.pts.clean = best.cost === 0;
   return best.pts;
 }
 

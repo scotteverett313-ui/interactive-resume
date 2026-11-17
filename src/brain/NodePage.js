@@ -3,15 +3,36 @@ import { gsap } from 'gsap';
 import { CURIO_ROOT, BYID, PH_LEDE, PH_STORY, hubName } from './content';
 import PictureViewer from './PictureViewer';
 
-/* Text in [brackets] is a placeholder: show it dashed-underlined so it is obvious what is still blank. */
+/* Text in [brackets] is a placeholder: show it dashed-underlined so it is obvious what is still blank.
+   Brackets can sit anywhere in a sentence; only the bracketed parts are marked. */
 function Ph({ text }){
-  return /^\[.*\]$/.test(text) ? <span className="ph">{text}</span> : <>{text}</>;
+  return (
+    <>
+      {String(text).split(/(\[[^\]]*\])/).map(function(s, i){
+        return /^\[.*\]$/.test(s) ? <span className="ph" key={i}>{s}</span> : s;
+      })}
+    </>
+  );
+}
+/* the small chips under a page's one-liner: the disciplines and skills it shows */
+function Tags({ tags }){
+  if (!tags || !tags.length) return null;
+  return <ul className="tags" aria-label="What this shows">{tags.map(function(t){ return <li key={t}>{t}</li>; })}</ul>;
+}
+/* a page's own button: opens the Work with me page, or another site in a new tab */
+function Action({ action, onAction }){
+  if (!action) return null;
+  if (action.url) return <div><a className="chip-btn solid" href={action.url} target="_blank" rel="noopener noreferrer">{action.label} ↗</a></div>;
+  return <div><button type="button" className="chip-btn solid" onClick={function(){ onAction(action); }}>{action.label} →</button></div>;
 }
 
 /* Every picture on a node's page, in the order the viewer steps through them: the large one, then the "More" strip.
    An entry in `more` is either a path, or { src, caption } when it has words of its own. */
-function picsOf(n){
+function picsOf(n, filter){
   var p = n.page || {}, out = [];
+  /* a gallery page: its wall, narrowed to the chosen filter */
+  if (p.gallery) return p.gallery.filter(function(g){ return !filter || g.tag === filter; })
+    .map(function(g){ return { src:g.src, caption:g.caption || g.tag || n.label }; });
   if (p.image) out.push({ src:p.image, caption:p.proof || n.label });
   (p.more || []).forEach(function(m){
     out.push(typeof m === 'string' ? { src:m, caption:n.label } : { src:m.src, caption:m.caption || n.label });
@@ -46,8 +67,10 @@ export default function NodePage({ node, instant, stack, reduce, onBack, onGoToN
     var from = openerRef.current; openerRef.current = null;
     if (from && document.contains(from)) from.focus({ preventScroll:true });
   }
-  /* leaving the page (Back, a link, the browser's Back) closes the viewer with it */
-  useEffect(function(){ setView(null); }, [node]);
+  /* a gallery page's chosen filter: one of its tags, or null for everything */
+  var [filter, setFilter] = useState(null);
+  /* leaving the page (Back, a link, the browser's Back) closes the viewer with it, and clears the filter */
+  useEffect(function(){ setView(null); setFilter(null); }, [node]);
 
   /* open: reveal and fade in if we were hidden; change: just swap content. close: fade then hide. */
   useLayoutEffect(function(){
@@ -80,7 +103,7 @@ export default function NodePage({ node, instant, stack, reduce, onBack, onGoToN
   }, [shown]);
 
   var n = shown;
-  var body = null, pics = n ? picsOf(n) : [];
+  var body = null, pics = n ? picsOf(n, filter) : [];
   if (n){
     var p = n.page || {}, hub = n.hub || n;
     var trail = stack.slice(1).map(function(x){ return x.label; });
@@ -101,8 +124,43 @@ export default function NodePage({ node, instant, stack, reduce, onBack, onGoToN
     /* a page inside a hub carries that hub's colors; outer-orbit pages have no hub */
     var hubClass = n.curio ? '' : ' in-' + hub.id;
 
+    /* a gallery page: a wall of pictures, with the page's tags as filter buttons. Each picture opens in the viewer */
+    if (p.gallery) body = (
+      <div className={'page-doc page-gallery' + hubClass}>
+        <div className="page-top">
+          <div className="page-crumbs" id="pCrumbs">{['Brain'].concat(trail).join(' / ')}</div>
+          <button className="chip-btn" type="button" id="pBack" onClick={onBack}>← Back to brain</button>
+        </div>
+        <div className="gallery-head">
+          <div className="pull" id="pPull"><i />Pulled toward {hub.label}</div>
+          <h1 id="pTitle" tabIndex={-1} ref={titleRef}>{n.label}</h1>
+          <p className="lede" id="pLede"><Ph text={p.lede || PH_LEDE} /></p>
+          {p.story && <p className="gallery-say" id="pStory"><Ph text={p.story} /></p>}
+        </div>
+        <div className="filters" role="group" aria-label="Filter the pictures">
+          <button type="button" className="chip-btn" aria-pressed={!filter} onClick={function(){ setFilter(null); }}>All</button>
+          {(p.tags || []).map(function(t){
+            return <button type="button" className="chip-btn" key={t} aria-pressed={filter === t} onClick={function(){ setFilter(t); }}>{t}</button>;
+          })}
+        </div>
+        {pics.length
+          ? (
+            <div className="wall">
+              {pics.map(function(pc, i){
+                return (
+                  <button type="button" key={pc.src} aria-label={'View larger: ' + pc.caption + ', picture ' + (i + 1) + ' of ' + pics.length}
+                    onClick={function(e){ openPic(i, e.currentTarget); }}>
+                    <img src={pc.src} alt="" loading="lazy" />
+                  </button>
+                );
+              })}
+            </div>
+          )
+          : <p className="wall-empty"><span className="ph">{filter ? '[' + filter + ' pictures go here]' : '[Gallery pictures go here]'}</span></p>}
+      </div>
+    );
     /* a document page: the file's pages shown on screen, with a button to download it. The resume uses this */
-    if (p.doc) body = (
+    else if (p.doc) body = (
       <div className={'page-doc' + hubClass}>
         <div className="page-top">
           <div className="page-crumbs" id="pCrumbs">{['Brain'].concat(trail).join(' / ')}</div>
@@ -138,6 +196,7 @@ export default function NodePage({ node, instant, stack, reduce, onBack, onGoToN
           </div>
           <h1 id="pTitle" tabIndex={-1} ref={titleRef}>{n.label}</h1>
           <p className="lede" id="pLede"><Ph text={p.lede || PH_LEDE} /></p>
+          <Tags tags={p.tags} />
           <div className="story">
             <h2>The story</h2>
             <p id="pStory"><Ph text={p.story || PH_STORY} /></p>
@@ -145,9 +204,7 @@ export default function NodePage({ node, instant, stack, reduce, onBack, onGoToN
               {items.map(function(s, i){ return <li key={i}><Ph text={s} /></li>; })}
             </ul>
           </div>
-          {p.action && (
-            <div><button type="button" className="chip-btn solid" onClick={function(){ onAction(p.action); }}>{p.action.label} →</button></div>
-          )}
+          <Action action={p.action} onAction={onAction} />
           <div>
             <h2>Connects to</h2>
             <div className="conn" id="pConn">

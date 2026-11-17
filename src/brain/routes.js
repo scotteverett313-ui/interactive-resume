@@ -6,9 +6,9 @@ import { NOTE_BY_SLUG } from './notes';
 
      /                              the opening screen, then the map
      /work                          a gravity point's level
-     /work/case-studies             a level deeper
-     /work/case-studies/civilla     a page
-     /work/resume                   the resume, shown on screen with a download button
+     /work/what-i-do/se-design      a level deeper (levels nest as far as the tree does)
+     /work/what-i-do/se-design/case-studies/robear-detroit    a page
+     /work/resume/resume-pdf        the resume, shown on screen with a download button
      /orbit                         the "Can't stop thinking about" page
      /orbit/gardening               a curiosity's page
      /work-with-me                  the SE|Design services page
@@ -66,6 +66,7 @@ export function parsePath(pathname){
   for (var i = 0; i < parts.length; i++){
     var next = kidCalled(node, parts[i]);
     if (!next) return { stack:stack, pageNode:null, sheet:null, found:false };
+    if (next.go === 'studio') return { stack:stack, pageNode:null, sheet:{ type:'studio' }, found:true };
     if (next.kids && next.kids.length){ stack.push(next); node = next; }
     else return { stack:stack, pageNode:next, sheet:null, found: i === parts.length - 1 };
   }

@@ -76,14 +76,22 @@ not need to touch any component to change the content.
     story:'Random thoughts and drawings, shapes and wireframes.',
     list:['One thing', 'Another thing'],
     proof:'[Photos of sketchbook spreads]',
-    links:[{ to:'wesson', why:'Where the pieces start.' }] } }
+    tags:['Illustration','Process'],
+    links:[{ to:'samples', why:'Where the pieces start.' }] } }
 ```
 
 - `id` must be unique across the file. It is what links point at.
 - A node with `kids: [ ... ]` goes deeper (a black blob). A node without
   `kids` is a leaf and opens a page (a white blob).
+- A node with `kids` can have a `blurb`: one sentence shown under the
+  breadcrumbs inside that level. A blurb still in `[brackets]` is not shown.
 - Every field inside `page` is optional. Anything missing shows a placeholder.
 - Text in `[square brackets]` is a placeholder and renders dashed-underlined.
+  Brackets can sit inside a sentence; only that part is marked.
+- `tags` are the disciplines and skills a page shows, drawn as small chips
+  under its one-liner.
+- A leaf written as `{ id, label, go:'studio' }` has no page: pressing it
+  opens the Work with me page.
 - `links` become the **Connects to** buttons on the page. They can jump
   anywhere in the brain, up or down any branch. Links are one-way; add the
   reverse on the other node if you want it both ways.
@@ -97,15 +105,15 @@ intro and lands straight on that place. The Back and Forward buttons work.
 | Address | What it shows |
 |---|---|
 | `/` | The opening screen, then the map |
-| `/work`, `/work/case-studies` | A level of the map |
-| `/work/case-studies/civilla` | A page |
-| `/work/resume` | The resume, shown on screen with a download button |
+| `/work`, `/work/what-i-do/se-design` | A level of the map (levels nest as deep as the tree) |
+| `/work/what-i-do/se-design/case-studies/robear-detroit` | A page |
+| `/work/resume/resume-pdf` | The resume, shown on screen with a download button |
 | `/orbit`, `/orbit/gardening` | The outer orbit's pages |
 | `/work-with-me` | The SE\|Design services page |
 | `/notes`, `/notes/<slug>` | The list of notes, and one note |
 | `/resume` | The classic resume |
 
-A node's part of the address comes from its label ("Case studies" becomes
+A node's part of the address comes from its label ("Case Studies" becomes
 `case-studies`).
 Renaming a node changes its address. To pin it, give the node a `slug` in
 `content.js`. The rules are in `src/brain/routes.js`.
@@ -120,6 +128,15 @@ in `content.js` with `see`, and links to that place in the brain. The layout is
 `src/emailConfig.js`, the same ones the resume's form uses.
 
 A node's page can link to it with `action: { label: '...', go: 'studio' }`.
+A page button can also leave the site: `action: { label: '...', url:
+'https://...' }` opens that address in a new tab.
+
+### The gallery
+
+A page with a `gallery` list is a wall of pictures instead of the usual
+layout. Each entry is `{ src: '/proof/name.webp', tag: 'Branding', caption:
+'...' }`. The page's `tags` become filter buttons above the wall, and `tag`
+says which button shows the picture. Every picture opens in the viewer.
 
 ### Notes
 
@@ -129,14 +146,20 @@ add an entry at the top; the comment in that file lists the fields. A note's
 
 ### The three gravity points
 
-- **Work** is the body of work, sorted by what a visitor is looking for: Case
-  studies, What I do, Background, and the Resume.
-- **Teach** is teaching: where, what, workshops, and internships.
-- **Build** is what I am making and getting better at now.
+- **Work** is the body of work: What I Do (SE|Design, the UX and research
+  roles, Wesson Art), the Resume, and the Background.
+- **Teach** is teaching: UofM Flint and the curriculum.
+- **Build** is what I am making now: my stack, apps, games, software, and
+  websites.
+
+The map goes as deep as the tree does. The depth dots on the right count the
+levels for themselves, a crowded level shrinks its blobs on a small screen
+until nothing overlaps, and on a phone the breadcrumbs show only the last two
+levels after a "…".
 
 ### The resume
 
-`/work/resume` shows the resume on screen and offers it as a download. Two
+`/work/resume/resume-pdf` shows the resume on screen and offers it as a download. Two
 things in `public/cv/` make that work: `scott-everett-resume.pdf` is the file
 people download, and `page-1.webp` is a picture of its page, which is what
 shows on screen (a picture displays on every phone; an embedded PDF does not).
@@ -211,7 +234,7 @@ the title as soon as scrolling starts, and come back on Replay intro.
 
 `CURIO_ROOT` holds the loose curiosities drawn around the outside. Each one
 also has `fx, fy` (position as a fraction of the screen), `hubs` (which of
-`learn`, `teach`, `improve` it feeds, drawn as dashed lines), `also` (ids of
+`work`, `teach`, `build` it feeds, drawn as dashed lines), `also` (ids of
 other curiosities it touches), and an optional `sub` tag.
 
 ### The character

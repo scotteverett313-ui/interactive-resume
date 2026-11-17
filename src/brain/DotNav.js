@@ -1,14 +1,18 @@
 import React from 'react';
+import { MAX_DEPTH } from './content';
 
-/* Five depth dots down the right edge. The current dot carries a tag;
-   during the intro, ScrollTrigger writes the scroll percent straight into
-   that tag through tagRef, so the scrub never re-renders React. */
+/* Depth dots down the right edge: one for the intro, one for each level the map can go
+   (the brain, a gravity point, and however many levels sit inside it), and one for a page.
+   The current dot carries a tag; during the intro, ScrollTrigger writes the scroll percent
+   straight into that tag through tagRef, so the scrub never re-renders React. */
+export var DOT_COUNT = MAX_DEPTH + 2;
+
 export default function DotNav({ done, stack, pageNode, tagRef, onReplay, onGoTo }){
-  var depth = !done ? 0 : Math.min(4, pageNode ? stack.length + 1 : stack.length);
+  var depth = !done ? 0 : Math.min(DOT_COUNT - 1, pageNode ? stack.length + 1 : stack.length);
   var tags = ['Intro'].concat(stack.map(function(n){ return n.label; }));
   if (pageNode) tags[depth] = 'Page';
   var rows = [];
-  for (var i = 0; i < 5; i++){
+  for (var i = 0; i < DOT_COUNT; i++){
     (function(i){
       var on = i === depth, reachable = done && i < depth;
       rows.push(
