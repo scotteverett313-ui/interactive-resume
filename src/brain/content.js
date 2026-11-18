@@ -28,6 +28,30 @@
      and Back skips it too. Add a second item and the level shows up
      as a level again.
 
+   THE CASE STUDY LAYOUT
+   A page with a `study` becomes a long-form case study instead of the
+   usual two-panel page. Every case study uses the same shape, top to
+   bottom:
+       hero:     the picture across the top, { src, caption, alt }
+       sub:      the line under the title
+       intro:    opening paragraphs, an array of strings
+       facts:    the quick facts, an array of [label, value]. A value
+                 can be { text, url } to make it a link.
+       sections: an array of { title, body }. `body` is an array, in
+                 reading order, of any of these:
+                   a string                       a paragraph
+                   { image: src, caption, alt }   one picture
+                   { images: [ {src,caption,alt}, {..} ] }  pictures side by side
+                   { image: '[Image: what goes here]' }     an empty slot,
+                                                  shown striped until the file exists
+                   { list: [ [lead, text], ... ] } bullets; `lead` is bold
+       actions:  the buttons at the end, [{ label, url }]. A url still
+                 in [brackets] shows the button as not ready yet.
+   `caption` is what the viewer shows under the picture; `alt` is the
+   description a screen reader reads. The page's `tags`, `links`, and
+   its `image` and `more` pictures (shown as a strip at the end) still
+   apply. The page's `lede` and `story` are not used.
+
    FEATURED
    A level can carry `featured`: previews of pages offered straight
    from that level, however deep they really sit. Each entry is one
@@ -412,9 +436,87 @@ export const ROOT = { id:'root', label:'Brain', kids:[
         links:[{ to:'thissite', why:'Built the way I build now.' }] }} ]},
     { id:'games', label:'Games', kids:[
       { id:'ff', label:'First Fire', page:{
-        lede:'A prehistoric survival game where you guide your people through their shaman.',
-        story:'A Tamagotchi-style game I am building and drawing myself, sprite by sprite. I am learning to draw and animate the pixel art on iPad with Procreate and Procreate Dreams.',
         tags:['Game','Pixel Art'],
+        /* the case study. See THE CASE STUDY LAYOUT at the top of this file for the shape */
+        study:{
+          hero:{ src:'/proof/first-fire/study/02-camp-night.webp', caption:'The camp at night', alt:'The First Fire camp at night in a green palette: huts, trees and a small fire under the moon, titled Ember Kin, spring, the fifth year.' },
+          sub:`Designing a prehistoric world with an AI partner`,
+          intro:[
+            `First Fire is a text-first, 8-bit survival game for phones. You never see yourself. You are a voice that a small prehistoric group hears only through their shaman. They live on their own between your short check-ins, and the more they believe in you, the clearer your words reach them.`,
+            `I designed the world, wrote its rules and story, set the art direction, and drew its people. An AI partner, Claude, helped me plan, build, test and keep it all straight. This is how that partnership worked.`
+          ],
+          facts:[
+            ['Role', `game designer, writer, illustrator, art director`],
+            ['AI partner', `Claude, for design talk and for building`],
+            ['Timeline', `code began Sep 29, 2026. Soft launch in Nov 2026`],
+            ['Scale', `300+ changes, about 14,500 lines of game code`],
+            ['Tools', `Procreate, Procreate Dreams, Figma, GitHub, JavaScript`],
+            ['Play it', { text:'play.firstfire.world', url:'https://play.firstfire.world' }]
+          ],
+          sections:[
+            { title:`The idea`, body:[
+              `I wanted a game that felt like a Tamagotchi, played tight like Oregon Trail, and rewarded curiosity like Dr. Stone. Small enough to check on in two minutes. Deep enough to care about for weeks.`,
+              `The twist is the player. You have no body and no hands. You can only nudge, suggest and gift, and your people decide for themselves. If they stop believing, your words arrive twisted and late. Every choice has to earn their trust.`,
+              `One rule shaped everything else: reward visiting, never punish absence. Life on the coast goes on while you are away, and the game never makes you feel guilty for having a life.`
+            ] },
+            { title:`Starting with words`, body:[
+              `Before any code, the world lived in two documents. A Lore Doc held the peoples, the story and the way people talk. A Game Doc held the rules and the numbers. Those two stayed the source of truth for the whole build. When the code and a doc disagreed, the code won, and I updated the doc.`,
+              { image:`[Image: your Game Doc or Lore Doc page]` }
+            ] },
+            { title:`Drawing the people`, body:[
+              `The first camp was colored blocks. It was enough to prove the idea, but not enough to love. When the people became sprites, they were too small to read on a phone, so I grew them from 13 to 19 pixels tall. Now I draw them myself in Procreate: front, side and back, then the shaman dressed for the role.`,
+              { image:`[Image: your Procreate turnaround]` },
+              `The camp is 240 by 144 pixels, Game Boy height. A green pocket palette gives every screen one calm voice, and a full color look is there for players who want it.`,
+              { images:[
+                { src:'/proof/first-fire/study/01-camp-day-green.webp', caption:'The camp by day, green palette', alt:'The camp by day in the green pocket palette: people walking the shore, huts, trees and a fenced field.' },
+                { src:'/proof/first-fire/study/03-camp-full-color.webp', caption:'The camp in full color', alt:'The same camp in full color: blue sea, sand, green trees and people in bright clothes.' }
+              ] }
+            ] },
+            { title:`Built for thumbs and screen readers`, body:[
+              `First Fire is fully playable with a screen reader and with sound off. Every picture and every sound also has a line of text. Taps are sized for thumbs, every screen is designed at phone width first, and nothing flashes. These rules were written into every build, not added at the end.`,
+              { image:'/proof/first-fire/study/04-phone-dashboard.webp', caption:'The phone dashboard', alt:'The game on a phone: the camp view, four speed buttons, and a Camp at a glance panel showing people, food, mood, shelter, health, belief and tokens.' }
+            ] },
+            { title:`Designer and AI: how we worked`, body:[
+              { image:'/proof/first-fire/study/05-build-loop.webp', caption:'The build loop', alt:'Diagram of the build loop in five steps: idea, design talk, the prompt, build, and check. The status file comes back to the chat so both sides stay in sync.' },
+              `Every change went around the same loop. I brought an idea, a feeling or a problem from play. In chat, Claude offered options and trade-offs, one question at a time, and I chose. Claude drafted a build plan, and I approved it. Claude Code built the change, tested its effect on the world, and updated the project's record. Then I played it on my phone and merged it.`,
+              `The habit that made it work was simple. After every change, a short status file came back to the chat. The designer side and the builder side never drifted apart.`,
+              `I made every decision. The AI made those decisions real, quickly, and showed me what they cost.`
+            ] },
+            { title:`Testing a world, not a screen`, body:[
+              `A game where people live and die on their own is hard to test by playing. So the game can run without a screen. I could play 150 full games in minutes, each about thirty years long, and see who lives, who dies, and why.`,
+              /* the two charts are full of small words, so each gets the full width, one after the other */
+              { image:'/proof/first-fire/study/06-who-dies.webp', caption:'Who dies, and how', alt:'Bar chart of deaths in one era, averaged over 30 simulated eras: old age 47, lost scouting 11, drowned in the surf 6.5, wolves 4.6, snow on the high pass 2.6, the great wave 1.1.' },
+              { image:'/proof/first-fire/study/07-where-you-start.webp', caption:'Where you start matters', alt:'Bar chart of eras where the whole group was lost, out of 30 per starting spot: river mouth 1, open beach 1, sheltered cove 6, cliffside caves 11.' },
+              `That audit found real problems. Scouts were dying out of sight. One starting spot lost everyone in a third of its games, always in the first three years. And the game still hurt people while the player was away, against my own first rule. Each finding became a fix.`
+            ] },
+            { title:`What worked`, body:[
+              { list:[
+                [`The voice and the shaman.`, `Having no body makes every choice feel human.`],
+                [`Scarcity with care.`, `Gifts come from a small hand that refills slowly, so each one is a real choice.`],
+                [`An ending with weight.`, `My own camp reached year 32 with no urgency. Now the mountain wakes in stages: smoke, trembling, ash, and the sea pulling back.`],
+                [`Speed without losing the wheel.`, `A designer without an engineering team shipped over 300 changes in about seven weeks.`]
+              ] }
+            ] },
+            { title:`What did not`, body:[
+              { list:[
+                [`Building too much.`, `When building is cheap, every idea gets built. The game grew systems that overlap, and I am still pruning them.`],
+                [`Feel cannot be simulated.`, `The AI can test numbers, not moments. That still took my phone and my players.`],
+                [`Small slips, big effects.`, `One reused name froze every vision in the game. Now known bugs get written down so they never come back.`],
+                [`My first screen reader test.`, `It "definitely needs some work," I wrote. It became an audit and a set of fixes, one screen at a time.`]
+              ] }
+            ] },
+            { title:`What is next`, body:[
+              `The second era, the Valley, with fields, furnaces and trade. A bigger camp with my own drawn people. Play styles that leave a mark on who reaches the Valley. And outside the game, a graphic novel about the first five people, and a small picture frame that shows the camp on a shelf.`
+            ] },
+            { title:`What I would tell another designer`, body:[
+              `Write your rules down before you build. Keep one place where the truth lives. Let the AI build fast, and spend your own time on taste, testing and saying no.`
+            ] }
+          ],
+          actions:[
+            { label:`Play First Fire`, url:'https://play.firstfire.world' },
+            { label:`Join the Discord`, url:'[Discord invite link]' }
+          ]
+        },
         proof:'Title art, First Fire',
         image:'/proof/first-fire/1.webp',
         more:[

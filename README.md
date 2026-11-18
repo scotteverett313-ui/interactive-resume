@@ -149,6 +149,30 @@ the same wall narrowed to the level it sits in. Its `tags` are the filter
 buttons, and its `gallery` list holds extra pictures that belong to no page:
 `{ src: '/proof/name.webp', tag: 'Branding', caption: '...' }`.
 
+### Case studies
+
+A page with a `study` in `content.js` uses the case study layout instead of
+the usual two-panel page. Every case study has the same shape, top to
+bottom: a hero picture, the title and a line under it, opening paragraphs, a
+block of quick facts (Role, Timeline, Tools and so on), then sections. A
+section is a heading and a run of paragraphs, pictures (one, or several side
+by side), and bullet lists with a bold lead. It ends with buttons, the
+"Connects to" links, and a strip of the page's other pictures.
+
+First Fire is the first one and the model to copy: find `id:'ff'` in
+`content.js`. The comment "THE CASE STUDY LAYOUT" at the top of that file
+lists every field. Two things to know when writing one:
+
+- A picture that has not arrived yet is written as
+  `{ image: '[Image: what goes here]' }` and shows as a striped slot.
+- A button whose link is still in `[brackets]` shows dashed and goes nowhere.
+
+Each picture has a `caption` (shown in the viewer) and an `alt` (what a
+screen reader reads; for a chart, say what the chart says). Study pictures
+open in the viewer and appear in the Gallery like any others. Screenshots of
+pixel art and flat diagrams are saved without lossy compression so they stay
+crisp.
+
 ### Featured pages, and Next and Previous
 
 A level can offer previews of pages straight from its own screen, however

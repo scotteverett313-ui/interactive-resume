@@ -2,7 +2,7 @@ import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { CURIO_ROOT, BYID, PH_LEDE, PH_STORY, hubName } from './content';
 import PictureViewer from './PictureViewer';
-import { thumbOf, fullOnError } from './gallery';
+import { thumbOf, fullOnError, studyPictures } from './gallery';
 
 /* Text in [brackets] is a placeholder: show it dashed-underlined so it is obvious what is still blank.
    Brackets can sit anywhere in a sentence; only the bracketed parts are marked. */
@@ -31,6 +31,8 @@ function Action({ action, onAction }){
    An entry in `more` is either a path, or { src, caption } when it has words of its own. */
 function picsOf(n){
   var p = n.page || {}, out = [];
+  /* a case study's own pictures come first, in reading order */
+  studyPictures(p.study).forEach(function(sp){ out.push({ src:sp.src, caption:sp.caption || n.label }); });
   if (p.image) out.push({ src:p.image, caption:p.proof || n.label });
   (p.more || []).forEach(function(m){
     out.push(typeof m === 'string' ? { src:m, caption:n.label } : { src:m.src, caption:m.caption || n.label });
@@ -210,13 +212,135 @@ export default function NodePage({ node, instant, seq, stack, reduce, onBack, on
     /* a page inside a hub carries that hub's colors; outer-orbit pages have no hub */
     var hubClass = n.curio ? '' : ' in-' + hub.id;
 
-    /* a document page: the file's pages shown on screen, with a button to download it. The resume uses this */
-    if (p.doc) body = (
-      <div className={'page-doc' + hubClass}>
-        <div className="page-top">
-          <div className="page-crumbs" id="pCrumbs">{['Brain'].concat(trail).join(' / ')}</div>
-          <button className="chip-btn" type="button" id="pBack" onClick={onBack}>← Back to brain</button>
+    var top = (
+      <div className="page-top">
+        <div className="page-crumbs" id="pCrumbs">{['Brain'].concat(trail).join(' / ')}</div>
+        <button className="chip-btn" type="button" id="pBack" onClick={onBack}>← Back to brain</button>
+      </div>
+    );
+    var connects = (
+      <div>
+        <h2>Connects to</h2>
+        <div className="conn" id="pConn">
+          {links.map(function(l){
+            return (
+              <button type="button" className="lk" key={'l' + l.t.id} onClick={function(){ onGoToNode(l.t); }}>
+                <b>{l.t.label} →</b><span>{l.why}</span>
+              </button>
+            );
+          })}
+          {hubs.map(function(h){
+            return <button type="button" key={'h' + h} onClick={function(){ onDiveTo(h); }}>Feeds {hubName(h)} ↗</button>;
+          })}
+          {empty && <span className="ph">[Connected node]: [why they connect]</span>}
+          {sibs.map(function(s){
+            return <button type="button" key={'s' + s.id} onClick={function(){ onOpenPage(s); }}>{s.label} →</button>;
+          })}
         </div>
+      </div>
+    );
+    /* where a picture sits in the viewer's order */
+    var at_ = function(src){ for (var q = 0; q < pics.length; q++) if (pics[q].src === src) return q; return 0; };
+    /* a strip of small pictures; each opens in the viewer */
+    var strip = function(srcs){
+      return srcs.map(function(src){
+        var k = at_(src), pc = pics[k];
+        return (
+          <button type="button" key={src} aria-label={'View larger: ' + pc.caption + ', picture ' + (k + 1) + ' of ' + pics.length}
+            onClick={function(e){ openPic(k, e.currentTarget); }}>
+            <img src={thumbOf(src)} onError={fullOnError(src)} alt="" loading="lazy" />
+          </button>
+        );
+      });
+    };
+    var moreSrcs = (p.more || []).map(function(m){ return typeof m === 'string' ? m : m.src; });
+
+    /* a case study: the long-form layout every case study shares (see THE CASE STUDY LAYOUT in content.js) */
+    if (p.study){
+      var st = p.study;
+      var pic = function(x, cls){
+        return (
+          <button type="button" className={'study-pic' + (cls ? ' ' + cls : '')} key={x.src} aria-label={'View larger: ' + (x.caption || n.label)}
+            onClick={function(e){ openPic(at_(x.src), e.currentTarget); }}>
+            <img src={x.src} alt={x.alt || x.caption || ''} loading={cls === 'lead' ? undefined : 'lazy'} />
+          </button>
+        );
+      };
+      var block = function(b, i){
+        if (typeof b === 'string') return <p key={i}><Ph text={b} /></p>;
+        if (b.list) return (
+          <ul key={i}>{b.list.map(function(li, j){ return <li key={j}><b>{li[0]}</b> <Ph text={li[1]} /></li>; })}</ul>
+        );
+        if (b.images) return <div className="study-pair" key={i}>{b.images.map(function(x){ return pic(x); })}</div>;
+        if (typeof b.image === 'string'){
+          /* a slot still in [brackets] is a picture that has not arrived yet */
+          if (/^\[.*\]$/.test(b.image)) return <div className="study-slot" key={i}><span className="ph">{b.image}</span></div>;
+          return pic({ src:b.image, caption:b.caption, alt:b.alt });
+        }
+        return null;
+      };
+      var extra = (p.image ? [p.image] : []).concat(moreSrcs);
+      body = (
+        <div className={'page-study' + hubClass}>
+          {top}
+          {st.hero && st.hero.src && pic(st.hero, 'lead')}
+          <header className="study-head">
+            <div className="pull" id="pPull"><i />Pulled toward {hub.label}</div>
+            <h1 id="pTitle" tabIndex={-1} ref={titleRef}>{n.label}</h1>
+            {st.sub && <p className="lede" id="pLede"><Ph text={st.sub} /></p>}
+            <Tags tags={p.tags} />
+          </header>
+          <div className="study-text study-intro" id="pStory">
+            {(st.intro || []).map(function(t, i){ return <p key={i}><Ph text={t} /></p>; })}
+          </div>
+          {st.facts && st.facts.length > 0 && (
+            <dl className="facts">
+              {st.facts.map(function(f){
+                var v = f[1];
+                return (
+                  <div key={f[0]}>
+                    <dt>{f[0]}</dt>
+                    <dd>{v && v.url ? <a href={v.url} target="_blank" rel="noopener noreferrer">{v.text || v.url}</a> : <Ph text={v} />}</dd>
+                  </div>
+                );
+              })}
+            </dl>
+          )}
+          {(st.sections || []).map(function(sec, i){
+            return (
+              <section className="study-text" key={i}>
+                <h2>{sec.title}</h2>
+                {(sec.body || []).map(block)}
+              </section>
+            );
+          })}
+          {st.actions && st.actions.length > 0 && (
+            <div className="study-actions">
+              {st.actions.map(function(a, i){
+                /* a link still in [brackets] is not ready: the button shows, dashed, and goes nowhere */
+                if (!a.url || /^\[.*\]$/.test(a.url)) return <span className="chip-btn not-ready" key={a.label} title={a.url || ''}>{a.label}</span>;
+                return <a className={'chip-btn' + (i === 0 ? ' solid' : '')} key={a.label} href={a.url} target="_blank" rel="noopener noreferrer">{a.label} ↗</a>;
+              })}
+            </div>
+          )}
+          <Action action={p.action} onAction={onAction} />
+          <div className="study-end">
+            {connects}
+            {extra.length > 0 && (
+              <div>
+                <h2>More</h2>
+                <div className="thumbs" aria-label="More pictures, scrolls sideways">{strip(extra)}</div>
+              </div>
+            )}
+          </div>
+          {pager}
+        </div>
+      );
+    }
+    /* a document page: the file's pages shown on screen, with a button to download it. The resume uses this */
+    else if (p.doc) body = (
+      <div className={'page-doc' + hubClass}>
+        {top}
         <div className="doc-head">
           <div>
             <div className="pull" id="pPull"><i />Pulled toward {hub.label}</div>
@@ -237,10 +361,7 @@ export default function NodePage({ node, instant, seq, stack, reduce, onBack, on
     else body = (
       <div className={'page-grid' + hubClass}>
         <div className="page-text">
-          <div className="page-top">
-            <div className="page-crumbs" id="pCrumbs">{['Brain'].concat(trail).join(' / ')}</div>
-            <button className="chip-btn" type="button" id="pBack" onClick={onBack}>← Back to brain</button>
-          </div>
+          {top}
           <div className="pull" id="pPull">
             {n.curio
               ? <><i className="orbit" />Outer orbit · not pulled in yet</>
@@ -257,39 +378,11 @@ export default function NodePage({ node, instant, seq, stack, reduce, onBack, on
             </ul>
           </div>
           <Action action={p.action} onAction={onAction} />
-          <div>
-            <h2>Connects to</h2>
-            <div className="conn" id="pConn">
-              {links.map(function(l){
-                return (
-                  <button type="button" className="lk" key={'l' + l.t.id} onClick={function(){ onGoToNode(l.t); }}>
-                    <b>{l.t.label} →</b><span>{l.why}</span>
-                  </button>
-                );
-              })}
-              {hubs.map(function(h){
-                return <button type="button" key={'h' + h} onClick={function(){ onDiveTo(h); }}>Feeds {hubName(h)} ↗</button>;
-              })}
-              {empty && <span className="ph">[Connected node]: [why they connect]</span>}
-              {sibs.map(function(s){
-                return <button type="button" key={'s' + s.id} onClick={function(){ onOpenPage(s); }}>{s.label} →</button>;
-              })}
-            </div>
-          </div>
+          {connects}
           <div>
             <h2>More</h2>
             <div className="thumbs" aria-label="More work, scrolls sideways">
-              {(p.more && p.more.length)
-                ? p.more.map(function(m, i){
-                    var k = i + (p.image ? 1 : 0), pc = pics[k];
-                    return (
-                      <button type="button" key={pc.src} aria-label={'View larger: ' + pc.caption + ', picture ' + (k + 1) + ' of ' + pics.length}
-                        onClick={function(e){ openPic(k, e.currentTarget); }}>
-                        <img src={thumbOf(pc.src)} onError={fullOnError(pc.src)} alt="" loading="lazy" />
-                      </button>
-                    );
-                  })
-                : <><div /><div /><div /><div /><div /></>}
+              {moreSrcs.length ? strip(moreSrcs) : <><div /><div /><div /><div /><div /></>}
               <span className="arrow" aria-hidden="true">→</span>
             </div>
           </div>

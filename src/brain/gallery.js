@@ -5,6 +5,7 @@ import { ROOT, CURIO_ROOT } from './content';
 
    Nothing here needs editing. The list is built from content.js:
      - each page's `image` (with its `proof` caption) and `more`
+     - the pictures inside a page's case study (`study`)
      - the `gallery` extras on a go:'gallery' leaf, which belong to
        no page of their own
 
@@ -27,6 +28,23 @@ export function fullOnError(src){
 
 function written(s){ return s && !/^\[.*\]$/.test(s); }
 
+/* The pictures in a case study (a page's `study`), in reading order: the hero, then every picture in the sections.
+   Empty slots, written as '[Image: ...]', are skipped. Each: { src, caption, alt } */
+export function studyPictures(study){
+  var out = [];
+  function add(x){ if (x && x.src && written(x.src)) out.push({ src:x.src, caption:x.caption || '', alt:x.alt || '' }); }
+  if (!study) return out;
+  add(study.hero);
+  (study.sections || []).forEach(function(sec){
+    (sec.body || []).forEach(function(b){
+      if (!b || typeof b === 'string') return;
+      if (b.images) b.images.forEach(add);
+      else if (typeof b.image === 'string') add({ src:b.image, caption:b.caption, alt:b.alt });
+    });
+  });
+  return out;
+}
+
 export const PICTURES = (function(){
   var out = [], seen = {};
   function add(pic){ if (pic.src && !seen[pic.src]){ seen[pic.src] = true; out.push(pic); } }
@@ -38,6 +56,9 @@ export const PICTURES = (function(){
       });
     } else if (!p.doc){
       var tags = p.tags || [];
+      studyPictures(p.study).forEach(function(sp){
+        add({ src:sp.src, caption:sp.caption || n.label, page:n, hub:hub, tags:tags, line:line });
+      });
       if (p.image) add({ src:p.image, caption:written(p.proof) ? p.proof : n.label, page:n, hub:hub, tags:tags, line:line });
       (p.more || []).forEach(function(m){
         add(typeof m === 'string'

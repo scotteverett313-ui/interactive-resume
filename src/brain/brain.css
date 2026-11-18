@@ -241,6 +241,42 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
 #page .thumbs .arrow{flex:0 0 auto;border:0;background:none;display:grid;place-items:center;font-size:24px;width:30px}
 #page .proof{position:relative;min-height:320px;border-left:2px solid var(--ink);display:flex;align-items:flex-end;padding:24px;padding-right:max(64px,env(safe-area-inset-right,0px));
   background:repeating-linear-gradient(135deg,transparent 0 18px,color-mix(in srgb,var(--ink) 14%,transparent) 18px 20px),var(--ground)}
+/* ---- the case study layout (a page with `study` in content.js): one reading column, pictures at its full width ---- */
+#page .page-study{max-width:880px;margin:0 auto;padding:calc(20px + env(safe-area-inset-top,0px)) 72px 64px 24px;display:flex;flex-direction:column;gap:28px}
+#page .study-head{display:flex;flex-direction:column;gap:14px}
+#page .study-head .lede{max-width:none}
+#page .study-pic{display:block;padding:0;border:2px solid var(--ink);background:var(--ground);cursor:zoom-in;overflow:hidden;line-height:0;align-self:center;max-width:100%}
+/* a tall picture (a phone screen) is held to the height of the window, so it never fills three screens */
+#page .study-pic img{display:block;max-width:100%;max-height:82vh;width:auto;height:auto}
+#page .study-pic.lead{align-self:stretch}
+#page .study-pic.lead img{width:100%;max-height:none}
+#page .study-pic:hover{border-color:var(--hub,var(--ink))}
+#page .study-text{display:flex;flex-direction:column;gap:16px}
+#page .study-text > p,#page .study-text > ul{margin:0;font-size:17px;line-height:1.65;max-width:68ch}
+#page .study-intro > p{font-size:clamp(17px,1.5vw,19px)}
+#page .study-text > ul{padding-left:20px;display:flex;flex-direction:column;gap:10px}
+#page .study-text h2{font-family:var(--display);font-weight:800;font-size:clamp(24px,2.8vw,34px);line-height:1.1;letter-spacing:-.01em;text-transform:none;margin:14px 0 0;text-wrap:balance}
+/* two pictures side by side; one above the other on a phone */
+#page .study-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start}
+#page .study-pair .study-pic{align-self:start}
+#page .study-pair .study-pic img{width:100%}
+/* a picture that has not arrived yet */
+#page .study-slot{border:2px solid var(--ink);padding:44px 20px;text-align:center;font-family:var(--mono);font-size:13px;line-height:1.5;
+  background:repeating-linear-gradient(135deg,transparent 0 18px,color-mix(in srgb,var(--ink) 14%,transparent) 18px 20px),var(--ground)}
+/* the quick facts: a label and its value on each row */
+#page .facts{margin:0;border-top:2px solid var(--ink);display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:28px}
+#page .facts > div{display:grid;grid-template-columns:104px minmax(0,1fr);gap:12px;padding:12px 0;border-bottom:1.5px solid var(--ink);align-items:baseline}
+#page .facts dt{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+#page .facts dd{margin:0;font-size:15px;line-height:1.45}
+#page .facts a,#page .study-text a{color:var(--ink);text-underline-offset:3px}
+#page .study-actions{display:flex;flex-wrap:wrap;gap:10px}
+#page .study-actions .chip-btn{min-height:52px;font-size:16px;padding:0 22px;box-sizing:border-box}
+.brain .chip-btn.not-ready{display:inline-flex;align-items:center;border-style:dashed;color:var(--muted);cursor:default}
+.brain .chip-btn.not-ready:hover{background:var(--paper);color:var(--muted)}
+#page .study-end{display:flex;flex-direction:column;gap:22px;border-top:2px solid var(--ink);padding-top:22px}
+#page .study-end .thumbs{margin-top:0}
+#page .page-study .pager{margin-bottom:-64px}
+
 /* Next and Previous: a bar that stays at the bottom of the page's words while they scroll */
 #page .pager{position:sticky;bottom:0;margin-bottom:-32px;display:flex;align-items:center;justify-content:space-between;gap:10px;
   padding:10px 0 calc(10px + env(safe-area-inset-bottom,0px));background:var(--ground);border-top:2px solid var(--ink)}
@@ -379,6 +415,10 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
   #page .proof{order:-1;min-height:0;aspect-ratio:16/10;border-left:0;border-bottom:2px solid var(--ink)}
   #page .page-text{padding-right:max(56px,env(safe-area-inset-right,0px))}
   #page .page-doc{padding-right:56px;padding-left:16px}
+  #page .page-study{padding-right:56px;padding-left:16px;gap:24px}
+  #page .study-pair{grid-template-columns:minmax(0,1fr)}
+  #page .facts{grid-template-columns:minmax(0,1fr)}
+  #page .facts > div{grid-template-columns:92px minmax(0,1fr)}
   /* on a phone the light and dark toggle sits in the bottom-right corner: keep Next clear of it */
   #page .pager{padding-right:12px}
   #page .pager .chip-btn{padding:0 10px;font-size:13px;max-width:34%}
