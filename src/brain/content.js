@@ -32,7 +32,8 @@
    A page with a `study` becomes a long-form case study instead of the
    usual two-panel page. Every case study uses the same shape, top to
    bottom:
-       hero:     the picture across the top, { src, caption, alt }
+       hero:     the picture across the top, { src, caption, alt }, or
+                 '[Hero image: what goes here]' while it is still to come
        sub:      the line under the title
        intro:    opening paragraphs, an array of strings
        facts:    the quick facts, an array of [label, value]. A value
@@ -199,6 +200,7 @@ export const ROOT = { id:'root', label:'Brain', kids:[
             proof:'Landing page, Robear Detroit',
             image:'/proof/robear/1.webp',
             fit:'whole',
+            action:{ label:'Visit robeardetroitvo.com', url:'https://www.robeardetroitvo.com/' },
             more:[
               { src:'/proof/robear/2.webp', caption:'About screen on a phone' },
               { src:'/proof/robear/3.webp', caption:'Brand board' }
@@ -430,9 +432,81 @@ export const ROOT = { id:'root', label:'Brain', kids:[
       list:['Photoshop, Illustrator, InDesign, and Firefly','Procreate and Procreate Dreams','WordPress, Wix, and Squarespace','React and GSAP','Claude Code'] }},
     { id:'apps', label:'Apps', kids:[
       { id:'dirtrich', label:'Dirt Rich', page:{
-        lede:'A garden tracker built in Detroit.',
-        story:'Seed starting and tracking across four grow zones. A curiosity that turned into an app.',
         tags:['App','Product Design'],
+        study:{
+          hero:`[Hero image: app screenshot — garden tab, plants in zones]`,
+          sub:`Building a garden tracker with an AI partner while actually planting`,
+          intro:[
+            `Dirt Rich is a mobile-first garden tracking PWA for people who take their grow seriously. Track plants by zone from seed to harvest. Scan seed packets with AI. Know when to water, when to harvest, and how much of the season you have left.`,
+            `I designed the product, wrote its rules and content, set the visual direction, and drew its pixel art. An AI partner, Claude, helped me plan, build, test, and keep it all straight. This is how that partnership worked.`
+          ],
+          facts:[
+            ['Role', `product designer, illustrator, art director, developer`],
+            ['AI partner', `Claude, for design decisions and for building`],
+            ['Timeline', `code began Spring 2026. Beta launch Fall 2026`],
+            ['Scale', `300+ changes, 2,700+ lines of code refactored into 21 focused files`],
+            ['Tools', `Procreate, Figma, React, Supabase, Vercel, GitHub`],
+            ['Use it', `[your Vercel URL]`]
+          ],
+          sections:[
+            { title:`The idea`, body:[
+              `I needed a garden tracker that worked for how I actually garden. Four zones — a basement grow station, a greenhouse, raised beds, in-ground beds. Nothing I found thought that way. Most apps felt like a houseplant diary, not a real grower’s tool.`,
+              `The core rule that shaped everything else: the app should feel like a trusted grow partner, not a task manager. It should know your season, remember your plants, and give you what you need without demanding your attention.`,
+              `One constraint kept the design honest: build it during the season you’re trying to track. Every feature got tested on real plants, in real dirt, in real Detroit spring weather.`
+            ] },
+            { title:`Starting with the season`, body:[
+              `Before any code, I defined the four zones and the plant lifecycle — from seed to germinating to seedling to transplanted to growing to flowering to fruiting to harvesting. Those states became the data model. The frost date progress bar came from needing to answer one question every time I walked outside: how much season do I have left?`,
+              { image:`[Image: frost date progress bar + zone layout sketch]` }
+            ] },
+            { title:`Drawing the plants`, body:[
+              `The first version used emoji. It worked well enough to prove the idea but not well enough to love. When I drew the first pixel art icons — Tomato, Carrot, Eggplant, Lettuce, Sunflower — the app started feeling like something worth using.`,
+              `Each plant icon is 32×32px, drawn in Procreate, always rendered with imageRendering: pixelated. Never scaled with interpolation. The pixel art is the soul of the brand, not decoration.`,
+              { image:`[Image: Procreate pixel art plant icons — Tomato, Carrot, Eggplant, Lettuce, Sunflower]` },
+              `The app background is parchment (#faf6f0). Cards are white with 2px black borders and offset shadows. Lime green (#a8e063) is the signal color — it means active, alive, in season.`,
+              { image:`[Images: plant grid card dark / card light — before and after pixel art]` }
+            ] },
+            { title:`Built for one hand in a garden`, body:[
+              `Dirt Rich is designed at phone width first. Every tap target is thumb-sized. The plant detail sheet slides up from the bottom so you can log care with one hand while the other is in the soil. The seed scanner lets you point your camera at any packet and AI reads everything — name, variety, days to maturity, water needs — directly into your seed library.`,
+              { image:`[Image: phone screenshot — seed scanner in use]` }
+            ] },
+            { title:`Designer and AI: how we worked`, body:[
+              { image:`[Image: build loop diagram]` },
+              `Every change followed the same pattern. I brought a problem or an idea from actual use — something that felt off, something missing, something a real plant session surfaced. In chat, Claude offered options and trade-offs. I chose. Claude drafted the change. I approved. Claude built it, tested it, and noted what changed. Then I opened the app on my phone and used it.`,
+              `The habit that kept it working: the app started as one 2,700-line file. When edits started hitting tool limits and sessions started drifting, we refactored the whole thing into 21 focused files — components, tabs, hooks, constants, utils. After that, every session started in the right file and ended clean.`,
+              `I made every product decision. The AI made those decisions real, fast, and showed me what they cost.`
+            ] },
+            { title:`Testing in the season, not just the simulator`, body:[
+              `A tracker that only works when you remember to open it isn’t a tracker. So I used Dirt Rich through the whole spring season — scanning real packets, adding real plants, logging real care. That live use found the real problems.`,
+              `The backup warning was annoying before it was necessary. The zone filter was hidden before it was obvious. The care log was a separate screen before it was inline. Each friction point in real use became a design fix.`,
+              { image:`[Images: before/after care log inline; before/after header redesign]` }
+            ] },
+            { title:`What worked`, body:[
+              { list:[
+                [`The pixel art.`, `Making the icons myself meant every plant had a face I drew.`],
+                [`The frost date bar.`, `One glance tells you where you are in the season. That single element changes how you think about every plant in the app.`],
+                [`Cloud sync.`, `Adding Supabase meant the data survived every app update, every device switch, every Safari cache clear.`],
+                [`The seed scanner.`, `Pointing a camera at a packet and watching it populate is still the moment that gets people.`]
+              ] }
+            ] },
+            { title:`What didn’t`, body:[
+              { list:[
+                [`Building before the data model was solid.`, `The zone system started hardcoded and had to be refactored to dynamic when it became obvious growers don’t all have the same four zones.`],
+                [`One giant file.`, `Starting in a single App.jsx made early builds fast and later sessions slow. The refactor was necessary but it cost two sessions.`],
+                [`Testing on my own garden only.`, `The features that felt obvious to me needed more explanation for first-time users. That became the onboarding flow.`]
+              ] }
+            ] },
+            { title:`What’s next`, body:[
+              `A community Discord for beta testers. An App Store path through Capacitor. Succession planting suggestions on the Harvest tab — what to plant when something comes out. And more pixel art. Always more pixel art.`
+            ] },
+            { title:`What I’d tell another designer`, body:[
+              `Design with the constraint that you’re the first user. Build what your season actually needs. Keep one file where the truth lives. Let the AI build fast and spend your own time on feel, testing, and knowing when to say no.`
+            ] }
+          ],
+          actions:[
+            { label:`Use Dirt Rich`, url:'[your URL]' },
+            { label:`Join the Discord`, url:'[Discord invite link]' }
+          ]
+        },
         links:[{ to:'thissite', why:'Built the way I build now.' }] }} ]},
     { id:'games', label:'Games', kids:[
       { id:'ff', label:'First Fire', page:{
@@ -526,9 +600,77 @@ export const ROOT = { id:'root', label:'Brain', kids:[
         links:[{ to:'thissite', why:'Built with Claude Code.' }] }} ]},
     { id:'software', label:'Software', kids:[
       { id:'vault', label:'VaultMark', page:{
-        lede:'Proving digital art is the real thing.',
-        story:'A digital art authentication concept I developed into provisional patent materials.',
         tags:['Software','Concept'],
+        study:{
+          hero:{ src:'/proof/vaultmark/study/04-dashboard-gallery.webp', caption:'The gallery dashboard', alt:'The Vaultmark dashboard for a demo gallery: totals across the top and a grid of eight vaulted artworks, each shown as a scrambled tile with its title, artist and status.' },
+          sub:`Inventing a digital art authentication system with an AI partner`,
+          intro:[
+            `Vaultmark is a pixel-level authentication platform for digital artwork. The proof of ownership is embedded in the image’s own pixel data — not attached as metadata, not stored as a URL pointer — grown from the physical structure of the image itself.`,
+            `I developed the concept, designed the system architecture, built the encryption engine, mapped the user flows, and took it from idea to provisional patent. Claude was the partner I designed with and built through.`
+          ],
+          facts:[
+            ['Role', `product designer, system architect, inventor, writer`],
+            ['AI partner', `Claude, for design decisions, system design, and building`],
+            ['Timeline', `concept began April 2026`],
+            ['Scale', `working prototype across 5 versions, 80+ features mapped, provisional patent application filed`],
+            ['Tools', `Claude, JavaScript, Procreate (for brand exploration), GitHub`]
+          ],
+          sections:[
+            { title:`The idea`, body:[
+              `The NFT space tried to solve digital art ownership and got it wrong in a fundamental way. The token points to the artwork through a URL. If the server goes down, the NFT is a receipt for nothing. The image itself carries no proof.`,
+              `I wanted authentication that lived inside the image — the way brushstrokes are intrinsic to a physical painting. Not attached. Not pointed at. Part of it.`,
+              `The core insight came from zooming in. A digital image, at the pixel level, is already a unique code. Every pixel is a specific color value from a specific sensor at a specific moment. No two captures of the same artwork produce identical pixel data. That grid is already a fingerprint. The question was how to use it as a lock.`
+            ] },
+            { title:`Starting with the system`, body:[
+              `Before any prototype, I mapped the concept in conversation. What does the artist hold? What does the platform hold? What happens at the moment of sale?`,
+              `Three layers emerged. The encrypted original lives in the vault. A scrambled copy is safe to display publicly. The key — derived from the image’s own pixels — belongs only to the artist. All three have to align for authentication to succeed. Compromise any one and the system holds.`,
+              `That structural decision shaped every other decision in the product.`,
+              { image:`[Image: the three-layer diagram]` }
+            ] },
+            { title:`The encryption engine`, body:[
+              `The mechanic I landed on uses a proprietary QR symbol library as a pixel selection mask. The QR pattern is overlaid on a zoomed region of the image. Only the pixels underneath the filled portions of the QR are read. Those pixel RGBA values, hashed with SHA-256, become the key.`,
+              `The QR serves two jobs simultaneously: it selects which pixels get read, and it encodes a URL that links to the verification page. The same code that is the lock is also the door.`,
+              `A screenshot, a reprint, a perfect copy — none of these produce the same pixel values. The physical capture event is the lock.`,
+              { image:'/proof/vaultmark/study/05-pipeline-detail.webp', caption:'The pixel mask engine', alt:'The pixel mask engine prototype: upload, QR symbol and pixel region controls on the left, and a six-step pipeline across the top: original, region selected, pixel grid, QR mask, key extract, scrambled.' }
+            ] },
+            { title:`Built in conversation`, body:[
+              `Every prototype iteration happened through a design conversation first. I described the problem or the next step, Claude offered options and trade-offs, I made the call, and the prototype got built. Five versions over the course of the project.`,
+              `The habit that kept it working: every session, I started from the same set of documents. The white paper. The feature list. The artifact registry. The design side and the build side never drifted apart because I kept them in sync.`,
+              { image:`[Image: the prototype pipeline — v1 tile scramble / v2 real checksums / v3 pixel mask engine / v4 intake workflow / v5 dashboard]` }
+            ] },
+            { title:`The user flows`, body:[
+              `Two users needed the same system to feel built for them: a gallery director running intake on ten pieces in a day, and a solo artist vaulting their first digital work from their studio.`,
+              `The intake flow became a five-step sequence: capture, vault, label, confirm, key issued. Each step unlocks the next. When the vault is sealed, the key is issued — and Vaultmark never holds it again. The museum-quality label form generates a certificate of authenticity automatically. The gallery session adds a co-sign field. The solo session adds a backup prompt.`,
+              `The dashboard became the director’s home base. Sortable list view, thumbnail grid, piece detail modal with inline verification. Pre-populated demo with eight real works from a fictional Detroit gallery.`,
+              { images:[
+                { src:'/proof/vaultmark/study/02-intake-workflow.webp', caption:'The intake flow', alt:'The start of the intake flow, asking who is logging in today: a gallery or institution, or a private collector or artist.' },
+                { src:'/proof/vaultmark/study/06-piece-modal.webp', caption:'A piece in the dashboard', alt:'The detail view for one artwork in the demo dashboard: its scrambled image and key credential on the left, and its artwork, vault record, provenance and gallery details on the right.' }
+              ] }
+            ] },
+            { title:`The business`, body:[
+              `The revenue model runs three engines at once: subscriptions, primary sale commission, and a perpetual resale royalty on every future transaction. A piece vaulted today generates royalties the next time it sells in 2041.`,
+              `The two customer scales are structurally different. A small gallery pays $149-$699/month and generates $13-$18K annual platform revenue. A DIA-scale institution pays $24-$120K annually and generates nearly $500K in year one through transaction royalties. One mid-tier museum contract is worth more than 35 gallery subscriptions.`,
+              `The exit path is Path A: license the technology, not build the company. The provisional patent is filed. The public white paper is ready to share. The next step is an attorney and a licensing conversation.`
+            ] },
+            { title:`What worked`, body:[
+              `The concept is genuinely novel. A prior art search didn’t surface any existing system using a QR pattern as a pixel selection mask for image-based ownership authentication. The architecture — distributed custody, pixel-bound proof, perpetual royalty — solves real problems the NFT space never solved.`,
+              `Starting with the system before the UI. Getting the three-layer architecture right in conversation before writing a line of code meant every prototype decision had a clear reason. The UI served the concept instead of the other way around.`,
+              `The public/private document split. The technical white paper goes to the patent attorney. The public white paper is safe to share with anyone before the patent is filed. That distinction mattered.`
+            ] },
+            { title:`What did not`, body:[
+              `Building too much too fast. When building is cheap, every idea gets built. The session went deep into revenue modeling, branding direction, and institutional go-to-market before the core prototype was fully tested with real users. That’s a sequencing problem.`,
+              `Branding hit a ceiling. The SVG-based logo exploration I tried in this environment was geometrically correct but visually flat. That work needs Fable and a proper creative session, not a generative SVG.`,
+              `The prototype is still single-session. All vault data lives in browser memory. The moment you close the tab it’s gone. A real backend is the prerequisite for showing this to anyone who needs to see it work over time.`
+            ] },
+            { title:`What is next`, body:[
+              `A Claude Code build of the full Next.js app — the project brief is written and the six prototype HTML files are ready to hand off. A patent attorney filing. A licensing conversation with one of the established authentication platforms or a major auction house. And a Fable session for the brand.`
+            ] },
+            { title:`What I would tell another designer`, body:[
+              `You do not need to understand cryptography to invent a cryptographic system. You need to understand the problem clearly enough to describe what the solution has to do. The technical implementation followed from the concept, not the other way around.`,
+              `Write the system before you write the code. Get the architecture right in conversation. The prototype is proof of concept — the design thinking is the actual work.`
+            ] }
+          ]
+        },
         links:[{ to:'samples', why:'It came from my own digital work.' }] }} ]},
     { id:'websites', label:'Websites', kids:[
       { id:'thissite', label:'This Site', page:{
@@ -549,7 +691,8 @@ export const CURIO_ROOT = { id:'curio', label:"Can't Stop Thinking About", curio
   page:{ lede:'The outer ring. Loose curiosities that feed what I am chasing. When one turns into a real project, it drifts inward.' },
   kids:[
     { id:'podcasts', label:'Podcasts', fx:.09, fy:.17, hubs:['teach'], also:['books','technology'],
-      page:{ lede:'[Which ones, and why]', story:'What’s in my ears while I work. [Two or three favorites, and why.]' } },
+      page:{ lede:'[Which ones, and why]', story:'What’s in my ears while I work.',
+        list:['What Now? With Trevor Noah - Trevor Noah','Short Wave - NPR','The Daily - The New York Times','Today Explained - Vox','StarTalk with Neil deGrasse Tyson - Neil deGrasse Tyson'] } },
     { id:'science', label:'Science', fx:.86, fy:.13, hubs:['build'], also:['technology','gardening'],
       page:{ lede:'[What pulls me in]', story:'[Draft:] I’m drawn to how things work at the smallest scale, like cells and neurons. A lot of this site’s brain started there.' } },
     { id:'books', label:'Books', fx:.9, fy:.6, hubs:['teach'], also:['podcasts'],

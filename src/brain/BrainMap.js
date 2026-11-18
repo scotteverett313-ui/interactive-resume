@@ -230,7 +230,9 @@ export function createScene(o){
     previews.forEach(function(pv){
       var first = pv.pages[0].node;
       var seq = pv.pages.length > 1 ? { pages:pv.pages, soft:false } : { pages:singles, soft:true };
-      var image = pv.f.image || (first.page && first.page.image) || null;
+      /* the blob's picture: the preview's own, else the page's lead picture, else its case study's hero */
+      var fp = first.page || {}, hero = fp.study && fp.study.hero && fp.study.hero.src;
+      var image = pv.f.image || fp.image || hero || null;
       var home = out.filter(function(e){ return !e.feature && leadsTo(e.node, first); })[0];
       if (home) home.promote = { seq:seq, image:image };
       else out.push({ node:first, feature:{ seq:seq, name:pv.f.as || pv.pages[0].name, image:image }, promote:null });

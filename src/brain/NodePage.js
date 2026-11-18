@@ -33,7 +33,8 @@ function picsOf(n){
   var p = n.page || {}, out = [];
   /* a case study's own pictures come first, in reading order */
   studyPictures(p.study).forEach(function(sp){ out.push({ src:sp.src, caption:sp.caption || n.label }); });
-  if (p.image) out.push({ src:p.image, caption:p.proof || n.label });
+  var has = function(src){ return out.some(function(x){ return x.src === src; }); };
+  if (p.image && !has(p.image)) out.push({ src:p.image, caption:p.proof || n.label });
   (p.more || []).forEach(function(m){
     out.push(typeof m === 'string' ? { src:m, caption:n.label } : { src:m.src, caption:m.caption || n.label });
   });
@@ -284,6 +285,7 @@ export default function NodePage({ node, instant, seq, stack, reduce, onBack, on
         <div className={'page-study' + hubClass}>
           {top}
           {st.hero && st.hero.src && pic(st.hero, 'lead')}
+          {typeof st.hero === 'string' && <div className="study-slot lead"><span className="ph">{st.hero}</span></div>}
           <header className="study-head">
             <div className="pull" id="pPull"><i />Pulled toward {hub.label}</div>
             <h1 id="pTitle" tabIndex={-1} ref={titleRef}>{n.label}</h1>
