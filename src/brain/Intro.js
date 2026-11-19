@@ -5,6 +5,8 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { CHARACTER as C, BRAIN as B, BACKDROP as K, MONO } from './character';
 import { blobPath } from './blob';
 import Stickers from './Stickers';
+import { INTRO_SAYS } from './content';
+import { STATUS } from './studio';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -22,6 +24,8 @@ gsap.registerPlugin(ScrollTrigger);
      #angleTag   "angle n / 8" caption
      #boil       the hand-drawn line wobble filter (slit, and the map links)
      #stickerSvg the sticker buttons, in their own drawing laid over this one (see Stickers.js)
+     #introSays  the lines Scott says as the intro scrolls, one .say per line (the words are in content.js)
+     #openChip   the "Open for work" chip above the site buttons (studio.js)
 
    The art and its measurements live in character.js.
 
@@ -96,6 +100,7 @@ var Intro = forwardRef(function Intro({ stageRef, sectionRef, mapLayerRef, dotTa
     tl.fromTo(hint, { opacity:1 }, { opacity:0, duration:.5 }, 0)
       /* the opening title lifts away as the scroll begins */
       .to(homeTitle, { opacity:0, y:-14, duration:.9, ease:'power1.in' }, 0)
+      .fromTo(sectionRef.current.querySelector('#openChip'), { opacity:1 }, { opacity:0, duration:.5 }, .2)
       /* the stickers go with it; autoAlpha also hides them, so they cannot be pressed or tabbed to once gone */
       .fromTo(stickRef.current, { autoAlpha:1, y:0 }, { autoAlpha:0, y:-14, duration:.7, ease:'power1.in' }, 0)
 
@@ -132,6 +137,15 @@ var Intro = forwardRef(function Intro({ stageRef, sectionRef, mapLayerRef, dotTa
       .fromTo(arrive, { p:0 }, { p:1, duration:4, ease:'none', onUpdate:function(){ onArriveRef.current(arrive.p); } }, 'map')
       .to(brain, { opacity:0, duration:1.6 }, 7.2)
       .to(svg, { opacity:0, duration:.6 }, 8.4);
+    /* the lines said along the way: each gets an equal share of the stretch between the title leaving and the
+       map settling, rises in, holds, and lifts away as the next one comes */
+    var says = sectionRef.current.querySelectorAll('#introSays .say');
+    var from = 1, until = 6.4, share = says.length ? (until - from) / says.length : 0;
+    says.forEach(function(el, i){
+      var at = from + i * share;
+      tl.fromTo(el, { autoAlpha:0, y:12 }, { autoAlpha:1, y:0, duration:.3, ease:'power2.out' }, at)
+        .to(el, { autoAlpha:0, y:-10, duration:.25, ease:'power1.in' }, at + share - .28);
+    });
     tlRef.current = tl;
     return function(){
       if (triggerRef.current){ triggerRef.current.kill(); triggerRef.current = null; }
@@ -334,6 +348,10 @@ var Intro = forwardRef(function Intro({ stageRef, sectionRef, mapLayerRef, dotTa
       </svg>
       <Stickers svgRef={stickRef} mono={MONO} onPress={onSticker} />
       <div id="hint"><span>Scroll to open</span><span className="line" /></div>
+      <div id="introSays">
+        {INTRO_SAYS.map(function(t, i){ return <p className="say" key={i}>{t}</p>; })}
+      </div>
+      <div id="openChip" hidden={!STATUS.open}><i className="open-dot" aria-hidden="true" />{STATUS.label}</div>
     </>
   );
 });

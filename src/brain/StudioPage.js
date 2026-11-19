@@ -1,7 +1,7 @@
 import React from 'react';
 import Sheet from './Sheet';
 import ContactForm from './ContactForm';
-import { STUDIO as S, BOOKING, SOCIALS } from './studio';
+import { STUDIO as S, STATUS, BOOKING, SOCIALS } from './studio';
 import { BYID } from './content';
 
 /* "Work with me": what I am open to, and one way to start talking. All of its words are in studio.js.
@@ -11,7 +11,7 @@ export default function StudioPage({ onClose, onGoToNode }){
     <Sheet id="studioPage" onClose={onClose}>
       <div className="work">
         <div className="work-say">
-          <p className="kicker">Work with me</p>
+          <p className="kicker">Work with me{STATUS.open && <span className="status"><i className="open-dot" aria-hidden="true" />{STATUS.label}</span>}</p>
           <h1 tabIndex={-1}>{S.title}</h1>
           <p className="lede">{S.intro}</p>
           <ul className="ways">

@@ -335,6 +335,9 @@ export function createScene(o){
   }
 
   var clipN = 0;
+  /* pictures rest in gray and show their color under the pointer. Only where there is a pointer to hover with:
+     on a touch screen they stay in color, since there is no way to reveal it without pressing through */
+  var canHover = !!(window.matchMedia && window.matchMedia('(hover: hover)').matches);
   function makeItem(node, pos, i, feature, promote){
     var isHub = !feature && node.parent === ROOT, deeper = !!(node.kids && node.kids.length);
     /* a level with one thing inside is passed straight through. `inside` is the single level it leads into,
@@ -355,7 +358,7 @@ export function createScene(o){
     var path = el('path', {});
     /* the featured blob shows its page's picture, cut to the blob's shape, with an ink edge drawn over it.
        The same outline is written to all three each frame: the blob, the cut, and the edge */
-    var clip = null, clipPath = null, img = null, edge = null, src = feature ? feature.image : (promote ? promote.image : null);
+    var clip = null, clipPath = null, img = null, gray = null, edge = null, src = feature ? feature.image : (promote ? promote.image : null);
     /* in the fuller look, a page with a picture shows it in its blob */
     if (!src && rich && !feature && !deeper) src = leadOf(node);
     if (src){
@@ -367,6 +370,10 @@ export function createScene(o){
       img = el('image', { href:small, preserveAspectRatio:'xMidYMid slice', 'clip-path':'url(#' + cid + ')' });
       if (small !== src) img.addEventListener('error', function(){ if (img.getAttribute('href') !== src) img.setAttribute('href', src); });
       edge = el('path', { 'class':'edge' });
+      if (canHover){
+        gray = el('image', { 'class':'mute', href:small, preserveAspectRatio:'xMidYMid slice', 'clip-path':'url(#' + cid + ')', filter:'url(#mute)' });
+        if (small !== src) gray.addEventListener('error', function(){ if (gray.getAttribute('href') !== src) gray.setAttribute('href', src); });
+      }
     }
     var lines = wrapLabel(name);
     var lbl = el('text', { 'class':'lbl', 'text-anchor':'middle' });
@@ -375,7 +382,7 @@ export function createScene(o){
     /* the small tag under the name says what a press leads to */
     sub.textContent = tagOf(node, feature, promote);
     g.appendChild(path);
-    if (img){ g.appendChild(img); g.appendChild(edge); }
+    if (img){ g.appendChild(img); if (gray) g.appendChild(gray); g.appendChild(edge); }
     g.appendChild(lbl); g.appendChild(sub);
     /* in the fuller look, a blob that goes deeper wears a dot for each thing inside it, with its name beside it
        when the blob is under the pointer or has keyboard focus. A dot is ink if it goes deeper again and the
@@ -401,7 +408,7 @@ export function createScene(o){
     var gap = null;
     if (!isHub){ gap = el('rect', { fill:'black', rx:5 }); linkMask.appendChild(gap); }
     var it = { node:node, g:g, path:path, lbl:lbl, spans:spans, sub:sub, isHub:isHub, deeper:deeper, ends:ends, lines:lines.length,
-      feature:feature || null, promote:promote || null, clip:clip, clipPath:clipPath, img:img, edge:edge, sats:sats, r0:pos.r, sway:0, lt:0,
+      feature:feature || null, promote:promote || null, clip:clip, clipPath:clipPath, img:img, gray:gray, edge:edge, sats:sats, r0:pos.r, sway:0, lt:0,
       idx:i, gap:gap, tw:0, twFs:0, x:pos.x, y:pos.y, r:pos.r, s:1, o:1, hs:1, lx:0, ly:0, px:0, py:0, dragX:0, dragY:0, hover:false,
       seed:i * 1.7 + node.label.length * .37, amp: isHub ? .09 : .07 };
     g.addEventListener('pointerenter', function(){ it.hover = true; });
@@ -550,6 +557,10 @@ export function createScene(o){
       it.clipPath.setAttribute('d', outline); it.edge.setAttribute('d', outline);
       it.img.setAttribute('x', (cx - half).toFixed(1)); it.img.setAttribute('y', (cy - half).toFixed(1));
       it.img.setAttribute('width', (half * 2).toFixed(1)); it.img.setAttribute('height', (half * 2).toFixed(1));
+      if (it.gray){
+        it.gray.setAttribute('x', (cx - half).toFixed(1)); it.gray.setAttribute('y', (cy - half).toFixed(1));
+        it.gray.setAttribute('width', (half * 2).toFixed(1)); it.gray.setAttribute('height', (half * 2).toFixed(1));
+      }
     }
     if (it.sats){
       /* the dots sit on an arc over the top of the blob, clear of the name underneath, and sway a little.
@@ -745,6 +756,10 @@ export default function BrainMap({ stack, done, reduce, busyRef, modeRef, sceneR
           <mask id="linkMask" ref={maskRef} maskUnits="userSpaceOnUse">
             <rect ref={maskAllRef} fill="white" />
           </mask>
+          {/* takes the color out of a picture: the gray copy that sits over each picture blob until it is hovered */}
+          <filter id="mute" colorInterpolationFilters="sRGB">
+            <feColorMatrix type="saturate" values="0" />
+          </filter>
         </defs>
         <g id="bgNet" ref={bgRef} aria-hidden="true" />
         <text id="wm" ref={wmRef} textAnchor="middle" dominantBaseline="middle" />

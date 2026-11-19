@@ -66,6 +66,9 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
 /* the featured blob holds a picture, so it gets an ink edge to hold its shape against the ground */
 .brain .node path.edge{fill:none;stroke:var(--ink);stroke-width:3px}
 .brain .node image{pointer-events:none}
+/* the gray copy over a picture blob: it clears under the pointer or keyboard focus, and the color shows */
+.brain .node image.mute{transition:opacity .28s ease}
+.brain .node:hover image.mute,.brain .node:focus-visible image.mute{opacity:0}
 /* the fuller look (a gravity point marked `rich` in content.js): the dots a blob wears for what is inside it */
 .brain .node .sat{fill:var(--ink);stroke:var(--map-ground);stroke-width:2px}
 .brain .node .sat.leaf{fill:var(--hub)}
@@ -114,7 +117,7 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
 
 /* the two doors that are always there, bottom-left on the opening screen and the map. Pages cover them */
 #siteNav{position:absolute;left:calc(14px + env(safe-area-inset-left,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:6;display:flex;gap:8px}
-#siteNav .chip-btn{min-height:0;height:44px;padding:0 16px;box-sizing:border-box}
+#siteNav .chip-btn{min-height:0;height:44px;padding:0 16px;box-sizing:border-box;display:inline-flex;align-items:center}
 #skip{position:absolute;top:calc(16px + env(safe-area-inset-top,0px));right:calc(16px + env(safe-area-inset-right,0px));z-index:5}
 #replay{position:absolute;top:calc(16px + env(safe-area-inset-top,0px));right:calc(16px + env(safe-area-inset-right,0px));z-index:5}
 #hint{position:absolute;left:50%;bottom:calc(28px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;font-family:var(--mono);font-size:13px;letter-spacing:.08em;text-transform:uppercase;pointer-events:none}
@@ -155,6 +158,24 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
 @keyframes brain-sound{0%,45%,100%{transform:none}20%{transform:translate(var(--nx),var(--ny))}}
 @keyframes brain-drip{0%{transform:scaleY(.2)}50%{transform:scaleY(1)}100%{transform:scaleY(.2)}}
 .stage.is-done #hint{opacity:0}
+/* the lines Scott says as the intro scrolls: one at a time, in the corner the opening title leaves */
+#introSays{position:absolute;top:calc(18px + env(safe-area-inset-top,0px));left:calc(16px + env(safe-area-inset-left,0px));z-index:5;
+  width:min(440px,calc(100% - 182px));pointer-events:none}
+#introSays .say{position:absolute;top:0;left:0;box-sizing:border-box;width:max-content;max-width:100%;margin:0;padding:12px 16px 14px;visibility:hidden;opacity:0;
+  background:var(--ground);border:3px solid var(--ink);border-radius:22px 26px 20px 24px / 24px 20px 26px 20px;box-shadow:5px 6px 0 var(--ink);
+  font-family:var(--display);font-weight:800;font-size:clamp(21px,2.5vw,32px);line-height:1.05;letter-spacing:-.015em;color:var(--ink);text-wrap:balance}
+#introSays .say::after{content:'';position:absolute;left:34px;bottom:-11px;width:16px;height:16px;background:var(--ground);
+  border-right:3px solid var(--ink);border-bottom:3px solid var(--ink);transform:rotate(45deg) skew(12deg,12deg)}
+.stage.is-done #introSays{visibility:hidden}
+/* "open for work": the dot, and the small chip above the site buttons on the opening screen */
+.brain .open-dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--work);margin-right:8px;flex:0 0 auto;
+  box-shadow:0 0 0 0 var(--work);animation:brain-open 2.4s ease-out infinite}
+@keyframes brain-open{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--work) 70%,transparent)}70%,100%{box-shadow:0 0 0 7px transparent}}
+#openChip{position:absolute;left:calc(14px + env(safe-area-inset-left,0px));bottom:calc(68px + env(safe-area-inset-bottom,0px));z-index:6;
+  display:flex;align-items:center;font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+  background:var(--paper);border:1.5px solid var(--ink);border-radius:999px;padding:5px 10px 5px 9px;pointer-events:none}
+.stage.is-done #openChip{visibility:hidden}
+.brain .sheet .kicker .status{display:inline-flex;align-items:center;margin-left:14px;color:var(--ink)}
 
 /* the two titles: the opening screen's, and the map's. Same corner, same type, one at a time */
 .brain .site-title{position:absolute;top:calc(18px + env(safe-area-inset-top,0px));left:calc(16px + env(safe-area-inset-left,0px));right:150px;z-index:5;pointer-events:none}
@@ -408,6 +429,12 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
 .brain .wall button{padding:0;border:2px solid var(--ink);background:var(--ground);aspect-ratio:1;cursor:zoom-in;overflow:hidden;display:block}
 .brain .wall button:hover{border-color:var(--hub,var(--ink))}
 .brain .wall img{display:block;width:100%;height:100%;max-width:none;object-fit:cover}
+/* gallery tiles rest in gray and show their color under the pointer or keyboard focus.
+   Only where there is a pointer to hover with: on a touch screen they stay in color */
+@media (hover:hover){
+  .brain .wall img{filter:grayscale(1);transition:filter .28s ease}
+  .brain .wall button:hover img,.brain .wall button:focus-visible img{filter:none}
+}
 .brain .wall-empty{margin:0;padding:48px 24px;border:2px solid var(--ink);text-align:center;
   background:repeating-linear-gradient(135deg,transparent 0 18px,color-mix(in srgb,var(--ink) 14%,transparent) 18px 20px),var(--ground)}
 /* ---- end sheets ---- */
@@ -445,6 +472,8 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
   /* three site buttons have to fit beside the light and dark toggle on a phone */
   #siteNav{gap:6px}
   #siteNav .chip-btn{padding:0 12px;font-size:13px}
+  #siteNav .open-dot{width:8px;height:8px;margin-right:6px}
+  #introSays .say{font-size:20px;padding:10px 13px 12px}
   /* a deep trail would wrap to three or four lines: show only the last two levels after a "…", and cut long names short */
   #crumbs .far{display:none}
   #crumbs .more{display:inline}
@@ -469,8 +498,11 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
 @media (max-width:350px){
   #siteNav{gap:4px}
   #siteNav .chip-btn{padding:0 8px}
+  /* no room for the status dot beside three buttons here; the chip on the opening screen still says it */
+  #siteNav .open-dot{display:none}
 }
 @media (prefers-reduced-motion:reduce){
+  .brain .open-dot{animation:none}
   .brain .grain,#hint span.line,#mapTitle,#homeTitle .bubble,.brain .sheet,.brain .sticker-art,.brain .mark,#viewer,#viewer .viewer-stage img{animation:none}
   .brain,.brain *{transition:none!important}
 }

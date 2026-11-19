@@ -308,6 +308,27 @@ Their bright fill is the `spark` color in `src/brain/palettes.js`; the edge
 is `ink`. The shapes are drawn in `src/brain/Stickers.js`. They fade with
 the title as soon as scrolling starts, and come back on Replay intro.
 
+### The lines said during the intro
+
+As the intro scrolls, Scott says a few short lines in a speech bubble, one at
+a time, in the corner the opening title leaves. They are `INTRO_SAYS` near
+the top of `src/brain/content.js`: a plain list, in order. Any number works;
+they share the scroll evenly, the first as the head opens and the last just
+before the map settles.
+
+### Open for work
+
+`STATUS` in `src/brain/studio.js` controls the "Open for work" status: a dot
+on the Work with me button, a small chip on the opening screen, and a line at
+the top of the Work with me page. Change `label` for different words, or set
+`open: false` to hide all three.
+
+### Color on hover
+
+Where there is a pointer to hover with, pictures in map blobs and Gallery
+tiles rest in gray and show their color under the pointer or keyboard focus.
+On a touch screen they stay in color.
+
 ### Adding a node
 
 1. Find the parent inside `ROOT` and add an object to its `kids`.

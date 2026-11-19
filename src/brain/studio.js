@@ -8,6 +8,7 @@
    ways      the three ways to work with me. `see` is the id of a
              node in content.js: the row links to that place in the
              brain, so people can look at the work behind it.
+   STATUS    whether the "Open for work" status shows, and its words
    BOOKING   the Google Calendar link the call button opens
    SOCIALS   the links at the bottom of the page
 
@@ -23,6 +24,10 @@ export const SOCIALS = [
   { label: 'Instagram', url: 'https://www.instagram.com/sedesignpro/' },
   { label: 'Facebook', url: 'https://www.facebook.com/profile.php?id=61564506484267' }
 ];
+
+/* The "open for work" status. It shows as a dot on the Work with me button, a small chip on the opening
+   screen, and a line at the top of the Work with me page. Set `open` to false to hide all three. */
+export const STATUS = { open: true, label: 'Open for work' };
 
 export const STUDIO = {
   title: "Let's work on something.",

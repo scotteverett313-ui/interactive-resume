@@ -129,7 +129,8 @@
 
    THE TITLES
    The headline on the opening screen and the one on the map are in
-   TITLES, just below this comment.
+   TITLES, just below this comment. The lines said while the intro
+   scrolls are INTRO_SAYS, right after it.
 
    THE STICKERS
    The stickers on the opening screen (the lightning bolt, the sound
@@ -153,6 +154,17 @@ export const TITLES = {
   home: { title: 'What up doe.', sub: "I'm Scott Everett, Omni Designer. I design, build, and teach in Detroit." },
   map:  { title: 'It all connects.', sub: '' }
 };
+
+/* The lines Scott says while the intro plays. They appear one at a time in a speech bubble, in the corner
+   the opening title leaves, spread evenly across the scroll: the first as the head opens, the last just
+   before the map settles and "It all connects." takes over. Any number of lines works; keep each one short.
+   These four are drafts. Replace them with your own words. */
+export const INTRO_SAYS = [
+  'Go on, take a look inside.',
+  'This is where I keep everything.',
+  'The work. The teaching. The things I build.',
+  'None of it sits by itself.'
+];
 
 /* The stickers on the opening screen. Each one is a button.
      label: what a screen reader calls it, and the tooltip
