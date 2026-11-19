@@ -23,6 +23,9 @@
    - A leaf with `go:'studio'` instead of a page opens the Work with me
      page when pressed. A leaf with `go:'gallery'` opens the Gallery,
      narrowed to the level it sits in.
+   - A level with `view:'cards'` is shown as a row of large cards that
+     slide sideways, one per page, instead of blobs on the map. It suits
+     a level that holds only pages. Only Case Studies has it for now.
    - A level with only one thing inside is passed straight through:
      pressing it opens that one page (or lands inside that one level),
      and Back skips it too. Add a second item and the level shows up
@@ -211,7 +214,8 @@ export const ROOT = { id:'root', label:'Brain', kids:[
     ], kids:[
     { id:'does', label:'What I Do', blurb:'[Short blurb]', says:'Three lanes: my studio, design research, and my own art.', kids:[
       { id:'sedesign', label:'SE|Design', blurb:'My on-demand design studio for small businesses, nonprofits, and entrepreneurs.', kids:[
-        { id:'cases', label:'Case Studies', blurb:'[Short blurb]', says:'Four clients. Open one, then swipe through the rest.', kids:[
+        /* view:'cards' shows this level as a row of large cards that slide sideways, instead of blobs */
+        { id:'cases', label:'Case Studies', blurb:'[Short blurb]', view:'cards', says:'Four clients. Swipe through, or open one.', kids:[
           { id:'robear', label:'Robear Detroit', page:{
             lede:'Custom landing page, 2025.',
             story:'Robear Detroit needed [what they needed]. I designed and built a custom landing page and [brand work], so they could [result]. [What changed for them after launch.]',

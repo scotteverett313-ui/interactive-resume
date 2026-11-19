@@ -205,6 +205,20 @@ has no neighbors steps through the level's other single-page previews instead
 The left and right arrow keys and a sideways swipe do the same, and the list
 wraps around at the ends.
 
+### A level as cards
+
+A level with `view:'cards'` in `content.js` is shown as a row of large cards
+that slide sideways, one per page, instead of blobs on the map: swipe on a
+phone, or use the two arrow buttons. Each card shows the page's picture, name,
+one line and tags, and opens the page. It suits a level that holds only
+pages. Case Studies is the only one for now. The row is
+`src/brain/LevelCards.js`.
+
+### Just the work
+
+On the opening screen, "Just the work" (bottom right) skips the brain and
+opens the Gallery. It goes away once scrolling starts, like the stickers.
+
 ### Single-item levels
 
 A level with only one thing inside is passed straight through, so nobody

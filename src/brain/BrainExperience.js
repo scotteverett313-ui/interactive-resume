@@ -10,6 +10,7 @@ import SiteNav from './SiteNav';
 import StudioPage from './StudioPage';
 import NotesPage from './NotesPage';
 import GalleryPage from './GalleryPage';
+import LevelCards from './LevelCards';
 import { pathFor, parsePath, titleFor, settle, sheetFor, lineOf } from './routes';
 import { PALETTES, paletteVars } from './palettes';
 import ThemeToggle, { readThemeChoice, saveThemeChoice } from './ThemeToggle';
@@ -53,7 +54,8 @@ export default function BrainExperience(){
     setThemeChoice(next);
   }, [mode]);
 
-  var busyRef = useRef(false), modeRef = useRef(null), sceneRef = useRef(null);
+  var busyRef = useRef(false), modeRef = useRef(null), sceneRef = useRef(null), divedRef = useRef(false);
+  var [cardsOn, setCardsOn] = useState(false);
   var stageRef = useRef(null), sectionRef = useRef(null), mapLayerRef = useRef(null), dotTagRef = useRef(null), introRef = useRef(null);
   var stackRef = useRef(stack); stackRef.current = stack;
   var pageRef = useRef(page); pageRef.current = page;
@@ -131,6 +133,7 @@ export default function BrainExperience(){
   /* a map item was pressed: go one level deeper, diving out of that item */
   var onDive = useCallback(function(node, item){
     modeRef.current = { mode:'dive', fromItem:item };
+    divedRef.current = true;
     /* a level holding a single level carries straight on into it */
     setStack(settle(stackRef.current.concat(node), null).stack);
   }, []);
@@ -218,14 +221,25 @@ export default function BrainExperience(){
   var mapShowing = useCallback(function(){ return doneRef.current || (!!introRef.current && introRef.current.mapShowing()); }, []);
 
   var atTop = stack.length === 1;
+  /* a level marked view:'cards' shows as a row of cards over the map, with the map's blobs put away.
+     Arriving by a dive, the cards wait for the blob that was pressed to finish swelling; any other way in
+     (a link, an address, Back) they are there at once */
+  var level = stack[stack.length - 1], wantCards = done && level.view === 'cards';
+  useLayoutEffect(function(){
+    var dived = divedRef.current; divedRef.current = false;
+    if (!wantCards){ setCardsOn(false); return undefined; }
+    if (!dived || reduce){ setCardsOn(true); return undefined; }
+    var id = setTimeout(function(){ setCardsOn(true); }, 620);
+    return function(){ clearTimeout(id); };
+  }, [wantCards, level, reduce]);
 
   return (
     <div className="brain" data-scheme={palette.scheme} style={vars}>
       <section id="intro" ref={sectionRef} className={done ? 'done' : undefined} aria-label="Intro">
-        <div className={'stage' + (done ? ' is-done' : '')} id="stage" ref={stageRef}>
+        <div className={'stage' + (done ? ' is-done' : '') + (wantCards && cardsOn ? ' cards-on' : '')} id="stage" ref={stageRef}>
           <div className="grain" aria-hidden="true" />
           <Intro ref={introRef} stageRef={stageRef} sectionRef={sectionRef} mapLayerRef={mapLayerRef} dotTagRef={dotTagRef}
-            reduce={reduce} done={done} onFinish={finishIntro} onMapArrival={onMapArrival} onSticker={onSticker} />
+            reduce={reduce} done={done} onFinish={finishIntro} onMapArrival={onMapArrival} onSticker={onSticker} onWork={openGallery} />
           <BrainMap stack={stack} done={done} reduce={reduce}
             busyRef={busyRef} modeRef={modeRef} sceneRef={sceneRef} mapLayerRef={mapLayerRef}
             mapShowing={mapShowing} onDive={onDive} onOpenPage={openPage} />
@@ -250,6 +264,7 @@ export default function BrainExperience(){
             </div>
           )}
           {/* at the top level the title takes the crumbs' corner; there is nowhere to go back to from there */}
+          {wantCards && cardsOn && <LevelCards node={level} onOpen={openPage} />}
           <Crumbs done={done && !atTop} stack={stack} pageNode={page.node} onBack={onBack} onGoTo={goTo} />
           <button id="skip" className="chip-btn" type="button" hidden={done} onClick={finishIntro}>Skip intro</button>
           <button id="replay" className="chip-btn" type="button" hidden={!done} onClick={replayIntro}>Replay intro</button>

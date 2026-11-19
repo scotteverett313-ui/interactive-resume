@@ -175,6 +175,54 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
   display:flex;align-items:center;font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;
   background:var(--paper);border:1.5px solid var(--ink);border-radius:999px;padding:5px 10px 5px 9px;pointer-events:none}
 .stage.is-done #openChip{visibility:hidden}
+/* "Just the work": the way past the brain, opposite the status chip, above the light and dark toggle */
+#justWork{position:absolute;right:calc(14px + env(safe-area-inset-right,0px));bottom:calc(68px + env(safe-area-inset-bottom,0px));z-index:6;
+  min-height:0;height:44px;padding:0 16px;box-sizing:border-box;display:inline-flex;align-items:center;white-space:nowrap}
+.stage.is-done #justWork{visibility:hidden!important}
+
+/* ---- a level shown as cards (view:'cards' in content.js, LevelCards.js): a row that slides sideways ---- */
+.stage.cards-on #nodes,.stage.cards-on #links{visibility:hidden}
+.stage.cards-on #legend,.stage.cards-on #dotTag{display:none}
+#levelCards{position:absolute;left:0;right:calc(50px + env(safe-area-inset-right,0px));bottom:calc(70px + env(safe-area-inset-bottom,0px));z-index:4;display:flex;flex-direction:column;
+  animation:brain-cards-in .4s ease both}
+@keyframes brain-cards-in{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+#levelCards ul{flex:1;min-height:0;list-style:none;margin:0;display:flex;gap:16px;align-items:stretch;overflow-x:auto;overflow-y:hidden;
+  padding:4px 14px 12px calc(18px + env(safe-area-inset-left,0px));
+  scroll-snap-type:x mandatory;scroll-padding-left:18px;overscroll-behavior-x:contain;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+#levelCards ul::-webkit-scrollbar{display:none}
+#levelCards li{flex:0 0 auto;width:min(380px,76vw);max-height:540px;scroll-snap-align:start;display:flex}
+#levelCards .card{flex:1;min-width:0;display:flex;flex-direction:column;text-align:left;padding:0;cursor:pointer;overflow:hidden;
+  background:var(--ground);border:2.5px solid var(--ink);border-radius:18px;box-shadow:5px 6px 0 var(--ink);transition:transform .16s ease,box-shadow .16s ease}
+#levelCards .card:hover{transform:translate(-2px,-3px);box-shadow:7px 9px 0 var(--ink)}
+#levelCards .card:active{transform:translate(2px,3px);box-shadow:2px 2px 0 var(--ink)}
+#levelCards .card:focus-visible{outline-offset:4px}
+#levelCards .pic{flex:1 1 0;min-height:110px;display:block;overflow:hidden;border-bottom:2.5px solid var(--ink);background:var(--ground)}
+#levelCards .pic.none{background:repeating-linear-gradient(135deg,transparent 0 18px,color-mix(in srgb,var(--ink) 14%,transparent) 18px 20px),var(--ground)}
+#levelCards .pic img{display:block;width:100%;height:100%;max-width:none;object-fit:cover}
+#levelCards .words{flex:0 0 auto;display:flex;flex-direction:column;gap:8px;padding:14px 16px 16px}
+#levelCards .count,#levelCards .go{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+#levelCards .count{color:var(--muted)}
+#levelCards b{font-family:var(--display);font-weight:800;font-size:clamp(22px,2.4vw,30px);line-height:1.05;letter-spacing:-.01em}
+#levelCards .line{font-size:15px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+#levelCards .card-tags{display:flex;flex-wrap:wrap;gap:6px}
+#levelCards .card-tags i{font-style:normal;font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;border:1.5px solid var(--ink);border-radius:999px;padding:3px 9px}
+#levelCards .go{margin-top:2px}
+#levelCards .card:hover .go{text-decoration:underline;text-underline-offset:4px}
+#levelCards .ph{color:var(--muted);text-decoration:underline dashed 1.5px;text-underline-offset:4px}
+#levelCards .rail-arrows{position:absolute;right:14px;bottom:-58px;display:flex;gap:8px}
+#levelCards .rail-arrows .chip-btn{min-height:0;width:44px;height:44px;padding:0;display:grid;place-items:center;font-size:18px;box-sizing:border-box}
+/* a short screen: the cards keep the picture, the name and one line */
+@media (max-height:620px){
+  #levelCards .count,#levelCards .card-tags{display:none}
+  #levelCards .pic{min-height:84px}
+  #levelCards .words{padding:9px 12px 11px;gap:4px}
+  #levelCards b{font-size:20px}
+  #levelCards .line{-webkit-line-clamp:1}
+}
+@media (hover:hover){
+  #levelCards .pic img{filter:grayscale(1);transition:filter .28s ease}
+  #levelCards .card:hover .pic img,#levelCards .card:focus-visible .pic img{filter:none}
+}
 .brain .sheet .kicker .status{display:inline-flex;align-items:center;margin-left:14px;color:var(--ink)}
 
 /* the two titles: the opening screen's, and the map's. Same corner, same type, one at a time */
@@ -473,6 +521,12 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
   #siteNav{gap:6px}
   #siteNav .chip-btn{padding:0 12px;font-size:13px}
   #siteNav .open-dot{width:8px;height:8px;margin-right:6px}
+  #justWork{padding:0 13px;font-size:13px;height:40px}
+  /* on a phone the arrows give way to swiping, and the cards run nearly to the depth dots */
+  #levelCards .rail-arrows{display:none}
+  #levelCards ul{gap:12px}
+  #levelCards .words{padding:11px 13px 13px;gap:6px}
+  #levelCards .line{font-size:14px}
   #introSays .say{font-size:20px;padding:10px 13px 12px}
   /* a deep trail would wrap to three or four lines: show only the last two levels after a "…", and cut long names short */
   #crumbs .far{display:none}
@@ -481,7 +535,8 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
   #crumbs .crumb[aria-current]{max-width:22ch}
   /* the blurb may run the full width of the screen, under the Replay button's column */
   #levelBlurb{flex-basis:calc(100% + 134px);margin-right:-134px;margin-top:2px}
-  #levelSays{flex-basis:calc(100% + 124px);margin-right:-124px;gap:14px}
+  /* the line runs under the Replay button's column but stops short of the depth dots */
+  #levelSays{flex-basis:calc(100% + 86px);margin-right:-86px;gap:14px}
   #levelSays .who{width:46px;height:46px}
   #levelSays .who img{width:55px;margin:-4px 0 0 -4px}
   #levelSays p{font-size:13.5px;line-height:18px;padding:8px 12px 9px}
@@ -502,7 +557,7 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
   #siteNav .open-dot{display:none}
 }
 @media (prefers-reduced-motion:reduce){
-  .brain .open-dot{animation:none}
+  .brain .open-dot,#levelCards{animation:none}
   .brain .grain,#hint span.line,#mapTitle,#homeTitle .bubble,.brain .sheet,.brain .sticker-art,.brain .mark,#viewer,#viewer .viewer-stage img{animation:none}
   .brain,.brain *{transition:none!important}
 }

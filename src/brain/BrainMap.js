@@ -442,7 +442,8 @@ export function createScene(o){
     wm.textContent = wmText;
     wm.setAttribute('x', W / 2); wm.setAttribute('y', H / 2);
     wm.setAttribute('font-size', Math.min(M * .32, W * 1.5 / Math.max(4, wmText.length)).toFixed(0));
-    gsap.to([curioG, curioLinksG], { opacity: node === ROOT ? 1 : 0, duration:D(.4) });
+    /* autoAlpha hides the outer orbit as well as fading it, so inside a level its buttons cannot be tabbed to */
+    gsap.to([curioG, curioLinksG], { autoAlpha: node === ROOT ? 1 : 0, duration:D(.4) });
     curioG.style.pointerEvents = node === ROOT ? '' : 'none';
     legend.hidden = node === ROOT; /* the legend only means something inside a hub */
     pickHint.style.opacity = node === ROOT ? 1 : 0;
