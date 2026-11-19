@@ -140,13 +140,14 @@ export default function BrainExperience(){
   }, []);
 
   /* jump anywhere in the brain from a "Connects to" link: rebuild the path, then land on the page or the level */
-  var goToNode = useCallback(function(n){
+  /* seq, when given, is the list the page belongs to: its "Next" carries on through that list */
+  var goToNode = useCallback(function(n, seq){
     if (busyRef.current) return;
     /* a jump into the brain can start while the intro is still on screen (from the Gallery, the notes, or
        Work with me). It ends the intro, so the map is what is behind the page when it closes */
     setDone(true);
     /* an outer-orbit curiosity has no level of its own: its page opens over wherever the map is */
-    if (n.curio){ closePage(true); openPage(n); return; }
+    if (n.curio){ closePage(true); openPage(n, seq); return; }
     var line = lineOf(n);
     if (line[0] !== ROOT) return;
     closePage(true);
@@ -154,7 +155,7 @@ export default function BrainExperience(){
     /* single-item levels are passed through on the way, the same as on the map */
     var at = n.kids && n.kids.length ? settle(line, null) : settle(line.slice(0, -1), n);
     setStack(at.stack);
-    if (at.go) openPage(at.go); else if (at.pageNode) openPage(at.pageNode);
+    if (at.go) openPage(at.go); else if (at.pageNode) openPage(at.pageNode, seq);
   }, [closePage, openPage]);
 
   /* the full-screen pages over the brain */
@@ -166,7 +167,7 @@ export default function BrainExperience(){
   /* a node page's own button, for example "See partnership levels" */
   var onAction = useCallback(function(action){ if (action && action.go === 'studio') openStudio(); }, [openStudio]);
   /* a note's "Connects to": leave the notes and land in the brain */
-  var goToNodeFromSheet = useCallback(function(n){ setSheet(null); goToNode(n); }, [goToNode]);
+  var goToNodeFromSheet = useCallback(function(n, seq){ setSheet(null); goToNode(n, seq); }, [goToNode]);
 
   /* a sticker on the opening screen was pressed: leave the intro and land where it points */
   var onSticker = useCallback(function(go){

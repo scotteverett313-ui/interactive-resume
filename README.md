@@ -111,7 +111,7 @@ intro and lands straight on that place. The Back and Forward buttons work.
 | `/orbit`, `/orbit/gardening` | The outer orbit's pages |
 | `/work-with-me` | The SE\|Design services page |
 | `/gallery` | Every picture on the site |
-| `/the-work` | Every finished page as a plain list |
+| `/the-work` | Just the work: six projects as tiles |
 | `/notes`, `/notes/<slug>` | The list of notes, and one note |
 | `/resume` | The classic resume |
 
@@ -152,27 +152,29 @@ buttons, and its `gallery` list holds extra pictures that belong to no page:
 
 ### Case studies
 
-A page with a `study` in `content.js` uses the case study layout instead of
-the usual two-panel page. Every case study has the same shape, top to
-bottom: a hero picture, the title and a line under it, opening paragraphs, a
-block of quick facts (Role, Timeline, Tools and so on), then sections. A
-section is a heading and a run of paragraphs, pictures (one, or several side
-by side), and bullet lists with a bold lead. It ends with buttons, the
-"Connects to" links, and a strip of the page's other pictures.
+A page with a `brief` or a `study` in `content.js` is laid out as a case
+study instead of the usual two-panel page: a stack of rounded cards and
+pictures, short at the top, with the full story underneath.
 
-First Fire is the first one and the model to copy: find `id:'ff'` in
-`content.js`. The comment "THE CASE STUDY LAYOUT" at the top of that file
-lists every field. Two things to know when writing one:
+- **`brief`** is the short part: two or three fact cards (`cards`, such as
+  Client, Services, Year), then `question`, `approach` and `impact`, each on
+  its own card, then a few short `points`. The page's pictures sit between
+  the cards. Every field is optional; a card with nothing written is left out,
+  and text still in `[brackets]` shows as a placeholder.
+- After the cards come the page's buttons, each a full-width card.
+- **"The full story"** follows: the page's `study` if it has one (opening
+  paragraphs, quick facts, titled sections with pictures and bullets),
+  otherwise its `story` and `list`.
+- The page ends with "Connects to" and a tall **Next** card that leads to the
+  next page. Arrow keys and a sideways swipe turn the page too.
 
-- A picture that has not arrived yet is written as
-  `{ image: '[Image: what goes here]' }` and shows as a striped slot.
-- A button whose link is still in `[brackets]` shows dashed and goes nowhere.
-
-Each picture has a `caption` (shown in the viewer) and an `alt` (what a
-screen reader reads; for a chart, say what the chart says). Study pictures
-open in the viewer and appear in the Gallery like any others. Screenshots of
-pixel art and flat diagrams are saved without lossy compression so they stay
-crisp.
+First Fire is the fullest example: find `id:'ff'` in `content.js`. The
+comment "THE CASE STUDY LAYOUT" at the top of that file lists every field.
+A picture that has not arrived yet is written as
+`{ image: '[Image: what goes here]' }` and shows as a striped slot. Each
+picture has a `caption` (shown in the viewer) and an `alt` (what a screen
+reader reads). Screenshots of pixel art and flat diagrams are saved without
+lossy compression so they stay crisp.
 
 ### Featured pages, and Next and Previous
 
@@ -218,16 +220,16 @@ pages. Case Studies is the only one for now. The row is
 ### Just the work
 
 On the opening screen, "Just the work" (bottom right) skips the brain and
-opens a plain list of every finished page, at `/the-work`: a small picture, the
-page's name and its one line, grouped under Work, Teach and Build. It is for
-someone who wants to scan the work in a few seconds. The button goes away
-once scrolling starts, like the stickers.
+opens a short stack of large tiles at `/the-work`, one per project: its name,
+its first two tags, a number and its picture. A tile opens that project's
+case study, and the Next card at the bottom of each one carries on through
+the same list, so the six read as one run.
 
-The list builds itself from `content.js`. A page joins it once it has a
-picture, or has its one line and something written under it, so half-empty
-pages stay out, and words still in `[brackets]` are never shown. Its title
-and line are `INDEX` in `content.js`; the page is `src/brain/IndexPage.js`.
-The list and the Gallery link to each other.
+Which projects, and in what order, is `INDEX.picks` in `content.js`. `as`
+gives a project a clearer name there than its page has ("Civilla" for
+"Overview"), and the page wears that name when opened from the tiles. The
+button goes away once scrolling starts, like the stickers. The page is
+`src/brain/IndexPage.js`.
 
 ### Single-item levels
 

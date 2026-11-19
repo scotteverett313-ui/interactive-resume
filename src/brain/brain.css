@@ -324,10 +324,42 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
 #page .proof{position:relative;min-height:320px;border-left:2px solid var(--ink);display:flex;align-items:flex-end;padding:24px;padding-right:max(64px,env(safe-area-inset-right,0px));
   background:repeating-linear-gradient(135deg,transparent 0 18px,color-mix(in srgb,var(--ink) 14%,transparent) 18px 20px),var(--ground)}
 /* ---- the case study layout (a page with `study` in content.js): one reading column, pictures at its full width ---- */
-#page .page-study{max-width:880px;margin:0 auto;padding:calc(20px + env(safe-area-inset-top,0px)) 72px 64px 24px;display:flex;flex-direction:column;gap:28px}
+#page .page-study{max-width:880px;margin:0 auto;padding:calc(20px + env(safe-area-inset-top,0px)) 72px 64px 24px;display:flex;flex-direction:column;gap:14px}
+/* the short part: a title, the picture, then rounded cards with a small inverted label */
+#page .s-title{display:flex;flex-direction:column;gap:12px;margin:6px 0 4px}
+#page .s-title .lede{max-width:none}
+#page .s-card{box-sizing:border-box;border:2.5px solid var(--ink);border-radius:22px;padding:22px 24px 24px;background:var(--ground);display:flex;flex-direction:column;align-items:flex-start;gap:12px}
+#page .s-card p{margin:0;font-size:16px;line-height:1.45;font-weight:500}
+#page .s-label{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;background:var(--ink);color:var(--ground);padding:3px 8px;border-radius:4px}
+#page .s-card.big p,#page .s-card.point p{font-family:var(--display);font-weight:800;line-height:1.1;letter-spacing:-.015em;text-wrap:balance}
+#page .s-card.big p{font-size:clamp(22px,2.7vw,32px)}
+#page .s-card.point p{font-size:clamp(20px,2.3vw,27px)}
+#page .s-card.point{padding-top:26px;padding-bottom:28px}
+#page .s-card .ph{font-family:var(--body);font-weight:500;font-size:16px;letter-spacing:0;line-height:1.45}
+#page .s-facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+#page .s-facts .wide{grid-column:1 / -1}
+#page .s-strip{margin-top:0}
+/* the ways out: a full-width card each, like a play button */
+#page .s-outs{display:flex;flex-direction:column;gap:14px}
+#page .s-out{box-sizing:border-box;display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:18px 24px;cursor:pointer;text-decoration:none;
+  font-family:var(--display);font-weight:800;font-size:clamp(19px,2.2vw,24px);letter-spacing:-.01em;color:var(--ink);
+  background:var(--ground);border:2.5px solid var(--ink);border-radius:22px}
+#page .s-out span{font-size:.7em}
+#page a.s-out:hover,#page button.s-out:hover{background:var(--ink);color:var(--ground)}
+#page .s-out.not-ready{border-style:dashed;color:var(--muted);cursor:default}
+/* the long part, for anyone who keeps scrolling */
+#page .s-long{display:flex;flex-direction:column;gap:28px;margin-top:30px}
+#page .s-divider{font-family:var(--mono);font-size:12px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;margin:0;padding-top:16px;border-top:2px solid var(--ink)}
+/* the last thing on the page: a tall card that leads to the next one */
+#page .s-next{box-sizing:border-box;width:100%;min-height:260px;display:flex;flex-direction:column;justify-content:flex-end;align-items:flex-start;gap:10px;text-align:left;
+  margin-top:10px;padding:24px;cursor:pointer;background:var(--ink);color:var(--ground);border:2.5px solid var(--ink);border-radius:22px}
+#page .s-next span{font-size:15px;font-weight:500}
+#page .s-next b{font-family:var(--display);font-weight:800;font-size:clamp(34px,6vw,60px);line-height:.95;letter-spacing:-.02em;text-wrap:balance}
+#page .s-next:hover b{text-decoration:underline;text-underline-offset:6px;text-decoration-thickness:3px}
+#page .s-next:focus-visible{outline-offset:4px}
 #page .study-head{display:flex;flex-direction:column;gap:14px}
 #page .study-head .lede{max-width:none}
-#page .study-pic{display:block;padding:0;border:2px solid var(--ink);background:var(--ground);cursor:zoom-in;overflow:hidden;line-height:0;align-self:center;max-width:100%}
+#page .study-pic{display:block;padding:0;border:2.5px solid var(--ink);border-radius:22px;background:var(--ground);cursor:zoom-in;overflow:hidden;line-height:0;align-self:center;max-width:100%}
 /* a tall picture (a phone screen) is held to the height of the window, so it never fills three screens */
 #page .study-pic img{display:block;max-width:100%;max-height:82vh;width:auto;height:auto}
 #page .study-pic.lead{align-self:stretch}
@@ -343,7 +375,7 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
 #page .study-pair .study-pic{align-self:start}
 #page .study-pair .study-pic img{width:100%}
 /* a picture that has not arrived yet */
-#page .study-slot{border:2px solid var(--ink);padding:44px 20px;text-align:center;font-family:var(--mono);font-size:13px;line-height:1.5;
+#page .study-slot{border:2.5px solid var(--ink);border-radius:22px;padding:44px 20px;text-align:center;font-family:var(--mono);font-size:13px;line-height:1.5;
   background:repeating-linear-gradient(135deg,transparent 0 18px,color-mix(in srgb,var(--ink) 14%,transparent) 18px 20px),var(--ground)}
 #page .study-slot.lead{padding:90px 20px}
 /* the quick facts: a label and its value on each row */
@@ -356,7 +388,7 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
 #page .study-actions .chip-btn{min-height:52px;font-size:16px;padding:0 22px;box-sizing:border-box}
 .brain .chip-btn.not-ready{display:inline-flex;align-items:center;border-style:dashed;color:var(--muted);cursor:default}
 .brain .chip-btn.not-ready:hover{background:var(--paper);color:var(--muted)}
-#page .study-end{display:flex;flex-direction:column;gap:22px;border-top:2px solid var(--ink);padding-top:22px}
+#page .study-end{display:flex;flex-direction:column;gap:22px;border-top:2px solid var(--ink);padding-top:22px;margin-top:24px}
 #page .study-end .thumbs{margin-top:0}
 #page .page-study .pager{margin-bottom:-64px}
 
@@ -485,31 +517,27 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
 }
 .brain .wall-empty{margin:0;padding:48px 24px;border:2px solid var(--ink);text-align:center;
   background:repeating-linear-gradient(135deg,transparent 0 18px,color-mix(in srgb,var(--ink) 14%,transparent) 18px 20px),var(--ground)}
-/* "Just the work": every finished page as a plain list, grouped by gravity point */
-#indexPage .sheet-in{max-width:860px;gap:34px}
-.brain .index-group h2{display:flex;align-items:center;gap:10px;margin:0;padding-bottom:10px;border-bottom:2px solid var(--ink);color:var(--ink);
-  font-family:var(--display);font-weight:800;font-size:clamp(22px,2.6vw,30px);letter-spacing:-.01em;text-transform:none;line-height:1}
-.brain .index-group h2 i{width:14px;height:14px;border-radius:50%;background:var(--hub)}
-.brain .index-group h2 span{margin-left:auto;font-family:var(--mono);font-size:12px;font-weight:500;letter-spacing:.08em;color:var(--muted)}
-.brain .index-list{list-style:none;margin:0;padding:0}
-.brain .index-list li{border-bottom:1.5px solid var(--ink)}
-.brain .index-list button{width:100%;display:grid;grid-template-columns:72px minmax(0,1fr) auto;gap:16px;align-items:center;text-align:left;
-  background:none;border:0;padding:12px 0;cursor:pointer}
-.brain .index-list .thumb{width:72px;height:72px;box-sizing:border-box;border:2px solid var(--ink);overflow:hidden;background:var(--ground)}
-/* a page with no picture yet shows its gravity point's color */
-.brain .index-list .thumb.none{background:var(--hub)}
-.brain .index-list .thumb img{display:block;width:100%;height:100%;max-width:none;object-fit:cover;object-position:top}
-.brain .index-list .what{display:flex;flex-direction:column;gap:3px;min-width:0}
-.brain .index-list .where{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.brain .index-list b{font-family:var(--display);font-weight:800;font-size:clamp(19px,2vw,24px);line-height:1.1;letter-spacing:-.01em}
-.brain .index-list .line{font-size:15px;line-height:1.4}
-.brain .index-list .go{font-size:20px;padding-right:4px;transition:transform .16s ease}
-.brain .index-list button:hover b{text-decoration:underline;text-underline-offset:4px}
-.brain .index-list button:hover .go{transform:translateX(4px)}
+/* "Just the work": a stack of large rounded tiles, one per project. Name and kind at the top,
+   a number and the project's picture at the bottom. Two across on a wide screen */
+#indexPage .sheet-in{max-width:980px;gap:26px}
+.brain .tiles{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.brain .tiles button{width:100%;min-height:230px;box-sizing:border-box;display:flex;flex-direction:column;justify-content:space-between;gap:18px;text-align:left;
+  padding:20px 20px 18px;cursor:pointer;background:var(--ground);border:2.5px solid var(--ink);border-radius:22px;box-shadow:5px 6px 0 var(--ink);
+  transition:transform .16s ease,box-shadow .16s ease,background-color .35s ease,border-color .35s ease}
+.brain .tiles button:hover{transform:translate(-2px,-3px);box-shadow:7px 9px 0 var(--ink)}
+.brain .tiles button:active{transform:translate(2px,3px);box-shadow:2px 2px 0 var(--ink)}
+.brain .tiles .tile-words{display:flex;flex-direction:column;gap:8px}
+.brain .tiles b{font-family:var(--display);font-weight:800;font-size:clamp(28px,3.4vw,40px);line-height:1;letter-spacing:-.02em;text-wrap:balance}
+.brain .tiles .kind{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase}
+.brain .tiles .tile-foot{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+.brain .tiles .num{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:12px;letter-spacing:.08em}
+.brain .tiles .num i{width:12px;height:12px;border-radius:50%;background:var(--hub)}
+.brain .tiles .tile-pic{flex:0 0 auto;width:112px;height:112px;box-sizing:border-box;border:2px solid var(--ink);border-radius:16px;overflow:hidden;background:var(--ground)}
+.brain .tiles .tile-pic.none{background:var(--hub)}
+.brain .tiles .tile-pic img{display:block;width:100%;height:100%;max-width:none;object-fit:cover}
 @media (hover:hover){
-  .brain .index-list .thumb img{filter:grayscale(1);transition:filter .28s ease}
-  .brain .index-list button:hover .thumb img,.brain .index-list button:focus-visible .thumb img{filter:none}
+  .brain .tiles .tile-pic img{filter:grayscale(1);transition:filter .28s ease}
+  .brain .tiles button:hover .tile-pic img,.brain .tiles button:focus-visible .tile-pic img{filter:none}
 }
 /* ---- end sheets ---- */
 
@@ -530,7 +558,7 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
   #page .proof{order:-1;min-height:0;aspect-ratio:16/10;border-left:0;border-bottom:2px solid var(--ink)}
   #page .page-text{padding-right:max(56px,env(safe-area-inset-right,0px))}
   #page .page-doc{padding-right:56px;padding-left:16px}
-  #page .page-study{padding-right:56px;padding-left:16px;gap:24px}
+  #page .page-study{padding-right:56px;padding-left:16px}
   #page .study-pair{grid-template-columns:minmax(0,1fr)}
   #page .facts{grid-template-columns:minmax(0,1fr)}
   #page .facts > div{grid-template-columns:92px minmax(0,1fr)}
@@ -548,9 +576,14 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
   #siteNav .chip-btn{padding:0 12px;font-size:13px}
   #siteNav .open-dot{width:8px;height:8px;margin-right:6px}
   #justWork{padding:0 13px;font-size:13px;height:40px}
-  .brain .index-list button{grid-template-columns:60px minmax(0,1fr) auto;gap:12px}
-  .brain .index-list .thumb{width:60px;height:60px}
-  .brain .index-list .line{font-size:14px}
+  .brain .tiles{grid-template-columns:minmax(0,1fr);gap:12px}
+  .brain .tiles button{min-height:190px;padding:18px 18px 16px}
+  .brain .tiles .tile-pic{width:96px;height:96px}
+  #page .page-study{gap:12px}
+  #page .s-card{padding:18px 18px 20px;border-radius:20px}
+  #page .s-facts{gap:12px}
+  #page .s-long{gap:22px;margin-top:22px}
+  #page .s-next{min-height:210px;padding:20px}
   /* on a phone the arrows give way to swiping, and the cards run nearly to the depth dots */
   #levelCards .rail-arrows{display:none}
   #levelCards ul{gap:12px}

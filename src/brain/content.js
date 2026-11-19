@@ -32,9 +32,25 @@
      as a level again.
 
    THE CASE STUDY LAYOUT
-   A page with a `study` becomes a long-form case study instead of the
-   usual two-panel page. Every case study uses the same shape, top to
-   bottom:
+   A page with a `brief` or a `study` is laid out as a case study
+   instead of the usual two-panel page: a stack of rounded cards and
+   pictures, short at the top, with the full story underneath.
+
+   `brief` is the short part. Every field is optional:
+       cards:    two or three small facts, [[label, text], ...]. The
+                 first is full width, the rest sit side by side.
+                 ("Client", "Services", "Year")
+       question: the big question the project answers
+       approach: how you went at it, in a sentence or two
+       impact:   what came of it
+       points:   a few short statements, each on its own card, with the
+                 page's pictures between them
+   After the cards come the page's buttons, then "The full story": the
+   `study` below if the page has one, otherwise its `story` and `list`.
+   The page's `image` is the picture at the top unless the study has a
+   `hero`, and its `more` pictures sit between the cards.
+
+   `study` is the long part:
        hero:     the picture across the top, { src, caption, alt }, or
                  '[Hero image: what goes here]' while it is still to come
        sub:      the line under the title
@@ -57,11 +73,9 @@
    apply. The page's `lede` and `story` are not used.
 
    JUST THE WORK
-   The "Just the work" button on the opening screen opens a plain list
-   of every finished page. Nothing to maintain: a page joins the list
-   once it has a picture, or has its one line and something written
-   under it. Words still in [brackets] are never shown there. Its title
-   and one line are INDEX below.
+   The "Just the work" button on the opening screen opens a short stack
+   of large tiles, one per project. Which projects, and in what order,
+   is INDEX.picks below.
 
    FEATURED
    A level can carry `featured`: previews of pages offered straight
@@ -199,11 +213,22 @@ export const GALLERY = {
   intro: 'Every picture on the site, in one place. Filter by what you’re looking for.'
 };
 
-/* "Just the work": every finished page as one plain list, opened from the button on the opening screen.
-   The list builds itself from the pages below. These are its title and the line under it. */
+/* "Just the work": a short stack of large tiles, one per project, opened from the button on the opening
+   screen. Each tile opens that project's case study, and "Next case study" at the bottom of each one
+   carries on through the same list. */
 export const INDEX = {
   title: 'Just the work',
-  intro: 'Every finished page on the site, in one list.'
+  intro: 'Six projects. Open one, then keep going to the next.',
+  /* the projects shown, in order. `to` is a page id; `as` is the name on the tile when the page's own
+     name ("Overview") needs a clearer one. The line under each name is the page's first two tags. */
+  picks: [
+    { to: 'civoverview', as: 'Civilla' },
+    { to: 'mmm' },
+    { to: 'robear' },
+    { to: 'ff' },
+    { to: 'vault' },
+    { to: 'samples', as: 'Wesson Art' }
+  ]
 };
 
 /* Shown on a page when that field is still blank. */
@@ -231,6 +256,12 @@ export const ROOT = { id:'root', label:'Brain', kids:[
         /* view:'cards' shows this level as a row of large cards that slide sideways, instead of blobs */
         { id:'cases', label:'Case Studies', blurb:'[Short blurb]', view:'cards', says:'Four clients. Swipe through, or open one.', kids:[
           { id:'robear', label:'Robear Detroit', page:{
+            brief:{
+              cards:[['Client', `Robear Detroit`], ['Services', `Landing page, branding`], ['Year', `2025`]],
+              question:`[The big question: what did they need to solve?]`,
+              approach:`[The approach, in a sentence]`,
+              impact:`[The impact: what changed after launch]`
+            },
             lede:'Custom landing page, 2025.',
             story:'Robear Detroit needed [what they needed]. I designed and built a custom landing page and [brand work], so they could [result]. [What changed for them after launch.]',
             tags:['Site','Branding'],
@@ -267,6 +298,12 @@ export const ROOT = { id:'root', label:'Brain', kids:[
             ],
             links:[{ to:'krwsite', why:'Their website is next.' }] }},
           { id:'mmm', label:'Micro Money Management', page:{
+            brief:{
+              cards:[['Client', `Micro Money Management`], ['Services', `Brand identity, social media`], ['Year', `[Year]`]],
+              question:`[The big question: what did they need to solve?]`,
+              approach:`[The approach, in a sentence]`,
+              impact:`[The impact: what changed for them]`
+            },
             lede:'[One line: the project]',
             story:'[Micro Money Management is / does ___]. They needed [brand need]. I designed [what you made], so they could [result].',
             tags:['Branding','Social Media'],
@@ -307,6 +344,13 @@ export const ROOT = { id:'root', label:'Brain', kids:[
       { id:'uxr', label:'Senior UX/UI Designer + Design Researcher', blurb:'[Short blurb]', kids:[
         { id:'civilla', label:'Civilla', blurb:'Design research that shaped services for 2M+ Michigan residents.', kids:[
           { id:'civoverview', label:'Overview', page:{
+            brief:{
+              cards:[['Role', `Sr. UX/UI Designer and Design Researcher at Civilla`], ['Services', `Design research, UX/UI, service design`], ['Years', `[Years]`]],
+              question:`How do you make state services easier for 2M+ Michigan residents to use?`,
+              approach:`Interview, define the problem, prototype, test with users, and help implement across state and government institutions.`,
+              impact:`75+ web and mobile prototypes for state and federal initiatives, and research informing services for 2M+ residents.`,
+              points:[`Design lead on a multi-agency benefits platform`, `Journey maps, walkthroughs, and brand collateral`]
+            },
             lede:'Design research that shaped services for 2M+ Michigan residents.',
             story:'Sr. UX/UI Designer and Design Researcher at Civilla, a small but mighty team. I conducted interviews, defined problems, ideated, prototyped, user tested, and helped implement across state and government institutions. It is where I learned to really be part of a team.',
             list:['Built 75+ web and mobile prototypes for state and federal initiatives','User research informing services for 2M+ residents','Design lead on a multi-agency benefits platform','Developed core journey map design and facilitation, walkthroughs, and brand collateral','Worked with the Michigan Secretary of State, Michigan Health and Human Services, Starfish, Deloitte, and more'],
@@ -337,6 +381,10 @@ export const ROOT = { id:'root', label:'Brain', kids:[
             tags:['Design Research','UX/UI','Government'] }} ]} ]},
       { id:'wesson', label:'Wesson Art', blurb:'Where I always land on my feet. The base of it all.', kids:[
         { id:'samples', label:'Work Samples', page:{
+          brief:{
+            cards:[['Practice', `Wesson Art: my digital art, mostly drawn on iPad`], ['Work', `Portraits, animals, editorial`], ['Since', `[Year]`]],
+            points:[`20+ portraits for How I Built This`, `Four years of John Templeton Prize laureate portraits`, `A mural at the Ann Arbor District Library`]
+          },
           lede:'Where I always land on my feet. The base of it all.',
           story:'Wesson Art is where my digital art lives, mostly drawn on iPad: portraits, animals, and editorial work.',
           list:['20+ portraits for How I Built This','Four years of John Templeton Prize laureate portraits','Mural at the Ann Arbor District Library','A few MOCAD drawing challenges'],
@@ -469,6 +517,13 @@ export const ROOT = { id:'root', label:'Brain', kids:[
       list:['Photoshop, Illustrator, InDesign, and Firefly','Procreate and Procreate Dreams','WordPress, Wix, and Squarespace','React and GSAP','Claude Code'] }},
     { id:'apps', label:'Apps', kids:[
       { id:'dirtrich', label:'Dirt Rich', page:{
+        brief:{
+          cards:[['Project', `My own app, built with an AI partner`], ['Role', `Product design, illustration, art direction, development`], ['Year', `2026`]],
+          question:`What would a garden tracker look like if it thought in zones, the way I actually garden?`,
+          approach:`Build it during the season I was trying to track, so every feature got tested on real plants.`,
+          impact:`300+ changes, and one 2,700-line file refactored into 21 focused files. Beta launch in fall 2026.`,
+          points:[`A grow partner, not a task manager`, `Pixel art plants I drew myself`, `Built for one hand in a garden`]
+        },
         tags:['App','Product Design'],
         study:{
           hero:`[Hero image: app screenshot — garden tab, plants in zones]`,
@@ -547,6 +602,13 @@ export const ROOT = { id:'root', label:'Brain', kids:[
         links:[{ to:'thissite', why:'Built the way I build now.' }] }} ]},
     { id:'games', label:'Games', kids:[
       { id:'ff', label:'First Fire', page:{
+        brief:{
+          cards:[['Project', `My own game, built with an AI partner`], ['Role', `Game design, writing, illustration, art direction`], ['Year', `2026`]],
+          question:`How do you make a survival game that rewards visiting and never punishes absence?`,
+          approach:`Write the rules down first. Then build in a loop with an AI partner: idea, design talk, plan, build, check on my phone.`,
+          impact:`300+ changes and about 14,500 lines of game code in about seven weeks. Soft launch in November 2026.`,
+          points:[`You are a voice, not a body`, `Fully playable with a screen reader and with sound off`, `Tested by playing 150 full games in minutes`]
+        },
         tags:['Game','Pixel Art'],
         /* the case study. See THE CASE STUDY LAYOUT at the top of this file for the shape */
         study:{
@@ -637,6 +699,13 @@ export const ROOT = { id:'root', label:'Brain', kids:[
         links:[{ to:'thissite', why:'Built with Claude Code.' }] }} ]},
     { id:'software', label:'Software', kids:[
       { id:'vault', label:'VaultMark', page:{
+        brief:{
+          cards:[['Project', `My own invention, designed with an AI partner`], ['Role', `Product design, system architecture, writing`], ['Year', `2026`]],
+          question:`How can proof of ownership live inside the image itself?`,
+          approach:`Map the system before the interface: an encrypted original in the vault, a scrambled copy for display, and a key grown from the image's own pixels.`,
+          impact:`A working prototype across five versions, 80+ features mapped, and a provisional patent application filed.`,
+          points:[`Three layers that all have to align`, `Built for a gallery director and a solo artist`]
+        },
         tags:['Software','Concept'],
         study:{
           hero:{ src:'/proof/vaultmark/study/04-dashboard-gallery.webp', caption:'The gallery dashboard', alt:'The Vaultmark dashboard for a demo gallery: totals across the top and a grid of eight vaulted artworks, each shown as a scrambled tile with its title, artist and status.' },

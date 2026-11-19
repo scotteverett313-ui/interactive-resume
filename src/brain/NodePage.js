@@ -52,7 +52,7 @@ var EXPAND = (
 
    node:     the node to show, or null to close
    seq:      the list this page was opened from, if any: { pages:[{ node, name }], soft }, from a level's
-             featured previews. Next and Previous step through it. Without one they step through the
+             featured previews or from "Just the work". Next and Previous step through it. Without one they step through the
              page's neighbors, the other pages in the same level
    instant:  when node is null, hide right away instead of fading
    stack:    current map stack, for the crumb line
@@ -256,9 +256,11 @@ export default function NodePage({ node, instant, seq, stack, reduce, onBack, on
     };
     var moreSrcs = (p.more || []).map(function(m){ return typeof m === 'string' ? m : m.src; });
 
-    /* a case study: the long-form layout every case study shares (see THE CASE STUDY LAYOUT in content.js) */
-    if (p.study){
-      var st = p.study;
+    /* a case study: a stack of rounded cards and pictures, short at the top with the full story underneath.
+       Every case study shares it (see THE CASE STUDY LAYOUT in content.js) */
+    if (p.study || p.brief){
+      var st = p.study || {}, br = p.brief || {};
+      var bracket = function(t){ return typeof t === 'string' && /^\[.*\]$/.test(t); };
       var pic = function(x, cls){
         return (
           <button type="button" className={'study-pic' + (cls ? ' ' + cls : '')} key={x.src} aria-label={'View larger: ' + (x.caption || n.label)}
@@ -270,72 +272,115 @@ export default function NodePage({ node, instant, seq, stack, reduce, onBack, on
       var block = function(b, i){
         if (typeof b === 'string') return <p key={i}><Ph text={b} /></p>;
         if (b.list) return (
-          <ul key={i}>{b.list.map(function(li, j){ return <li key={j}><b>{li[0]}</b> <Ph text={li[1]} /></li>; })}</ul>
+          <ul key={i}>{b.list.map(function(li, j){
+            return typeof li === 'string' ? <li key={j}><Ph text={li} /></li> : <li key={j}><b>{li[0]}</b> <Ph text={li[1]} /></li>;
+          })}</ul>
         );
         if (b.images) return <div className="study-pair" key={i}>{b.images.map(function(x){ return pic(x); })}</div>;
         if (typeof b.image === 'string'){
           /* a slot still in [brackets] is a picture that has not arrived yet */
-          if (/^\[.*\]$/.test(b.image)) return <div className="study-slot" key={i}><span className="ph">{b.image}</span></div>;
+          if (bracket(b.image)) return <div className="study-slot" key={i}><span className="ph">{b.image}</span></div>;
           return pic({ src:b.image, caption:b.caption, alt:b.alt });
         }
         return null;
       };
-      var extra = (p.image ? [p.image] : []).concat(moreSrcs);
+      /* the picture at the top: the study's hero, or the page's own lead picture */
+      var hero = st.hero && st.hero.src ? st.hero : (!st.hero && p.image ? { src:p.image, caption:p.proof || n.label } : null);
+      /* the page's other pictures, shown between the cards: its lead picture and "More", less the one at the top */
+      var shots = (p.image ? [p.image] : []).concat(moreSrcs).filter(function(src, i, all){ return all.indexOf(src) === i && !(hero && hero.src === src); })
+        .map(function(src){ return { src:src, caption:pics[at_(src)].caption }; });
+      var shot = function(){ var x = shots.shift(); return x ? pic(x) : null; };
+      /* a card: a small inverted label, then the words */
+      var card = function(label, text, cls, key){
+        return text ? (
+          <div className={'s-card' + (cls ? ' ' + cls : '')} key={key || label}>
+            {label && <span className="s-label">{label}</span>}
+            <p><Ph text={text} /></p>
+          </div>
+        ) : null;
+      };
+      var cards = br.cards || [];
+      var long_ = st.intro || st.sections ? { intro:st.intro || [], facts:st.facts || [], sections:st.sections || [] }
+        : { intro:p.story ? [p.story] : [], facts:[], sections:p.list && p.list.length ? [{ title:null, body:[{ list:p.list }] }] : [] };
+      var hasLong = long_.intro.length > 0 || long_.sections.length > 0;
+      /* the ways out of the page: the study's buttons, then the page's own */
+      var outs = (st.actions || []).concat(p.action ? [p.action] : []);
       body = (
         <div className={'page-study' + hubClass}>
           {top}
-          {st.hero && st.hero.src && pic(st.hero, 'lead')}
-          {typeof st.hero === 'string' && <div className="study-slot lead"><span className="ph">{st.hero}</span></div>}
-          <header className="study-head">
+          <header className="s-title">
             <div className="pull" id="pPull"><i />Pulled toward {hub.label}</div>
-            <h1 id="pTitle" tabIndex={-1} ref={titleRef}>{n.label}</h1>
-            {st.sub && <p className="lede" id="pLede"><Ph text={st.sub} /></p>}
+            {/* opened from a list that gives it a clearer name ("Civilla" for "Overview"), the page wears that name */}
+            <h1 id="pTitle" tabIndex={-1} ref={titleRef}>{(inSeq && list[at].name) || n.label}</h1>
+            {(st.sub || p.lede) && <p className="lede" id="pLede"><Ph text={st.sub || p.lede} /></p>}
             <Tags tags={p.tags} />
           </header>
-          <div className="study-text study-intro" id="pStory">
-            {(st.intro || []).map(function(t, i){ return <p key={i}><Ph text={t} /></p>; })}
-          </div>
-          {st.facts && st.facts.length > 0 && (
-            <dl className="facts">
-              {st.facts.map(function(f){
-                var v = f[1];
-                return (
-                  <div key={f[0]}>
-                    <dt>{f[0]}</dt>
-                    <dd>{v && v.url ? <a href={v.url} target="_blank" rel="noopener noreferrer">{v.text || v.url}</a> : <Ph text={v} />}</dd>
-                  </div>
-                );
-              })}
-            </dl>
+          {hero && pic(hero, 'lead')}
+          {typeof st.hero === 'string' && <div className="study-slot lead"><span className="ph">{st.hero}</span></div>}
+          {cards.length > 0 && (
+            <div className="s-facts">
+              {cards.map(function(c, i){ return card(c[0], c[1], i === 0 ? 'wide' : '', c[0]); })}
+            </div>
           )}
-          {(st.sections || []).map(function(sec, i){
-            return (
-              <section className="study-text" key={i}>
-                <h2>{sec.title}</h2>
-                {(sec.body || []).map(block)}
-              </section>
-            );
+          {card('The big question', br.question, 'big')}
+          {br.question && shot()}
+          {card('The approach', br.approach, 'big')}
+          {card('The impact', br.impact, 'big')}
+          {(br.points || []).map(function(t, i){
+            return <React.Fragment key={i}>{shot()}{card(null, t, 'point', 'p' + i)}</React.Fragment>;
           })}
-          {st.actions && st.actions.length > 0 && (
-            <div className="study-actions">
-              {st.actions.map(function(a, i){
-                /* a link still in [brackets] is not ready: the button shows, dashed, and goes nowhere */
-                if (!a.url || /^\[.*\]$/.test(a.url)) return <span className="chip-btn not-ready" key={a.label} title={a.url || ''}>{a.label}</span>;
-                return <a className={'chip-btn' + (i === 0 ? ' solid' : '')} key={a.label} href={a.url} target="_blank" rel="noopener noreferrer">{a.label} ↗</a>;
+          {shots.length > 0 && shots.length <= 2 && shots.splice(0).map(function(x){ return pic(x); })}
+          {shots.length > 0 && (
+            <div className="thumbs s-strip" aria-label="More pictures, scrolls sideways">{strip(shots.map(function(x){ return x.src; }))}</div>
+          )}
+          {outs.length > 0 && (
+            <div className="s-outs">
+              {outs.map(function(a){
+                /* a link still in [brackets] is not ready: the card shows, dashed, and goes nowhere */
+                if (a.go) return <button type="button" className="s-out" key={a.label} onClick={function(){ onAction(a); }}><span aria-hidden="true">▶</span>{a.label}</button>;
+                if (!a.url || bracket(a.url)) return <span className="s-out not-ready" key={a.label} title={a.url || ''}><span aria-hidden="true">▶</span>{a.label}</span>;
+                return <a className="s-out" key={a.label} href={a.url} target="_blank" rel="noopener noreferrer"><span aria-hidden="true">▶</span>{a.label}</a>;
               })}
             </div>
           )}
-          <Action action={p.action} onAction={onAction} />
-          <div className="study-end">
-            {connects}
-            {extra.length > 0 && (
-              <div>
-                <h2>More</h2>
-                <div className="thumbs" aria-label="More pictures, scrolls sideways">{strip(extra)}</div>
-              </div>
-            )}
-          </div>
-          {pager}
+          {hasLong && (
+            <div className="s-long">
+              <h2 className="s-divider">The full story</h2>
+              {long_.intro.length > 0 && (
+                <div className="study-text study-intro" id="pStory">
+                  {long_.intro.map(function(t, i){ return <p key={i}><Ph text={t} /></p>; })}
+                </div>
+              )}
+              {long_.facts.length > 0 && (
+                <dl className="facts">
+                  {long_.facts.map(function(f){
+                    var v = f[1];
+                    return (
+                      <div key={f[0]}>
+                        <dt>{f[0]}</dt>
+                        <dd>{v && v.url ? <a href={v.url} target="_blank" rel="noopener noreferrer">{v.text || v.url}</a> : <Ph text={v} />}</dd>
+                      </div>
+                    );
+                  })}
+                </dl>
+              )}
+              {long_.sections.map(function(sec, i){
+                return (
+                  <section className="study-text" key={i}>
+                    {sec.title && <h2>{sec.title}</h2>}
+                    {(sec.body || []).map(block)}
+                  </section>
+                );
+              })}
+            </div>
+          )}
+          <div className="study-end">{connects}</div>
+          {many && (
+            <button type="button" className="s-next" onClick={function(){ turn(1); }} aria-label={'Next' + (inSeq ? ' case study' : '') + ': ' + next.name}>
+              <span>{inSeq ? 'Next case study' : 'Next'}</span>
+              <b>{next.name}</b>
+            </button>
+          )}
         </div>
       );
     }
