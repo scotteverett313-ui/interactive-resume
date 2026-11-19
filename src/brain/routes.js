@@ -13,6 +13,7 @@ import { NOTE_BY_SLUG } from './notes';
      /orbit/gardening               a curiosity's page
      /work-with-me                  the SE|Design services page
      /gallery                       every picture on the site
+     /the-work                      every finished page as a plain list ("Just the work")
      /work/what-i-do/se-design/gallery   the gallery, narrowed to SE|Design
      /notes  and  /notes/<slug>     the notes list, and one note
 
@@ -25,6 +26,7 @@ export const STUDIO_PATH = '/work-with-me';
 export const NOTES_PATH = '/notes';
 export const ORBIT_PATH = '/orbit';
 export const GALLERY_PATH = '/gallery';
+export const INDEX_PATH = '/the-work';
 
 /* a node's ancestors from the brain down to the node itself: [ROOT, ..., node] */
 export function lineOf(node){
@@ -63,6 +65,7 @@ export function pathFor(view){
   if (sheet && sheet.type === 'studio') return STUDIO_PATH;
   if (sheet && sheet.type === 'notes') return sheet.slug ? NOTES_PATH + '/' + sheet.slug : NOTES_PATH;
   /* the gallery narrowed to a level lives at the address of the node that opens it */
+  if (sheet && sheet.type === 'index') return INDEX_PATH;
   if (sheet && sheet.type === 'gallery') return sheet.node ? '/' + lineOf(sheet.node).slice(1).map(slugOf).join('/') : GALLERY_PATH;
   if (pageNode && pageNode.curio) return pageNode === CURIO_ROOT ? ORBIT_PATH : ORBIT_PATH + '/' + slugOf(pageNode);
   /* a page's address is its own place in the tree, whatever level is showing behind it */
@@ -77,6 +80,7 @@ export function parsePath(pathname){
   if (!parts.length) return home;
   var first = '/' + parts[0];
   if (first === STUDIO_PATH && parts.length === 1) return { stack:[ROOT], pageNode:null, sheet:{ type:'studio' }, found:true };
+  if (first === INDEX_PATH) return { stack:[ROOT], pageNode:null, sheet:{ type:'index' }, found:parts.length === 1 };
   if (first === GALLERY_PATH) return { stack:[ROOT], pageNode:null, sheet:{ type:'gallery', node:null }, found:parts.length === 1 };
   if (first === NOTES_PATH){
     if (parts.length === 1) return { stack:[ROOT], pageNode:null, sheet:{ type:'notes', slug:null }, found:true };
@@ -118,7 +122,8 @@ export function sheetFor(node){
 /* The browser tab's text for what is on screen. */
 export function titleFor(view, site){
   var name = null;
-  if (view.sheet && view.sheet.type === 'gallery') name = 'Gallery';
+  if (view.sheet && view.sheet.type === 'index') name = 'Just the work';
+  else if (view.sheet && view.sheet.type === 'gallery') name = 'Gallery';
   else if (view.sheet) name = view.sheet.type === 'studio' ? 'Work with me' : (view.sheet.slug && NOTE_BY_SLUG[view.sheet.slug] ? NOTE_BY_SLUG[view.sheet.slug].title : 'Notes');
   else if (view.pageNode) name = view.pageNode.label;
   else if (view.stack.length > 1) name = view.stack[view.stack.length - 1].label;

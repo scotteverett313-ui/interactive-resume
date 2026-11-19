@@ -111,6 +111,7 @@ intro and lands straight on that place. The Back and Forward buttons work.
 | `/orbit`, `/orbit/gardening` | The outer orbit's pages |
 | `/work-with-me` | The SE\|Design services page |
 | `/gallery` | Every picture on the site |
+| `/the-work` | Every finished page as a plain list |
 | `/notes`, `/notes/<slug>` | The list of notes, and one note |
 | `/resume` | The classic resume |
 
@@ -217,7 +218,16 @@ pages. Case Studies is the only one for now. The row is
 ### Just the work
 
 On the opening screen, "Just the work" (bottom right) skips the brain and
-opens the Gallery. It goes away once scrolling starts, like the stickers.
+opens a plain list of every finished page, at `/the-work`: a small picture, the
+page's name and its one line, grouped under Work, Teach and Build. It is for
+someone who wants to scan the work in a few seconds. The button goes away
+once scrolling starts, like the stickers.
+
+The list builds itself from `content.js`. A page joins it once it has a
+picture, or has its one line and something written under it, so half-empty
+pages stay out, and words still in `[brackets]` are never shown. Its title
+and line are `INDEX` in `content.js`; the page is `src/brain/IndexPage.js`.
+The list and the Gallery link to each other.
 
 ### Single-item levels
 

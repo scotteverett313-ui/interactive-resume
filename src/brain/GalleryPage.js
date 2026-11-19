@@ -20,10 +20,11 @@ function Ph({ text }){
      node:  null for the whole site. Or the go:'gallery' leaf that opened it: then the wall is narrowed
             to the level that leaf sits in, and the title, words, and filter names come from the leaf.
      onGoToNode(node): leave the gallery and land on a picture's page
+     onIndex():        the same work as a plain list (offered on the whole-site view)
 
    Filters: the three gravity points (whole-site view only), then the tags. Both narrow the wall together.
    Pressing a picture opens the viewer on the pictures showing, with a way through to the page it is from. */
-export default function GalleryPage({ node, reduce, onClose, onGoToNode }){
+export default function GalleryPage({ node, reduce, onClose, onGoToNode, onIndex }){
   var scope = node ? node.parent : null, words = node ? (node.page || {}) : null;
   var all = useMemo(function(){ return picturesIn(scope ? scope.id : null); }, [scope]);
   var [hub, setHub] = useState(null), [tag, setTag] = useState(null);
@@ -63,6 +64,7 @@ export default function GalleryPage({ node, reduce, onClose, onGoToNode }){
                 {words.story && <p><Ph text={words.story} /></p>}
               </>
             : <p className="lede">{GALLERY.intro}</p>}
+          {!scope && onIndex && <p className="tag"><button type="button" className="text-link" onClick={onIndex}>See it as a list</button></p>}
         </div>
         <div className="gallery-tools">
           {!scope && (

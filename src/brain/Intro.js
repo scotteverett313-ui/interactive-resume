@@ -26,7 +26,7 @@ gsap.registerPlugin(ScrollTrigger);
      #stickerSvg the sticker buttons, in their own drawing laid over this one (see Stickers.js)
      #introSays  the lines Scott says as the intro scrolls, one .say per line (the words are in content.js)
      #openChip   the "Open for work" chip above the site buttons (studio.js)
-     #justWork   the "Just the work" button: the way past the brain, straight to the gallery
+     #justWork   the "Just the work" button: the way past the brain, straight to a plain list of the work
 
    The art and its measurements live in character.js.
 

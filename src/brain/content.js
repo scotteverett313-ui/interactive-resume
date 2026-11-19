@@ -56,6 +56,13 @@
    its `image` and `more` pictures (shown as a strip at the end) still
    apply. The page's `lede` and `story` are not used.
 
+   JUST THE WORK
+   The "Just the work" button on the opening screen opens a plain list
+   of every finished page. Nothing to maintain: a page joins the list
+   once it has a picture, or has its one line and something written
+   under it. Words still in [brackets] are never shown there. Its title
+   and one line are INDEX below.
+
    FEATURED
    A level can carry `featured`: previews of pages offered straight
    from that level, however deep they really sit. Each entry is one
@@ -190,6 +197,13 @@ export const STICKERS = {
 export const GALLERY = {
   title: 'Gallery',
   intro: 'Every picture on the site, in one place. Filter by what you’re looking for.'
+};
+
+/* "Just the work": every finished page as one plain list, opened from the button on the opening screen.
+   The list builds itself from the pages below. These are its title and the line under it. */
+export const INDEX = {
+  title: 'Just the work',
+  intro: 'Every finished page on the site, in one list.'
 };
 
 /* Shown on a page when that field is still blank. */

@@ -11,6 +11,7 @@ import StudioPage from './StudioPage';
 import NotesPage from './NotesPage';
 import GalleryPage from './GalleryPage';
 import LevelCards from './LevelCards';
+import IndexPage from './IndexPage';
 import { pathFor, parsePath, titleFor, settle, sheetFor, lineOf } from './routes';
 import { PALETTES, paletteVars } from './palettes';
 import ThemeToggle, { readThemeChoice, saveThemeChoice } from './ThemeToggle';
@@ -23,7 +24,7 @@ function isHome(v){ return v.stack.length === 1 && !v.pageNode && !v.sheet; }
      stack:  nodes from ROOT down to the level on the map
      page:   { node, instant, seq } the open page, or null. seq is the list it was opened from
              (a level's featured previews), which its Next and Previous step through
-     sheet:  a full-screen page over the brain: the services page, the notes, or the gallery, or null
+     sheet:  a full-screen page over the brain: the services page, the notes, the gallery, or the list, or null
      done:   whether the intro has finished
    Those four decide the address in the browser, and the address decides them (see routes.js).
    Everything animated lives in refs and GSAP, not here. */
@@ -160,6 +161,7 @@ export default function BrainExperience(){
   var openStudio = useCallback(function(){ setSheet({ type:'studio' }); }, []);
   var openNote = useCallback(function(slug){ setSheet({ type:'notes', slug:slug || null }); }, []);
   var openGallery = useCallback(function(){ setSheet({ type:'gallery', node:null }); }, []);
+  var openIndex = useCallback(function(){ setSheet({ type:'index' }); }, []);
   var closeSheet = useCallback(function(){ setSheet(null); }, []);
   /* a node page's own button, for example "See partnership levels" */
   var onAction = useCallback(function(action){ if (action && action.go === 'studio') openStudio(); }, [openStudio]);
@@ -239,7 +241,7 @@ export default function BrainExperience(){
         <div className={'stage' + (done ? ' is-done' : '') + (wantCards && cardsOn ? ' cards-on' : '')} id="stage" ref={stageRef}>
           <div className="grain" aria-hidden="true" />
           <Intro ref={introRef} stageRef={stageRef} sectionRef={sectionRef} mapLayerRef={mapLayerRef} dotTagRef={dotTagRef}
-            reduce={reduce} done={done} onFinish={finishIntro} onMapArrival={onMapArrival} onSticker={onSticker} onWork={openGallery} />
+            reduce={reduce} done={done} onFinish={finishIntro} onMapArrival={onMapArrival} onSticker={onSticker} onWork={openIndex} />
           <BrainMap stack={stack} done={done} reduce={reduce}
             busyRef={busyRef} modeRef={modeRef} sceneRef={sceneRef} mapLayerRef={mapLayerRef}
             mapShowing={mapShowing} onDive={onDive} onOpenPage={openPage} />
@@ -275,7 +277,8 @@ export default function BrainExperience(){
           <NodePage node={page.node} instant={page.instant} seq={page.seq} stack={stack} reduce={reduce}
             onBack={function(){ closePage(); }} onGoToNode={goToNode} onDiveTo={diveTo} onOpenPage={openPage} onAction={onAction} />
           {sheet && sheet.type === 'studio' && <StudioPage onClose={closeSheet} onGoToNode={goToNodeFromSheet} />}
-          {sheet && sheet.type === 'gallery' && <GalleryPage node={sheet.node} reduce={reduce} onClose={closeSheet} onGoToNode={goToNodeFromSheet} />}
+          {sheet && sheet.type === 'gallery' && <GalleryPage node={sheet.node} reduce={reduce} onClose={closeSheet} onGoToNode={goToNodeFromSheet} onIndex={openIndex} />}
+          {sheet && sheet.type === 'index' && <IndexPage onClose={closeSheet} onGoToNode={goToNodeFromSheet} onGallery={openGallery} />}
           {sheet && sheet.type === 'notes' && (
             <NotesPage slug={sheet.slug} onClose={closeSheet} onOpenNote={openNote} onGoToNode={goToNodeFromSheet} onStudio={openStudio} />
           )}

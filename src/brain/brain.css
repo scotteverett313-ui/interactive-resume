@@ -485,6 +485,32 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
 }
 .brain .wall-empty{margin:0;padding:48px 24px;border:2px solid var(--ink);text-align:center;
   background:repeating-linear-gradient(135deg,transparent 0 18px,color-mix(in srgb,var(--ink) 14%,transparent) 18px 20px),var(--ground)}
+/* "Just the work": every finished page as a plain list, grouped by gravity point */
+#indexPage .sheet-in{max-width:860px;gap:34px}
+.brain .index-group h2{display:flex;align-items:center;gap:10px;margin:0;padding-bottom:10px;border-bottom:2px solid var(--ink);color:var(--ink);
+  font-family:var(--display);font-weight:800;font-size:clamp(22px,2.6vw,30px);letter-spacing:-.01em;text-transform:none;line-height:1}
+.brain .index-group h2 i{width:14px;height:14px;border-radius:50%;background:var(--hub)}
+.brain .index-group h2 span{margin-left:auto;font-family:var(--mono);font-size:12px;font-weight:500;letter-spacing:.08em;color:var(--muted)}
+.brain .index-list{list-style:none;margin:0;padding:0}
+.brain .index-list li{border-bottom:1.5px solid var(--ink)}
+.brain .index-list button{width:100%;display:grid;grid-template-columns:72px minmax(0,1fr) auto;gap:16px;align-items:center;text-align:left;
+  background:none;border:0;padding:12px 0;cursor:pointer}
+.brain .index-list .thumb{width:72px;height:72px;box-sizing:border-box;border:2px solid var(--ink);overflow:hidden;background:var(--ground)}
+/* a page with no picture yet shows its gravity point's color */
+.brain .index-list .thumb.none{background:var(--hub)}
+.brain .index-list .thumb img{display:block;width:100%;height:100%;max-width:none;object-fit:cover;object-position:top}
+.brain .index-list .what{display:flex;flex-direction:column;gap:3px;min-width:0}
+.brain .index-list .where{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brain .index-list b{font-family:var(--display);font-weight:800;font-size:clamp(19px,2vw,24px);line-height:1.1;letter-spacing:-.01em}
+.brain .index-list .line{font-size:15px;line-height:1.4}
+.brain .index-list .go{font-size:20px;padding-right:4px;transition:transform .16s ease}
+.brain .index-list button:hover b{text-decoration:underline;text-underline-offset:4px}
+.brain .index-list button:hover .go{transform:translateX(4px)}
+@media (hover:hover){
+  .brain .index-list .thumb img{filter:grayscale(1);transition:filter .28s ease}
+  .brain .index-list button:hover .thumb img,.brain .index-list button:focus-visible .thumb img{filter:none}
+}
 /* ---- end sheets ---- */
 
 /* light / dark toggle: a round chip in the bottom-right corner, above the map and the pages */
@@ -522,6 +548,9 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
   #siteNav .chip-btn{padding:0 12px;font-size:13px}
   #siteNav .open-dot{width:8px;height:8px;margin-right:6px}
   #justWork{padding:0 13px;font-size:13px;height:40px}
+  .brain .index-list button{grid-template-columns:60px minmax(0,1fr) auto;gap:12px}
+  .brain .index-list .thumb{width:60px;height:60px}
+  .brain .index-list .line{font-size:14px}
   /* on a phone the arrows give way to swiping, and the cards run nearly to the depth dots */
   #levelCards .rail-arrows{display:none}
   #levelCards ul{gap:12px}
