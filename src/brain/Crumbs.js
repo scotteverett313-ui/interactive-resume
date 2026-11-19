@@ -1,5 +1,6 @@
 import React from 'react';
 import { only } from './content';
+import { CHARACTER } from './character';
 
 /* Breadcrumb trail across the top: Back chip, then each level of the stack.
    On a narrow screen only the last two levels show, after a "…", so a deep trail stays on two lines
@@ -8,7 +9,12 @@ import { only } from './content';
    level (the page covers it), so the map can measure the room it takes once and not again. */
 export default function Crumbs({ done, stack, pageNode, onBack, onGoTo }){
   var here = stack[stack.length - 1];
-  var blurb = done && here && here.blurb && !/^\[.*\]$/.test(here.blurb) ? here.blurb : '';
+  var written = function(t){ return t && !/^\[.*\]$/.test(t) ? t : ''; };
+  var blurb = done && here ? written(here.blurb) : '';
+  /* in a gravity point marked `rich` (content.js), the line is said by Scott: a small head and a speech bubble.
+     The level's own `says` wins; without one he says its blurb */
+  var hub = here && here.hub, rich = !!(done && hub && hub.rich);
+  var says = rich ? (written(here.says) || blurb) : '';
   var hides = stack.length > 2;
   return (
     <nav id="crumbs" aria-label="Where you are" hidden={!done}>
@@ -32,7 +38,14 @@ export default function Crumbs({ done, stack, pageNode, onBack, onGoTo }){
           </React.Fragment>
         );
       })}
-      {blurb && <p id="levelBlurb">{blurb}</p>}
+      {says
+        ? (
+          <div id="levelSays" className={'in-' + hub.id}>
+            <span className="who" aria-hidden="true"><img src={CHARACTER.src} alt="" /></span>
+            <p>{says}</p>
+          </div>
+        )
+        : (blurb && <p id="levelBlurb">{blurb}</p>)}
     </nav>
   );
 }

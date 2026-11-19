@@ -2,6 +2,7 @@ import React, { useEffect, useLayoutEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ROOT, CURIO_ROOT, BYID, only } from './content';
 import { DOT_COUNT } from './DotNav';
+import { BRAIN } from './character';
 import { blobPath, rng, clamp, wrapLabel, curvePath, curvePoint, seedOf, scatter, webLinks } from './blob';
 
 const NS = 'http://www.w3.org/2000/svg';
@@ -20,7 +21,7 @@ function el(tag, attrs){ var e = document.createElementNS(NS, tag); for (var k i
 export function createScene(o){
   var svg = o.svg, nodesG = o.nodesG, linksG = o.linksG, bgNet = o.bgNet, wm = o.wm;
   var curioG = o.curioG, curioLinksG = o.curioLinksG, legend = o.legend, pickHint = o.pickHint, mapLayer = o.mapLayer;
-  var linkMask = o.linkMask, linkMaskAll = o.linkMaskAll;
+  var linkMask = o.linkMask, linkMaskAll = o.linkMaskAll, back = o.back;
   var reduce = o.reduce, busyRef = o.busyRef;
   function D(x){ return reduce ? 0 : x; }
   function busy(){ return busyRef.current; }
@@ -193,6 +194,15 @@ export function createScene(o){
     });
   }
 
+  /* the fuller look being trialled: on for every level inside a gravity point marked `rich` in content.js */
+  function isRich(node){ return node !== ROOT && !!(node.hub && node.hub.rich); }
+  /* a page's lead picture: its own, or its case study's hero */
+  function leadOf(n){
+    var p = n.page || {}, hero = p.study && p.study.hero && p.study.hero.src;
+    return p.image || hero || null;
+  }
+  function dotR(){ return clamp(M * .011, 4.5, 8); }
+
   /* the small tag under a blob's name: what a press leads to. `feature` and `promote` are the featured kinds (see entries) */
   function tagOf(node, feature, promote){
     var deeper = !!(node.kids && node.kids.length), inside = null, ends = null;
@@ -263,6 +273,8 @@ export function createScene(o){
         var lines = wrapLabel(ent.feature ? ent.feature.name : kid.label), chars = Math.max.apply(null, lines.map(function(x){ return x.length; }));
         /* a picture blob is big enough that its wobble needs a little more air around it */
         var air = big ? r * .12 + 8 : 0;
+        /* in the fuller look a blob that goes deeper wears a ring of dots over its top: leave room for them */
+        if (isRich(node) && deeper && !big) air = r * .4 + dotR() * 2 + 8;
         /* the tag under the name can be the widest thing, so it counts toward the room the node needs */
         var tagHalf = tagOf(kid, ent.feature, ent.promote).length * 3.9;
         return { r:r, hw: Math.max(r + air, chars * fs * .3, tagHalf, 38) + 10, up: r + 8 + air, down: r + fs + 6 + fs * 1.1 * (lines.length - 1) + 18 + 16 };
@@ -277,7 +289,7 @@ export function createScene(o){
     var crumbs = mapLayer.parentNode && mapLayer.parentNode.querySelector('#crumbs');
     if (crumbs && !crumbs.hidden){
       var cb = crumbs.getBoundingClientRect(), lb = mapLayer.getBoundingClientRect();
-      if (cb.height) full.y0 = Math.max(full.y0, cb.bottom - lb.top + (crumbs.querySelector('#levelBlurb') ? 12 : -22));
+      if (cb.height) full.y0 = Math.max(full.y0, cb.bottom - lb.top + (crumbs.querySelector('#levelBlurb, #levelSays') ? 18 : -22));
     }
     /* the depth tag sits beside the dots on the right, level with this level's dot: keep nodes off it.
        The dots are 28px rows, 2px apart, centered on the screen; this level's row is its depth plus one.
@@ -336,6 +348,7 @@ export function createScene(o){
     var opens = !deeper || !!ends;
     /* in-<hub> gives the node its hub's colors; is-hub and is-deep say which of them it uses (see brain.css) */
     var cls = 'node in-' + node.hub.id + (isHub ? ' is-hub' : (opens ? ' is-leaf' : ' is-deep')) + (feature || promote ? ' is-featured' : '');
+    var rich = !isHub && isRich(node);
     var name = feature ? feature.name : node.label;
     var g = el('g', { 'class':cls, tabindex:0, role:'button',
       'aria-label': feature ? 'Featured: ' + name + ', open page'
@@ -344,6 +357,8 @@ export function createScene(o){
     /* the featured blob shows its page's picture, cut to the blob's shape, with an ink edge drawn over it.
        The same outline is written to all three each frame: the blob, the cut, and the edge */
     var clip = null, clipPath = null, img = null, edge = null, src = feature ? feature.image : (promote ? promote.image : null);
+    /* in the fuller look, a page with a picture shows it in its blob */
+    if (!src && rich && !feature && !deeper) src = leadOf(node);
     if (src){
       var cid = 'featClip' + (++clipN);
       clip = el('clipPath', { id:cid }); clipPath = el('path', {}); clip.appendChild(clipPath);
@@ -363,6 +378,23 @@ export function createScene(o){
     g.appendChild(path);
     if (img){ g.appendChild(img); g.appendChild(edge); }
     g.appendChild(lbl); g.appendChild(sub);
+    /* in the fuller look, a blob that goes deeper wears a dot for each thing inside it, with its name beside it
+       when the blob is under the pointer or has keyboard focus. A dot is ink if it goes deeper again and the
+       hub's color if it is a page, the same as the blobs themselves */
+    var sats = null;
+    if (rich && deeper && !ends && !feature){
+      var satG = el('g', { 'class':'sats' });
+      sats = (inside || node).kids.map(function(k){
+        var leafy = !(k.kids && k.kids.length);
+        for (var o2 = only(k); o2 && !leafy; o2 = only(o2)) if (!(o2.kids && o2.kids.length)) leafy = true;
+        var c = el('circle', { 'class':'sat' + (leafy ? ' leaf' : '') }), t = el('text', { 'class':'sat-name' });
+        t.textContent = k.label.length > 24 ? k.label.slice(0, 23) + '…' : k.label;
+        satG.appendChild(c); satG.appendChild(t);
+        return { c:c, t:t };
+      });
+      sats.g = satG;
+      g.appendChild(satG);
+    }
     nodesG.appendChild(g);
     /* a label that sits on the ground cuts a gap in the connection lines, so a line passes behind the words
        instead of through them. Nothing is drawn around the text itself. (Gravity points carry their label
@@ -370,7 +402,7 @@ export function createScene(o){
     var gap = null;
     if (!isHub){ gap = el('rect', { fill:'black', rx:5 }); linkMask.appendChild(gap); }
     var it = { node:node, g:g, path:path, lbl:lbl, spans:spans, sub:sub, isHub:isHub, deeper:deeper, ends:ends, lines:lines.length,
-      feature:feature || null, promote:promote || null, clip:clip, clipPath:clipPath, img:img, edge:edge,
+      feature:feature || null, promote:promote || null, clip:clip, clipPath:clipPath, img:img, edge:edge, sats:sats, r0:pos.r, sway:0, lt:0,
       idx:i, gap:gap, tw:0, twFs:0, x:pos.x, y:pos.y, r:pos.r, s:1, o:1, hs:1, lx:0, ly:0, px:0, py:0, dragX:0, dragY:0, hover:false,
       seed:i * 1.7 + node.label.length * .37, amp: isHub ? .09 : .07 };
     g.addEventListener('pointerenter', function(){ it.hover = true; });
@@ -407,6 +439,24 @@ export function createScene(o){
     gsap.to([curioG, curioLinksG], { opacity: node === ROOT ? 1 : 0, duration:D(.4) });
     curioG.style.pointerEvents = node === ROOT ? '' : 'none';
     legend.hidden = node === ROOT; /* the legend only means something inside a hub */
+    /* the fuller look keeps the brain in the room: a big soft render behind the level, in the hub's color.
+       Each gravity point looks at its own part of it, and every level deeper moves in closer */
+    if (back){
+      var rich = isRich(node);
+      back.classList.toggle('on', rich);
+      if (rich){
+        var depth = 0; for (var up = node; up && up !== ROOT; up = up.parent) depth++;
+        /* at a gravity point's own level the whole brain is in view, pushed toward that point's side.
+           Each level deeper moves in closer on it */
+        var part = { work:[.16, .06], teach:[-.04, -.14], build:[-.16, .06] }[node.hub.id] || [0, 0];
+        var R = rng(seedOf(node.id)), size = Math.min(Math.max(W, H), M * 1.5), zoom = 1 + (depth - 1) * .5;
+        var bx = (part[0] + (R() - .5) * .16 * (depth - 1)) * size * zoom, by = (part[1] + (R() - .5) * .16 * (depth - 1)) * size * zoom;
+        var bb = back.firstChild;
+        bb.style.width = bb.style.height = size.toFixed(0) + 'px';
+        bb.style.margin = (-size / 2).toFixed(0) + 'px 0 0 ' + (-size / 2).toFixed(0) + 'px';
+        bb.style.transform = 'translate(' + bx.toFixed(0) + 'px,' + by.toFixed(0) + 'px) scale(' + zoom.toFixed(2) + ') rotate(' + ((R() - .5) * 16 * depth).toFixed(1) + 'deg)';
+      }
+    }
     pickHint.style.opacity = node === ROOT ? 1 : 0;
   }
 
@@ -519,6 +569,26 @@ export function createScene(o){
       it.clipPath.setAttribute('d', outline); it.edge.setAttribute('d', outline);
       it.img.setAttribute('x', (cx - half).toFixed(1)); it.img.setAttribute('y', (cy - half).toFixed(1));
       it.img.setAttribute('width', (half * 2).toFixed(1)); it.img.setAttribute('height', (half * 2).toFixed(1));
+    }
+    if (it.sats){
+      /* the dots sit on an arc over the top of the blob, clear of the name underneath, and sway a little.
+         They hold still while the blob is under the pointer so the names can be read, and fade as the blob
+         swells into the next level */
+      var ns = it.sats.length, dr = dotR(), orbit = rr * 1.3 + dr + 6;
+      var step = Math.min(.62, 3.3 / Math.max(1, ns));
+      if (!it.hover) it.sway += (t - (it.lt || t));
+      it.lt = t;
+      var lean = Math.sin(it.sway * .5 + it.seed) * .09;
+      for (var q = 0; q < ns; q++){
+        var ang = -Math.PI / 2 + (q - (ns - 1) / 2) * step + lean, cs = Math.cos(ang), sn = Math.sin(ang);
+        var sx = cx + cs * orbit, sy2 = cy + sn * orbit, sat = it.sats[q];
+        sat.c.setAttribute('cx', sx.toFixed(1)); sat.c.setAttribute('cy', sy2.toFixed(1)); sat.c.setAttribute('r', dr.toFixed(1));
+        /* names fan outward; the ones near the top sit a line higher so neighbors do not run into each other */
+        var out = dr + 7 + (Math.abs(cs) < .3 ? 13 : 0);
+        sat.t.setAttribute('x', (sx + cs * out).toFixed(1)); sat.t.setAttribute('y', (sy2 + sn * out + 4).toFixed(1));
+        sat.t.setAttribute('text-anchor', cs > .3 ? 'start' : (cs < -.3 ? 'end' : 'middle'));
+      }
+      it.sats.g.style.opacity = clamp(2.2 - rr / it.r0 * 1.2, 0, 1);
     }
     it.g.style.opacity = it.o * arrO;
     var fs, ly, sy;
@@ -654,7 +724,7 @@ export function createScene(o){
 export default function BrainMap({ stack, done, reduce, busyRef, modeRef, sceneRef, mapLayerRef, mapShowing, onDive, onOpenPage }){
   var svgRef = useRef(null), nodesRef = useRef(null), linksRef = useRef(null), bgRef = useRef(null), wmRef = useRef(null);
   var curioRef = useRef(null), curioLinksRef = useRef(null), legendRef = useRef(null), pickRef = useRef(null);
-  var maskRef = useRef(null), maskAllRef = useRef(null);
+  var maskRef = useRef(null), maskAllRef = useRef(null), backRef = useRef(null);
   var cb = useRef(null);
   cb.current = { onDive:onDive, onOpenPage:onOpenPage, mapShowing:mapShowing };
 
@@ -663,7 +733,7 @@ export default function BrainMap({ stack, done, reduce, busyRef, modeRef, sceneR
       svg:svgRef.current, nodesG:nodesRef.current, linksG:linksRef.current, bgNet:bgRef.current, wm:wmRef.current,
       curioG:curioRef.current, curioLinksG:curioLinksRef.current, legend:legendRef.current, pickHint:pickRef.current,
       mapLayer:mapLayerRef.current, reduce:reduce, busyRef:busyRef,
-      linkMask:maskRef.current, linkMaskAll:maskAllRef.current,
+      linkMask:maskRef.current, linkMaskAll:maskAllRef.current, back:backRef.current,
       mapShowing:function(){ return cb.current.mapShowing(); },
       onDive:function(n, it){ cb.current.onDive(n, it); },
       onOpenPage:function(n, seq){ cb.current.onOpenPage(n, seq); }
@@ -688,6 +758,13 @@ export default function BrainMap({ stack, done, reduce, busyRef, modeRef, sceneR
 
   return (
     <div id="mapLayer" ref={mapLayerRef}>
+      {/* the brain behind the map, for the fuller look: the render in gray, laid over the hub's color and cut to the
+          brain's own outline, so it takes whichever color the level has. The engine moves and sizes it per level */}
+      <div id="brainBack" ref={backRef} aria-hidden="true">
+        <div className="bb" style={{ WebkitMaskImage:'url(' + BRAIN.frames[0] + ')', maskImage:'url(' + BRAIN.frames[0] + ')' }}>
+          <img src={BRAIN.frames[0]} alt="" />
+        </div>
+      </div>
       <svg id="mapSvg" ref={svgRef} aria-label="Brain map. Choose Work, Teach, or Build to go deeper.">
         <defs>
           {/* white shows the connection lines, black hides them: one black patch per label, added by the engine */}

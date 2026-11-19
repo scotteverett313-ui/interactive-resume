@@ -186,13 +186,20 @@ export const PH_STORY = '[The story: how I got here and why it stuck]';
 export const ROOT = { id:'root', label:'Brain', kids:[
   /* featured: case stories offered straight from this level. Each entry is one picture blob. Pressing it opens
      its first page, and Next and Previous on the page step through the rest of its pages in order */
-  { id:'work', label:'Work', blurb:'[Short blurb]', featured:[
+  /* rich: a trial of a fuller look for the levels inside a gravity point (only Work has it for now).
+           The brain stays behind the map, Scott says a line under the breadcrumbs, each blob that goes deeper
+           shows a dot for everything inside it, and a page that has a picture shows it in its blob.
+     says: the line Scott says on this level. A level without one says its `blurb`, if that is written.
+           The `says` lines under Work are drafts written for the trial; replace them with your own words. */
+  { id:'work', label:'Work', blurb:'[Short blurb]', rich:true,
+    says:'This is the work. Studio clients, design research for the state, and the art underneath all of it.',
+    featured:[
       { as:'Civilla', pages:['civoverview'] },
       { as:'SE|Design', pages:['mmm','robear','martez','krw'] }
     ], kids:[
-    { id:'does', label:'What I Do', blurb:'[Short blurb]', kids:[
+    { id:'does', label:'What I Do', blurb:'[Short blurb]', says:'Three lanes: my studio, design research, and my own art.', kids:[
       { id:'sedesign', label:'SE|Design', blurb:'My on-demand design studio for small businesses, nonprofits, and entrepreneurs.', kids:[
-        { id:'cases', label:'Case Studies', blurb:'[Short blurb]', kids:[
+        { id:'cases', label:'Case Studies', blurb:'[Short blurb]', says:'Four clients. Open one, then swipe through the rest.', kids:[
           { id:'robear', label:'Robear Detroit', page:{
             lede:'Custom landing page, 2025.',
             story:'Robear Detroit needed [what they needed]. I designed and built a custom landing page and [brand work], so they could [result]. [What changed for them after launch.]',
@@ -333,11 +340,11 @@ export const ROOT = { id:'root', label:'Brain', kids:[
           tags:['Illustration','Process'],
           proof:'[Photos of sketchbook spreads]',
           links:[{ to:'samples', why:'Quick thoughts here turn into finished pieces.' },{ to:'thissite', why:'The storyboard for this site came from here.' }] }} ]} ]},
-    { id:'resume', label:'Resume', blurb:'[Short blurb]', kids:[
+    { id:'resume', label:'Resume', blurb:'[Short blurb]', says:'The short version. Grab the PDF, or walk through it one role at a time.', kids:[
       { id:'resumepdf', label:'Resume PDF', page:{
         lede:'Roles, dates, and skills on one page.',
         doc:{ file:'/cv/scott-everett-resume.pdf', pages:['/cv/page-1.webp'] } }},
-      { id:'iresume', label:'Interactive Resume', blurb:'[Short blurb]', kids:[
+      { id:'iresume', label:'Interactive Resume', blurb:'[Short blurb]', says:'Where I have worked, one stop at a time.', kids:[
         { id:'irule', label:'iRule', page:{
           lede:'Where I cut my teeth in user interface design.',
           story:'Sr. UX/UI Designer, March 2015 to July 2018, in Detroit. I built a design system and library of custom mobile interfaces that wirelessly control lights, thermostats, shades, and appliances across the iRule, On Controls, and Kramer brands.',
@@ -358,7 +365,7 @@ export const ROOT = { id:'root', label:'Brain', kids:[
           lede:'[One line: how I would sum up what I bring]',
           story:'[Draft list below is pulled from the work on this site. Edit, reorder, or cut.]',
           list:['Design research: interviews, problem definition, user testing','UX/UI design and prototyping, web and mobile','Design systems and component libraries','Journey mapping and workshop facilitation','Brand identity and packaging','Web design on WordPress, Wix, and Squarespace, and building with code','Illustration and digital art','Teaching and curriculum design'] }} ]} ]},
-    { id:'background', label:'Background', blurb:'[Short blurb]', kids:[
+    { id:'background', label:'Background', blurb:'[Short blurb]', says:'Where I come from, and how I trained.', kids:[
       { id:'roots', label:'Where it started', page:{
         lede:'Started here and never left.',
         story:'It started in Detroit with my mom noticing I could draw. That turned into art classes, then custom pieces for family. After we moved to Arizona I took AP Studio Art at Chandler High and figure drawing at Maricopa Community College, which led to an $80K scholarship to CCS.',
