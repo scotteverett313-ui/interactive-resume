@@ -187,8 +187,8 @@ export const ROOT = { id:'root', label:'Brain', kids:[
   /* featured: case stories offered straight from this level. Each entry is one picture blob. Pressing it opens
      its first page, and Next and Previous on the page step through the rest of its pages in order */
   /* rich: a trial of a fuller look for the levels inside a gravity point (only Work has it for now).
-           The brain stays behind the map, Scott says a line under the breadcrumbs, each blob that goes deeper
-           shows a dot for everything inside it, and a page that has a picture shows it in its blob.
+           Scott says a line under the breadcrumbs, each blob that goes deeper shows a dot for everything
+           inside it, and a page that has a picture shows it in its blob.
      says: the line Scott says on this level. A level without one says its `blurb`, if that is written.
            The `says` lines under Work are drafts written for the trial; replace them with your own words. */
   { id:'work', label:'Work', blurb:'[Short blurb]', rich:true,

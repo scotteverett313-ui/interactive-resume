@@ -2,7 +2,6 @@ import React, { useEffect, useLayoutEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ROOT, CURIO_ROOT, BYID, only } from './content';
 import { DOT_COUNT } from './DotNav';
-import { BRAIN } from './character';
 import { blobPath, rng, clamp, wrapLabel, curvePath, curvePoint, seedOf, scatter, webLinks } from './blob';
 
 const NS = 'http://www.w3.org/2000/svg';
@@ -21,7 +20,7 @@ function el(tag, attrs){ var e = document.createElementNS(NS, tag); for (var k i
 export function createScene(o){
   var svg = o.svg, nodesG = o.nodesG, linksG = o.linksG, bgNet = o.bgNet, wm = o.wm;
   var curioG = o.curioG, curioLinksG = o.curioLinksG, legend = o.legend, pickHint = o.pickHint, mapLayer = o.mapLayer;
-  var linkMask = o.linkMask, linkMaskAll = o.linkMaskAll, back = o.back;
+  var linkMask = o.linkMask, linkMaskAll = o.linkMaskAll;
   var reduce = o.reduce, busyRef = o.busyRef;
   function D(x){ return reduce ? 0 : x; }
   function busy(){ return busyRef.current; }
@@ -439,24 +438,6 @@ export function createScene(o){
     gsap.to([curioG, curioLinksG], { opacity: node === ROOT ? 1 : 0, duration:D(.4) });
     curioG.style.pointerEvents = node === ROOT ? '' : 'none';
     legend.hidden = node === ROOT; /* the legend only means something inside a hub */
-    /* the fuller look keeps the brain in the room: a big soft render behind the level, in the hub's color.
-       Each gravity point looks at its own part of it, and every level deeper moves in closer */
-    if (back){
-      var rich = isRich(node);
-      back.classList.toggle('on', rich);
-      if (rich){
-        var depth = 0; for (var up = node; up && up !== ROOT; up = up.parent) depth++;
-        /* at a gravity point's own level the whole brain is in view, pushed toward that point's side.
-           Each level deeper moves in closer on it */
-        var part = { work:[.16, .06], teach:[-.04, -.14], build:[-.16, .06] }[node.hub.id] || [0, 0];
-        var R = rng(seedOf(node.id)), size = Math.min(Math.max(W, H), M * 1.5), zoom = 1 + (depth - 1) * .5;
-        var bx = (part[0] + (R() - .5) * .16 * (depth - 1)) * size * zoom, by = (part[1] + (R() - .5) * .16 * (depth - 1)) * size * zoom;
-        var bb = back.firstChild;
-        bb.style.width = bb.style.height = size.toFixed(0) + 'px';
-        bb.style.margin = (-size / 2).toFixed(0) + 'px 0 0 ' + (-size / 2).toFixed(0) + 'px';
-        bb.style.transform = 'translate(' + bx.toFixed(0) + 'px,' + by.toFixed(0) + 'px) scale(' + zoom.toFixed(2) + ') rotate(' + ((R() - .5) * 16 * depth).toFixed(1) + 'deg)';
-      }
-    }
     pickHint.style.opacity = node === ROOT ? 1 : 0;
   }
 
@@ -724,7 +705,7 @@ export function createScene(o){
 export default function BrainMap({ stack, done, reduce, busyRef, modeRef, sceneRef, mapLayerRef, mapShowing, onDive, onOpenPage }){
   var svgRef = useRef(null), nodesRef = useRef(null), linksRef = useRef(null), bgRef = useRef(null), wmRef = useRef(null);
   var curioRef = useRef(null), curioLinksRef = useRef(null), legendRef = useRef(null), pickRef = useRef(null);
-  var maskRef = useRef(null), maskAllRef = useRef(null), backRef = useRef(null);
+  var maskRef = useRef(null), maskAllRef = useRef(null);
   var cb = useRef(null);
   cb.current = { onDive:onDive, onOpenPage:onOpenPage, mapShowing:mapShowing };
 
@@ -733,7 +714,7 @@ export default function BrainMap({ stack, done, reduce, busyRef, modeRef, sceneR
       svg:svgRef.current, nodesG:nodesRef.current, linksG:linksRef.current, bgNet:bgRef.current, wm:wmRef.current,
       curioG:curioRef.current, curioLinksG:curioLinksRef.current, legend:legendRef.current, pickHint:pickRef.current,
       mapLayer:mapLayerRef.current, reduce:reduce, busyRef:busyRef,
-      linkMask:maskRef.current, linkMaskAll:maskAllRef.current, back:backRef.current,
+      linkMask:maskRef.current, linkMaskAll:maskAllRef.current,
       mapShowing:function(){ return cb.current.mapShowing(); },
       onDive:function(n, it){ cb.current.onDive(n, it); },
       onOpenPage:function(n, seq){ cb.current.onOpenPage(n, seq); }
@@ -758,13 +739,6 @@ export default function BrainMap({ stack, done, reduce, busyRef, modeRef, sceneR
 
   return (
     <div id="mapLayer" ref={mapLayerRef}>
-      {/* the brain behind the map, for the fuller look: the render in gray, laid over the hub's color and cut to the
-          brain's own outline, so it takes whichever color the level has. The engine moves and sizes it per level */}
-      <div id="brainBack" ref={backRef} aria-hidden="true">
-        <div className="bb" style={{ WebkitMaskImage:'url(' + BRAIN.frames[0] + ')', maskImage:'url(' + BRAIN.frames[0] + ')' }}>
-          <img src={BRAIN.frames[0]} alt="" />
-        </div>
-      </div>
       <svg id="mapSvg" ref={svgRef} aria-label="Brain map. Choose Work, Teach, or Build to go deeper.">
         <defs>
           {/* white shows the connection lines, black hides them: one black patch per label, added by the engine */}

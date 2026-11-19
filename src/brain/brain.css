@@ -71,13 +71,6 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
 .brain .node .sat.leaf{fill:var(--hub)}
 .brain .node .sat-name{font-family:var(--mono);font-size:11px;letter-spacing:.04em;fill:var(--ink);opacity:0;pointer-events:none;transition:opacity .15s ease}
 .brain .node:hover .sat-name,.brain .node:focus-visible .sat-name{opacity:1}
-/* ...and the brain behind the map */
-#brainBack{position:absolute;inset:0;overflow:hidden;pointer-events:none;opacity:0;transition:opacity .6s ease}
-#brainBack.on{opacity:.16}
-.brain[data-scheme="dark"] #brainBack.on{opacity:.3}
-#brainBack .bb{position:absolute;left:50%;top:50%;background:var(--hub);transition:transform 1.1s cubic-bezier(.3,.7,.2,1);
-  -webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center}
-#brainBack .bb img{display:block;width:100%;height:100%;max-width:none;filter:grayscale(1) contrast(1.15);mix-blend-mode:multiply}
 /* the one time a blob gets an edge: keyboard focus, in whichever color shows against the blob */
 .brain .node:focus-visible path{stroke:var(--ink);stroke-width:5px}
 .brain .node.is-deep:focus-visible path{stroke:var(--hub)}
