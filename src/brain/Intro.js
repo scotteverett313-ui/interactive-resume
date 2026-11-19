@@ -89,7 +89,11 @@ var Intro = forwardRef(function Intro({ stageRef, sectionRef, mapLayerRef, dotTa
 
     var arrive = { p:0 };
     var tl = gsap.timeline({ paused:true });
-    tl.to(hint, { opacity:0, duration:.5 }, 0)
+    /* Every tween below whose target also has an "intro is done" rule in brain.css is given its starting value
+       outright (fromTo), never read from the page. When the intro is skipped, or the visit starts on a deep link,
+       the timeline's first move is a jump to the end with those rules already applied; a start value read then
+       would be the finished one, and Replay would rewind to a map still showing on top of the character */
+    tl.fromTo(hint, { opacity:1 }, { opacity:0, duration:.5 }, 0)
       /* the opening title lifts away as the scroll begins */
       .to(homeTitle, { opacity:0, y:-14, duration:.9, ease:'power1.in' }, 0)
       /* the stickers go with it; autoAlpha also hides them, so they cannot be pressed or tabbed to once gone */
@@ -124,7 +128,7 @@ var Intro = forwardRef(function Intro({ stageRef, sectionRef, mapLayerRef, dotTa
             while the curiosities and their connections sweep in from beyond the screen (BrainMap moves each
             part; this only tells it how far along we are). Then the brain dissolves underneath */
       .addLabel('map', 5)
-      .to(mapLayer, { opacity:1, duration:.4 }, 'map')
+      .fromTo(mapLayer, { opacity:0 }, { opacity:1, duration:.4 }, 'map')
       .fromTo(arrive, { p:0 }, { p:1, duration:4, ease:'none', onUpdate:function(){ onArriveRef.current(arrive.p); } }, 'map')
       .to(brain, { opacity:0, duration:1.6 }, 7.2)
       .to(svg, { opacity:0, duration:.6 }, 8.4);

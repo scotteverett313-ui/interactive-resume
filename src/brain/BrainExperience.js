@@ -138,6 +138,9 @@ export default function BrainExperience(){
   /* jump anywhere in the brain from a "Connects to" link: rebuild the path, then land on the page or the level */
   var goToNode = useCallback(function(n){
     if (busyRef.current) return;
+    /* a jump into the brain can start while the intro is still on screen (from the Gallery, the notes, or
+       Work with me). It ends the intro, so the map is what is behind the page when it closes */
+    setDone(true);
     /* an outer-orbit curiosity has no level of its own: its page opens over wherever the map is */
     if (n.curio){ closePage(true); openPage(n); return; }
     var line = lineOf(n);
