@@ -170,11 +170,14 @@
        sub:    optional short tag shown after the label
    ============================================================ */
 
-/* The two titles in the top-left corner.
+/* The titles. `splash` is the full-screen card before the character on a first visit (Splash.js).
+   The other two sit in the top-left corner.
      home: on the opening screen with the character. It fades as the intro starts.
      map:  on the map, once you are inside the brain.
    `sub` is the small line under the title; leave it as '' for none. */
 export const TITLES = {
+  /* the splash before the character, on the first visit: the name, and the title under it */
+  splash: { title: 'Scott Everett', sub: 'Omni Designer' },
   home: { title: 'What up doe.', sub: "I'm Scott Everett, Omni Designer. I design, build, and teach in Detroit." },
   map:  { title: 'It all connects.', sub: '' }
 };

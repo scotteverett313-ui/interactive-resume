@@ -216,6 +216,22 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
 }
 .brain .sheet .kicker .status{display:inline-flex;align-items:center;margin-left:14px;color:var(--ink)}
 
+/* ---- the splash (Splash.js): the name and title, full screen, before the character on a first visit ---- */
+#splash{position:absolute;inset:0;z-index:40;background:var(--ground);display:grid;place-items:center;overflow:hidden;
+  box-shadow:0 4px 0 var(--ink)}
+#splash .sp-in{display:flex;flex-direction:column;align-items:center;gap:18px;padding:0 20px;text-align:center}
+#splash .sp-name{margin:0;font-family:var(--display);font-weight:800;font-size:clamp(64px,21vw,176px);line-height:.88;letter-spacing:-.035em;color:var(--ink)}
+#splash .sp-line{display:block;overflow:hidden;padding:0 .02em .08em}
+#splash .ch{display:inline-block}
+#splash .sp-title{margin:0;font-family:var(--mono);font-size:clamp(13px,1.5vw,18px);letter-spacing:.14em;text-transform:uppercase;color:var(--ink)}
+#splash .sp-dots{display:flex;gap:10px;margin:2px 0 0}
+#splash .sp-dots i{display:block;width:14px;height:14px;border-radius:50%}
+#splash .d-work{background:var(--work)}
+#splash .d-teach{background:var(--teach)}
+#splash .d-build{background:var(--build)}
+/* while the splash is up, the speech bubble and the stickers hold their entrance; it plays as the card lifts */
+.stage.splashing #homeTitle .bubble,.stage.splashing .sticker-art{animation:none;opacity:0}
+
 /* the two titles: the opening screen's, and the map's. Same corner, same type, one at a time */
 .brain .site-title{position:absolute;top:calc(18px + env(safe-area-inset-top,0px));left:calc(16px + env(safe-area-inset-left,0px));right:150px;z-index:5;pointer-events:none}
 .brain .site-title h1{font-family:var(--display);font-weight:800;line-height:1;letter-spacing:-.02em;margin:0;text-wrap:balance;color:var(--ink)}

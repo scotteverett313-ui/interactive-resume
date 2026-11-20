@@ -320,6 +320,16 @@ redirect, since Work is now a level of the map. Links shared while the hubs
 were called Learn and Improve go to `/work` and `/build`. They are temporary
 redirects for now; change `"permanent": false` to `true` once the move is final.
 
+### The splash
+
+On the first visit in a browser session, the front door opens with a full
+screen card: the name rising in letter by letter, the title, and three dots in
+the Work, Teach and Build colors. After about two seconds it slides up and the
+character makes his entrance. A press, a key, a scroll or a swipe skips ahead.
+It never shows on a link to anywhere else, or with reduced motion. The words
+are `TITLES.splash` in `content.js`; the card is `src/brain/Splash.js`. Add
+`?splash=1` to the address to see it again, or `?splash=0` to skip it.
+
 ### The titles
 
 The headline on the opening screen and the one on the map are `TITLES` at the

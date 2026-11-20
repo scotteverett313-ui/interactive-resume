@@ -12,6 +12,7 @@ import NotesPage from './NotesPage';
 import GalleryPage from './GalleryPage';
 import LevelCards from './LevelCards';
 import IndexPage from './IndexPage';
+import Splash, { wantSplash } from './Splash';
 import { pathFor, parsePath, titleFor, settle, sheetFor, lineOf } from './routes';
 import { PALETTES, paletteVars } from './palettes';
 import ThemeToggle, { readThemeChoice, saveThemeChoice } from './ThemeToggle';
@@ -35,6 +36,9 @@ export default function BrainExperience(){
   /* where the visitor arrived. Anywhere but the front door lands straight on that place, with no intro to scroll through */
   var arrived = useMemo(function(){ return parsePath(window.location.pathname); }, []);
   var [done, setDone] = useState(reduce || !isHome(arrived)); /* reduced motion skips the intro too */
+  /* the name and title card before the character: first visit to the front door, motion allowed */
+  var [splash, setSplash] = useState(function(){ return wantSplash(isHome(arrived), reduce); });
+  var endSplash = useCallback(function(){ setSplash(false); }, []);
   var [stack, setStack] = useState(arrived.stack);
   var [page, setPage] = useState({ node:arrived.pageNode, instant:true });
   var [sheet, setSheet] = useState(arrived.sheet);
@@ -245,8 +249,9 @@ export default function BrainExperience(){
   return (
     <div className="brain" data-scheme={palette.scheme} style={vars}>
       <section id="intro" ref={sectionRef} className={done ? 'done' : undefined} aria-label="Intro">
-        <div className={'stage' + (done ? ' is-done' : '') + (wantCards && cardsOn ? ' cards-on' : '') + (menuBubble ? ' menu-bubble' : '')} id="stage" ref={stageRef}>
+        <div className={'stage' + (done ? ' is-done' : '') + (wantCards && cardsOn ? ' cards-on' : '') + (menuBubble ? ' menu-bubble' : '') + (splash ? ' splashing' : '')} id="stage" ref={stageRef}>
           <div className="grain" aria-hidden="true" />
+          {splash && <Splash onDone={endSplash} />}
           <Intro ref={introRef} stageRef={stageRef} sectionRef={sectionRef} mapLayerRef={mapLayerRef} dotTagRef={dotTagRef}
             reduce={reduce} done={done} onFinish={finishIntro} onMapArrival={onMapArrival} onSticker={onSticker} />
           <BrainMap stack={stack} done={done} reduce={reduce}
