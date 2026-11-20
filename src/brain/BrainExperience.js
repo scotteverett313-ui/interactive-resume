@@ -14,7 +14,8 @@ import LevelCards from './LevelCards';
 import IndexPage from './IndexPage';
 import { pathFor, parsePath, titleFor, settle, sheetFor, lineOf } from './routes';
 import { PALETTES, paletteVars } from './palettes';
-import { readThemeChoice, saveThemeChoice } from './ThemeToggle';
+import ThemeToggle, { readThemeChoice, saveThemeChoice } from './ThemeToggle';
+import { STATUS } from './studio';
 import './brain.css';
 
 var SITE = "Inside Scott's Brain";
@@ -57,6 +58,8 @@ export default function BrainExperience(){
 
   var busyRef = useRef(false), modeRef = useRef(null), sceneRef = useRef(null), divedRef = useRef(false);
   var [cardsOn, setCardsOn] = useState(false);
+  /* the menu is open as the speech bubble on the opening screen: the bubble itself steps aside */
+  var [menuBubble, setMenuBubble] = useState(false);
   var stageRef = useRef(null), sectionRef = useRef(null), mapLayerRef = useRef(null), dotTagRef = useRef(null), introRef = useRef(null);
   var stackRef = useRef(stack); stackRef.current = stack;
   var pageRef = useRef(page); pageRef.current = page;
@@ -242,7 +245,7 @@ export default function BrainExperience(){
   return (
     <div className="brain" data-scheme={palette.scheme} style={vars}>
       <section id="intro" ref={sectionRef} className={done ? 'done' : undefined} aria-label="Intro">
-        <div className={'stage' + (done ? ' is-done' : '') + (wantCards && cardsOn ? ' cards-on' : '')} id="stage" ref={stageRef}>
+        <div className={'stage' + (done ? ' is-done' : '') + (wantCards && cardsOn ? ' cards-on' : '') + (menuBubble ? ' menu-bubble' : '')} id="stage" ref={stageRef}>
           <div className="grain" aria-hidden="true" />
           <Intro ref={introRef} stageRef={stageRef} sectionRef={sectionRef} mapLayerRef={mapLayerRef} dotTagRef={dotTagRef}
             reduce={reduce} done={done} onFinish={finishIntro} onMapArrival={onMapArrival} onSticker={onSticker} />
@@ -273,11 +276,25 @@ export default function BrainExperience(){
           {wantCards && cardsOn && <LevelCards node={level} onOpen={openPage} />}
           <Crumbs done={done && !atTop} stack={stack} pageNode={page.node} onBack={onBack} onGoTo={goTo} />
           {/* every way out sits in one menu, top right: the bottom of the screen is left to the character and the map */}
-          <Menu done={done} mode={mode} path={location.pathname} hidden={!!page.node}
+          <Menu done={done} path={location.pathname} hidden={!!page.node} onOpen={setMenuBubble}
             onIndex={openIndex} onStudio={openStudio} onGallery={openGallery} onNotes={function(){ openNote(null); }}
-            onSkip={finishIntro} onReplay={replayIntro} onToggleTheme={toggleTheme} />
-          <DotNav done={done} stack={stack} pageNode={page.node || sheet} tagRef={dotTagRef} onReplay={replayIntro}
-            onGoTo={function(d){ setSheet(null); goTo(d); }} />
+            onSkip={finishIntro} onReplay={replayIntro} />
+          {/* along the bottom: the status, which opens Work with me, and Just the work. Pages cover them */}
+          <div id="siteBar" hidden={!!page.node}>
+            <button id="statusBtn" className="chip-btn" type="button" onClick={openStudio}
+              aria-label={STATUS.open ? STATUS.label + '. Work with me' : 'Work with me'}>
+              {STATUS.open && <i className="open-dot" aria-hidden="true" />}{STATUS.open ? STATUS.label : 'Work with me'}
+            </button>
+            <button id="justWork" className="chip-btn" type="button" onClick={openIndex} aria-label="Just the work">
+              <span className="jw-full" aria-hidden="true">Just the work →</span><span className="jw-short" aria-hidden="true">Work →</span>
+            </button>
+          </div>
+          <ThemeToggle mode={mode} onToggle={toggleTheme} />
+          {/* the depth dots are for the intro and the map; a page or a full-screen page has its own way back */}
+          {!page.node && !sheet && (
+            <DotNav done={done} stack={stack} pageNode={null} tagRef={dotTagRef} onReplay={replayIntro}
+              onGoTo={function(d){ goTo(d); }} />
+          )}
           <NodePage node={page.node} instant={page.instant} seq={page.seq} stack={stack} reduce={reduce}
             onBack={function(){ closePage(); }} onGoToNode={goToNode} onDiveTo={diveTo} onOpenPage={openPage} onAction={onAction} />
           {sheet && sheet.type === 'studio' && <StudioPage onClose={closeSheet} onGoToNode={goToNodeFromSheet} />}

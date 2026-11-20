@@ -1,28 +1,26 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { STATUS } from './studio';
 
-/* The one menu: a single button in the top-right corner of the opening screen and the map, in place of the
-   row of buttons that used to sit along the bottom. Pressing it drops a small card with every way out:
+/* The menu: a single button in the top-right corner of the opening screen and the map. Pressing it opens a
+   small card with every way out:
 
-     the "Open for work" status (studio.js)
      Just the work, Work with me, Gallery, Notes
      Skip intro while the intro is on screen, Replay intro after it
-     light or dark mode
+
+   On the opening screen the card takes the speech bubble's place: the character says the menu, and "What up
+   doe." comes back when it closes. Everywhere else it drops down under the button.
 
    It closes on Escape (ahead of the brain's own Escape, so nothing else moves), on a press outside it, on any
-   choice except the light and dark switch, and whenever the address changes. Focus goes into the card when it
-   opens and back to the button when it closes with Escape.
+   choice, when the address changes, and on the opening screen as soon as scrolling starts. Focus goes into the
+   card when it opens and back to the button when it closes with Escape.
 
-     done:   whether the intro is over (Skip intro, or Replay intro)
-     mode:   'light' or 'dark'
-     path:   the current address; the card closes when it changes
-     hidden: true while a page is open over the map (the page has its own way back) */
+     done:     whether the intro is over (Skip intro, or Replay intro)
+     path:     the current address; the card closes when it changes
+     hidden:   true while a page is open over the map (the page has its own way back)
+     onOpen:   told whether the card is open, so the speech bubble can step aside */
 
 var ICONS = {
   menu: <path d="M4 8h16M4 16h16" />,
-  close: <path d="M6 6l12 12M18 6L6 18" />,
-  moon: <path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5Z" />,
-  sun: <><circle cx="12" cy="12" r="4" /><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4" /></>
+  close: <path d="M6 6l12 12M18 6L6 18" />
 };
 function Icon({ name }){
   return (
@@ -32,12 +30,22 @@ function Icon({ name }){
   );
 }
 
-export default function Menu({ done, mode, path, hidden, onIndex, onStudio, onGallery, onNotes, onSkip, onReplay, onToggleTheme }){
+export default function Menu({ done, path, hidden, onIndex, onStudio, onGallery, onNotes, onSkip, onReplay, onOpen }){
   var [open, setOpen] = useState(false);
   var wrapRef = useRef(null), btnRef = useRef(null), cardRef = useRef(null);
+  /* on the opening screen the card is the speech bubble */
+  var bubble = !done;
 
-  /* a new address (a choice made, Back, Forward) or a page opening closes it */
-  useEffect(function(){ setOpen(false); }, [path, hidden]);
+  /* a new address (a choice made, Back, Forward), a page opening, or the intro ending closes it */
+  useEffect(function(){ setOpen(false); }, [path, hidden, done]);
+  useEffect(function(){ if (onOpen) onOpen(open && bubble); }, [open, bubble, onOpen]);
+  /* the speech bubble belongs to the opening screen: the moment the intro starts to scroll, it closes */
+  useEffect(function(){
+    if (!open || !bubble) return undefined;
+    function onScroll(){ if (window.scrollY > 12) setOpen(false); }
+    window.addEventListener('scroll', onScroll, { passive:true });
+    return function(){ window.removeEventListener('scroll', onScroll); };
+  }, [open, bubble]);
 
   useEffect(function(){
     if (!open) return undefined;
@@ -63,7 +71,6 @@ export default function Menu({ done, mode, path, hidden, onIndex, onStudio, onGa
   }, [open]);
 
   function pick(fn){ return function(){ setOpen(false); fn(); }; }
-  var next = mode === 'dark' ? 'light' : 'dark';
   var ways = [
     { id:'menuWork', label:'Just the work', fn:onIndex },
     { id:'menuStudio', label:'Work with me', fn:onStudio },
@@ -78,8 +85,7 @@ export default function Menu({ done, mode, path, hidden, onIndex, onStudio, onGa
         <Icon name={open ? 'close' : 'menu'} />{open ? 'Close' : 'Menu'}
       </button>
       {open && (
-        <nav id="menuCard" ref={cardRef} aria-label="Menu">
-          {STATUS.open && <p className="m-status"><i className="open-dot" aria-hidden="true" />{STATUS.label}</p>}
+        <nav id="menuCard" ref={cardRef} aria-label="Menu" className={bubble ? 'as-bubble' : undefined}>
           <ul className="m-ways">
             {ways.map(function(w){
               return <li key={w.id}><button id={w.id} type="button" onClick={pick(w.fn)}>{w.label}<span aria-hidden="true">→</span></button></li>;
@@ -89,11 +95,15 @@ export default function Menu({ done, mode, path, hidden, onIndex, onStudio, onGa
             {done
               ? <button id="menuReplay" className="chip-btn" type="button" onClick={pick(onReplay)}>Replay intro</button>
               : <button id="menuSkip" className="chip-btn" type="button" onClick={pick(onSkip)}>Skip intro</button>}
-            {/* the light and dark switch keeps the card open, so the change can be seen and undone */}
-            <button id="menuTheme" className="chip-btn" type="button" onClick={onToggleTheme} aria-label={'Switch to ' + next + ' mode'}>
-              <Icon name={next === 'dark' ? 'moon' : 'sun'} />{next === 'dark' ? 'Dark' : 'Light'}
-            </button>
           </div>
+          {/* as the speech bubble, it keeps the bubble's tail, pointing down at the character */}
+          {bubble && (
+            <svg className="tail" viewBox="0 0 46 40" width="46" height="40" aria-hidden="true">
+              <path className="tail-shade" d="M7 7.5 L45 44 L33 7.5 Z" />
+              <path className="tail-fill" d="M2 -0.5 L2 1.5 L40 38 L28 1.5 L28 -0.5 Z" />
+              <path className="tail-line" d="M2 1.5 L40 38 L28 1.5" />
+            </svg>
+          )}
         </nav>
       )}
     </div>

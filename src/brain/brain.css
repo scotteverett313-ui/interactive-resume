@@ -196,7 +196,11 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
 #levelCards .go{margin-top:2px}
 #levelCards .card:hover .go{text-decoration:underline;text-underline-offset:4px}
 #levelCards .ph{color:var(--muted);text-decoration:underline dashed 1.5px;text-underline-offset:4px}
-#levelCards .rail-arrows{position:absolute;right:14px;bottom:-58px;display:flex;gap:8px}
+#levelCards .rail-arrows{position:absolute;inset:0;pointer-events:none}
+#levelCards .rail-arrows .chip-btn{position:absolute;top:calc(50% - 22px);pointer-events:auto;box-shadow:3px 4px 0 var(--ink)}
+#levelCards .rail-arrows .chip-btn:first-child{left:6px}
+#levelCards .rail-arrows .chip-btn:last-child{right:6px}
+#levelCards .rail-arrows .chip-btn[disabled]{visibility:hidden}
 #levelCards .rail-arrows .chip-btn{min-height:0;width:44px;height:44px;padding:0;display:grid;place-items:center;font-size:18px;box-sizing:border-box}
 /* a short screen: the cards keep the picture, the name and one line */
 @media (max-height:620px){
@@ -266,7 +270,7 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
 #dots .tag{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;background:var(--paper);border:1.5px solid var(--ink);padding:3px 7px;border-radius:3px;white-space:nowrap;
   max-width:min(40vw,220px);overflow:hidden;text-overflow:ellipsis}
 
-#legend{position:absolute;left:calc(16px + env(safe-area-inset-left,0px));bottom:calc(18px + env(safe-area-inset-bottom,0px));display:flex;gap:16px;flex-wrap:wrap;font-family:var(--mono);font-size:12px;z-index:4;pointer-events:none}
+#legend{position:absolute;left:calc(16px + env(safe-area-inset-left,0px));bottom:calc(72px + env(safe-area-inset-bottom,0px));display:flex;gap:16px;flex-wrap:wrap;font-family:var(--mono);font-size:12px;z-index:4;pointer-events:none}
 #legend span{display:flex;align-items:center;gap:6px}
 #legend b{display:inline-block;width:12px;height:12px;border-radius:50%}
 #legend b.fill{background:var(--ink)}
@@ -408,6 +412,14 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
 #page .proof .pic-open:focus-visible::after{opacity:1}
 #page .proof .cap{position:relative;background:var(--paper);border:2px solid var(--ink);padding:10px 14px;font-family:var(--mono);font-size:12px;letter-spacing:.04em;max-width:100%}
 
+/* ---- along the bottom: the status (opens Work with me) on the left, Just the work on the right, then the light and dark button ---- */
+#siteBar{position:absolute;left:calc(14px + env(safe-area-inset-left,0px));right:calc(66px + env(safe-area-inset-right,0px));
+  bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:6;display:flex;justify-content:space-between;gap:8px;pointer-events:none}
+#siteBar .chip-btn{pointer-events:auto;min-height:0;height:44px;padding:0 16px;box-sizing:border-box;display:inline-flex;align-items:center;white-space:nowrap}
+#siteBar .jw-short{display:none}
+#themeToggle{position:absolute;right:calc(14px + env(safe-area-inset-right,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:10;
+  width:44px;height:44px;min-height:0;padding:0;display:grid;place-items:center;box-sizing:border-box}
+
 /* ---- the menu (Menu.js): one button top right, and a small card with every way out ---- */
 #menu{position:absolute;top:calc(16px + env(safe-area-inset-top,0px));right:calc(16px + env(safe-area-inset-right,0px));z-index:11;
   display:flex;flex-direction:column;align-items:flex-end}
@@ -427,6 +439,16 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
 #menuCard .m-ways button:hover{text-decoration:underline;text-underline-offset:4px}
 #menuCard .m-foot{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
 #menuCard .m-foot .chip-btn{min-height:0;height:40px;padding:0 14px;box-sizing:border-box;display:inline-flex;align-items:center;gap:7px;font-size:13px}
+/* on the opening screen the card is the speech bubble: in the bubble's corner, in the bubble's shape, with its tail */
+#menuCard.as-bubble{position:fixed;top:calc(18px + env(safe-area-inset-top,0px));left:calc(16px + env(safe-area-inset-left,0px));margin:0;
+  width:min(360px,calc(100vw - 182px));border-width:3px;border-radius:26px 30px 24px 28px / 28px 24px 30px 24px;
+  transform-origin:40px calc(100% + 40px);animation:brain-pop .4s cubic-bezier(.3,1.5,.5,1) both}
+#menuCard.as-bubble .tail{position:absolute;top:100%;left:26px;overflow:visible;display:block}
+@media (min-aspect-ratio:4/5){#menuCard.as-bubble .tail{left:auto;right:36px}}
+#menuCard .tail-shade{fill:var(--ink)}
+#menuCard .tail-fill{fill:var(--ground)}
+#menuCard .tail-line{fill:none;stroke:var(--ink);stroke-width:3px;stroke-linejoin:round;stroke-linecap:round}
+.stage.menu-bubble #homeTitle{visibility:hidden}
 
 /* ---- the picture viewer (PictureViewer.js): a page's picture shown whole, over everything ----
    It is always dark with light controls, whichever mode the site is in: inside it, ink and ground
@@ -587,7 +609,14 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
   #page .s-next{min-height:210px;padding:20px}
   /* on a phone the arrows give way to swiping, and the cards run nearly to the depth dots */
   #levelCards .rail-arrows{display:none}
-  #levelCards{bottom:calc(18px + env(safe-area-inset-bottom,0px))}
+  /* the bar along the bottom: smaller buttons; the centered hints move up out of its way */
+  #siteBar .chip-btn{padding:0 12px;font-size:13px;height:40px}
+  #themeToggle{width:40px;height:40px;bottom:calc(16px + env(safe-area-inset-bottom,0px))}
+  #siteBar{right:calc(62px + env(safe-area-inset-right,0px))}
+  #hint{bottom:calc(74px + env(safe-area-inset-bottom,0px))}
+  #pickHint{bottom:calc(70px + env(safe-area-inset-bottom,0px))}
+  /* the speech bubble menu goes under the Close button, the full width of the screen */
+  #menuCard.as-bubble{top:calc(72px + env(safe-area-inset-top,0px));width:calc(100vw - 32px - env(safe-area-inset-left,0px) - env(safe-area-inset-right,0px))}
   #levelCards ul{gap:12px}
   #levelCards .words{padding:11px 13px 13px;gap:6px}
   #levelCards .line{font-size:14px}
@@ -611,7 +640,14 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
   .brain .ways .go{display:none}
 }
 @media (prefers-reduced-motion:reduce){
-  .brain .open-dot,#levelCards,#menuCard{animation:none}
+  .brain .open-dot,#levelCards,#menuCard,#menuCard.as-bubble{animation:none}
   .brain .grain,#hint span.line,#mapTitle,#homeTitle .bubble,.brain .sheet,.brain .sticker-art,.brain .mark,#viewer,#viewer .viewer-stage img{animation:none}
   .brain,.brain *{transition:none!important}
+}
+
+/* the narrowest phones: Just the work says just "Work" */
+@media (max-width:350px){
+  #siteBar .jw-full{display:none}
+  #siteBar .jw-short{display:inline}
+  #siteBar .chip-btn{padding:0 10px}
 }

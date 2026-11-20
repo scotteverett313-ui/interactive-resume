@@ -298,8 +298,9 @@ export function createScene(o){
     var rowY = H / 2 - (DOT_COUNT * 30 - 2) / 2 + 14 + (depth + 1) * 30;
     var tag = { x0:W - 52 - tagW - 10, y0:rowY - 20, x1:W, y1:rowY + 20 };
     /* the legend sits in the bottom-left corner on wide screens */
-    /* the bottom-left corner: the legend on a wide screen; nothing on a phone */
-    var corner = W <= 820 ? { x0:0, y0:H - 30, x1:0, y1:H } : { x0:0, y0:H - 48, x1:300, y1:H };
+    /* along the bottom: the status button and Just the work, with the legend above the status on a wide screen */
+    var corner = W <= 820 ? { x0:0, y0:H - 66, x1:W, y1:H } : { x0:0, y0:H - 100, x1:340, y1:H };
+    var corner2 = W <= 820 ? corner : { x0:W - 260, y0:H - 66, x1:W, y1:H };
     var fw = full.x1 - full.x0, fh = full.y1 - full.y0;
     /* a crowded level on a small screen: shrink the blobs a step at a time until the level fills
        no more than about half the room, so the scatter can still pull everything apart */
@@ -317,7 +318,7 @@ export function createScene(o){
       var need = areaOf(boxes) * 3.2;
       var rw = Math.min(fw, Math.sqrt(need * fw / fh)), rh = Math.min(fh, need / rw);
       rw = Math.min(fw, need / rh);
-      pts = scatter(boxes, { x0:mx - rw / 2, y0:my - rh / 2, x1:mx + rw / 2, y1:my + rh / 2 }, seedOf(node.id), [tag, corner]);
+      pts = scatter(boxes, { x0:mx - rw / 2, y0:my - rh / 2, x1:mx + rw / 2, y1:my + rh / 2 }, seedOf(node.id), [tag, corner, corner2]);
       /* still touching after every try: the level is too full for this screen, so go a size smaller and scatter again */
       if (pts.clean || shrink <= .52) break;
       shrink -= .1; boxes = boxesAt(shrink);
