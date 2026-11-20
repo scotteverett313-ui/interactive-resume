@@ -62,6 +62,7 @@
                    a string                       a paragraph
                    { image: src, caption, alt }   one picture
                    { images: [ {src,caption,alt}, {..} ] }  pictures side by side
+                   { screens: true, images: [...] }  phone screens: kept small, in one row
                    { image: '[Image: what goes here]' }     an empty slot,
                                                   shown striped until the file exists
                    { list: [ [lead, text], ... ] } bullets; `lead` is bold
@@ -333,11 +334,27 @@ export const ROOT = { id:'root', label:'Brain', kids:[
             { src:'/proof/gallery/10.webp', tag:'App Design', caption:'Goodwoolf app' },
             { src:'/proof/gallery/11.webp', tag:'App Design', caption:'FordPass app' },
             { src:'/proof/gallery/12.webp', tag:'App Design', caption:'AFA app' },
-            { src:'/proof/gallery/14.webp', tag:'App Design', caption:'Driver Appeal Integrated System' },
             { src:'/proof/gallery/15.webp', tag:'App Design', caption:'App and interface mockups' },
+            { src:'/proof/gallery/ui-goodwoolf.webp', tag:'App Design', caption:'Goodwoolf app, profiles' },
+            { src:'/proof/gallery/ui-fordpass.webp', tag:'App Design', caption:'FordPass app, home screen' },
+            { src:'/proof/gallery/ui-black-gold.webp', tag:'App Design', caption:'Black Gold checkout, Daily UI' },
+            { src:'/proof/gallery/ui-calculator.webp', tag:'App Design', caption:'Calculator, Daily UI' },
+            { src:'/proof/gallery/ui-netflix.webp', tag:'App Design', caption:'Netflix redesign concept, Daily UI' },
+            { src:'/proof/gallery/ui-app-icon.webp', tag:'App Design', caption:'App icon, Daily UI' },
             { src:'/proof/gallery/17.webp', tag:'Site', caption:'Viacon Packaging Solutions website' },
             { src:'/proof/gallery/18.webp', tag:'Site', caption:'The Local Butcher website' },
             { src:'/proof/gallery/22.webp', tag:'Branding', caption:'JB Cinematic Media logo' },
+            { src:'/proof/gallery/logo-se-design.webp', tag:'Branding', caption:'SE|Design logo' },
+            { src:'/proof/gallery/logo-robear.webp', tag:'Branding', caption:'Robear Detroit logo' },
+            { src:'/proof/gallery/logo-krw-music.webp', tag:'Branding', caption:'KRW Music logo' },
+            { src:'/proof/gallery/logo-martez-hurd.webp', tag:'Branding', caption:'Martez Hurd logo' },
+            { src:'/proof/gallery/logo-micro-money-management.webp', tag:'Branding', caption:'Micro Money Management logo' },
+            { src:'/proof/gallery/logo-kiss-n-cakes.webp', tag:'Branding', caption:'Kiss N\' Cakes logo' },
+            { src:'/proof/gallery/logo-viacon.webp', tag:'Branding', caption:'Viacon Packaging Solutions logo' },
+            { src:'/proof/gallery/logo-lacks.webp', tag:'Branding', caption:'Lacks Enterprises logo' },
+            { src:'/proof/gallery/logo-nostalgic.webp', tag:'Branding', caption:'Nostalgic Brand logo' },
+            { src:'/proof/gallery/logo-returnmail.webp', tag:'Branding', caption:'Returnmail logo' },
+            { src:'/proof/gallery/logo-art-in-motion.webp', tag:'Branding', caption:'Art in Motion logo' },
             { src:'/proof/gallery/29.webp', tag:'Illustration', caption:'Ready Set Culture tee' },
             { src:'/proof/gallery/31.webp', tag:'Social Media', caption:'Family Tactical Solutions' },
             { src:'/proof/gallery/32.webp', tag:'Social Media', caption:'Kiss N\' Cakes Cupcake Studio' }
@@ -360,12 +377,15 @@ export const ROOT = { id:'root', label:'Brain', kids:[
             tags:['Design Research','UX/UI','Service Design','Government'],
             proof:'Journey maps, Civilla',
             image:'/proof/civilla-journey-maps.webp',
-            more:[{ src:'/proof/civilla-renewal-notice.webp', caption:'Renewal notice, Civilla' },{ src:'/proof/civilla-mobile-prototypes.webp', caption:'Mobile prototypes, Civilla' }],
+            more:[{ src:'/proof/civilla/overview-team.webp', caption:'At Civilla' },{ src:'/proof/civilla-renewal-notice.webp', caption:'Renewal notice, Civilla' },{ src:'/proof/civilla-mobile-prototypes.webp', caption:'Mobile prototypes, Civilla' }],
             links:[{ to:'c2', why:'The design thinking I practiced here is what I teach now.' },{ to:'sedesign', why:'Brought the same process to small businesses.' }] }},
           { id:'mdhhs', label:'MDHHS', page:{
             lede:'[My role and what we made]',
             story:'With Michigan Health and Human Services, I [researched / designed ___] to make [service] easier for residents to [action]. My role: [interviews, prototypes, testing]. [Outcome.]',
-            tags:['Design Research','UX/UI','Government'] }},
+            tags:['Design Research','UX/UI','Government'],
+            proof:'Assistance Application, MDHHS',
+            image:'/proof/civilla/mdhhs/1.webp',
+            more:[{ src:'/proof/civilla/mdhhs/2.webp', caption:'Reading the Assistance Application' },{ src:'/proof/civilla/mdhhs/3.webp', caption:'Program sections: healthcare, food, child care, cash, emergency relief' }] }},
           { id:'emprobation', label:'Eastern Michigan Probation Dept', page:{
             lede:'[My role and what we made]',
             story:'With the probation department, I [researched / designed ___] so people on probation could [goal]. My role: [___]. [Outcome.]',
@@ -373,15 +393,52 @@ export const ROOT = { id:'root', label:'Brain', kids:[
           { id:'uia', label:'Unemployment Insurance Agency', page:{
             lede:'[My role and what we made]',
             story:'With the Unemployment Insurance Agency, I [researched / designed ___] to help residents [file / understand / get through ___]. My role: [___]. [Outcome.]',
-            tags:['Design Research','UX/UI','Government'] }},
+            tags:['Design Research','UX/UI','Government'],
+            proof:'Claimant Roadmap on a phone',
+            image:'/proof/civilla/uia/1.webp' }},
           { id:'sos', label:'Secretary of State', page:{
             lede:'[My role and what we made]',
             story:'With the Michigan Secretary of State, I helped redesign [notices / forms / ___] so residents could [goal]. My role: [___]. [Outcome.]',
-            tags:['Design Research','UX/UI','Government'] }},
+            tags:['Design Research','UX/UI','Government'],
+            proof:'Renewal notices, Secretary of State',
+            image:'/proof/civilla/sos/1.webp',
+            more:[
+              { src:'/proof/civilla/sos/2.webp', caption:'Driver’s license renewal notice' },
+              { src:'/proof/civilla/sos/3.webp', caption:'The renewal notice in hand' },
+              { src:'/proof/civilla/sos/4.webp', caption:'The challenge' },
+              { src:'/proof/civilla/sos/5.webp', caption:'Filling in a notice' },
+              { src:'/proof/civilla/sos/6.webp', caption:'A branch office waiting room' },
+              { src:'/proof/civilla/sos/7.webp', caption:'Sketching at the whiteboard' },
+              { src:'/proof/civilla/sos/8.webp', caption:'Audit of the state site: Getting Your License Back' },
+              { src:'/proof/civilla/sos/9.webp', caption:'How to Request a Hearing' },
+              { src:'/proof/civilla/sos/10.webp', caption:'Requesting a hearing, prototype' },
+              { src:'/proof/civilla/sos/11.webp', caption:'Driver’s License Request pages, revised' },
+              { src:'/proof/civilla/sos/12.webp', caption:'Getting your license reinstated, revised' },
+              { src:'/proof/civilla/sos/13.webp', caption:'Driver Appeal Integrated System: Request for a New Hearing' },
+              { src:'/proof/civilla/sos/14.webp', caption:'Driver Appeal Integrated System, revised' },
+              { src:'/proof/civilla/sos/15.webp', caption:'Driver Appeal Integrated System, every screen' },
+              { src:'/proof/civilla/sos/16.webp', caption:'The hearing request on a phone' }
+            ] }},
           { id:'cohere', label:'Project Cohere', page:{
             lede:'[My role and what we made]',
             story:'Cohere is a benefits navigation tool for Michigan residents. I [designed / researched / prototyped ___] to help people find and apply for the support they qualify for. My role: [___]. [Outcome.]',
-            tags:['Design Research','UX/UI','Government'] }} ]} ]},
+            tags:['Design Research','UX/UI','Government'],
+            proof:'Cohere on desktop and phone',
+            image:'/proof/civilla/cohere/1.webp',
+            more:[
+              { src:'/proof/civilla/cohere/2.webp', caption:'The dashboard' },
+              { src:'/proof/civilla/cohere/3.webp', caption:'Welcome to Cohere: onboarding' },
+              { src:'/proof/civilla/cohere/4.webp', caption:'Getting to know you' },
+              { src:'/proof/civilla/cohere/5.webp', caption:'Chat and uploads' },
+              { src:'/proof/civilla/cohere/6.webp', caption:'Resources' },
+              { src:'/proof/civilla/cohere/7.webp', caption:'Basic info' },
+              { src:'/proof/civilla/cohere/8.webp', caption:'The intro selfie illustration' },
+              { src:'/proof/civilla/cohere/9.webp', caption:'Wireframes: dashboard and notifications' },
+              { src:'/proof/civilla/cohere/10.webp', caption:'Wireframes: upload and offboarding' },
+              { src:'/proof/civilla/cohere/11.webp', caption:'Wireframes: agreement and contract' },
+              { src:'/proof/civilla/cohere/12.webp', caption:'Reviewing paper prototypes' },
+              { src:'/proof/civilla/cohere/13.webp', caption:'The sticky note wall' }
+            ] }} ]} ]},
       { id:'wesson', label:'Wesson Art', blurb:'Where I always land on my feet. The base of it all.', kids:[
         { id:'samples', label:'Work Samples', page:{
           brief:{
@@ -465,7 +522,9 @@ export const ROOT = { id:'root', label:'Brain', kids:[
         story:'[What the three months were like]',
         list:['Graphic design',"Children's book illustration",'Sculpture'],
         tags:['Graphic Design','Illustration','Sculpture'],
-        proof:'SACI International',
+        proof:'Studio Art Centers International, Palazzo Jules Maidoff',
+        image:'/proof/saci/1.webp',
+        more:[{ src:'/proof/saci/2.webp', caption:'Carved marble, Italy' },{ src:'/proof/saci/3.webp', caption:'SACI, Studio Art Center International Florence' }],
         links:[{ to:'ccs', why:'Part of my time at CCS.' }] }},
       { id:'about', label:'About', page:{
         lede:'[One line: who I am]',
@@ -529,7 +588,7 @@ export const ROOT = { id:'root', label:'Brain', kids:[
         },
         tags:['App','Product Design'],
         study:{
-          hero:`[Hero image: app screenshot — garden tab, plants in zones]`,
+          hero:{ src:'/proof/dirt-rich/hero.webp', caption:'My Garden, a plant, and the harvest list', alt:'Three Dirt Rich phone screens: My Garden with the season progress bar and plants in the Basement zone, the detail sheet for a tomato with its next watering, and the Harvest list of lettuce, kale, basil and tomato' },
           sub:`Building a garden tracker with an AI partner while actually planting`,
           intro:[
             `Dirt Rich is a mobile-first garden tracking PWA for people who take their grow seriously. Track plants by zone from seed to harvest. Scan seed packets with AI. Know when to water, when to harvest, and how much of the season you have left.`,
@@ -562,6 +621,10 @@ export const ROOT = { id:'root', label:'Brain', kids:[
             ] },
             { title:`Built for one hand in a garden`, body:[
               `Dirt Rich is designed at phone width first. Every tap target is thumb-sized. The plant detail sheet slides up from the bottom so you can log care with one hand while the other is in the soil. The seed scanner lets you point your camera at any packet and AI reads everything — name, variety, days to maturity, water needs — directly into your seed library.`,
+              { screens:true, images:[
+                { src:'/proof/dirt-rich/plant-detail.webp', caption:'The plant detail sheet', alt:'A tomato in Dirt Rich: the plant sheet slid up over a photo, with the next watering on Saturday, November 21, and its growing overview' },
+                { src:'/proof/dirt-rich/care-log.webp', caption:'Logging care, inline', alt:'Further down the tomato sheet: a harvest and frost warning, companion plants, and the care log with a watering entry and a Log Care button' }
+              ] },
               { image:`[Image: phone screenshot — seed scanner in use]` }
             ] },
             { title:`Designer and AI: how we worked`, body:[
@@ -581,6 +644,11 @@ export const ROOT = { id:'root', label:'Brain', kids:[
                 [`The frost date bar.`, `One glance tells you where you are in the season. That single element changes how you think about every plant in the app.`],
                 [`Cloud sync.`, `Adding Supabase meant the data survived every app update, every device switch, every Safari cache clear.`],
                 [`The seed scanner.`, `Pointing a camera at a packet and watching it populate is still the moment that gets people.`]
+              ] },
+              { screens:true, images:[
+                { src:'/proof/dirt-rich/calendar.webp', caption:'The season calendar', alt:'The Dirt Rich calendar: a harvest countdown for lettuce, kale and basil, and a full-season chart of when to start indoors, transplant and direct sow' },
+                { src:'/proof/dirt-rich/harvest.webp', caption:'What’s ready, and what’s next', alt:'The Harvest tab: lettuce, kale, basil and tomato with days until harvest and their zones' },
+                { src:'/proof/dirt-rich/profile.webp', caption:'The garden portfolio', alt:'The profile tab: seven plants growing, the growing season at 91 percent, a care activity chart and holdings' }
               ] }
             ] },
             { title:`What didn’t`, body:[
@@ -789,6 +857,13 @@ export const ROOT = { id:'root', label:'Brain', kids:[
         tags:['Website','Interaction Design','Code'],
         proof:'This site',
         links:[{ to:'c5', why:'I teach interaction design.' },{ to:'sketch', why:'The storyboard started in the sketchbook.' }] }},
+      { id:'missg', label:'Miss G Site', page:{
+        lede:'[My role and what we made]',
+        story:'Miss G Curls & Braids. [What the site and the brand are for, and what I did.]',
+        tags:['Website','Branding'],
+        proof:'Miss G Curls & Braids, brand identity',
+        image:'/proof/miss-g/1.webp',
+        more:[{ src:'/proof/miss-g/2.webp', caption:'Brand guidelines' },{ src:'/proof/miss-g/3.webp', caption:'The logo and mark' },{ src:'/proof/miss-g/4.webp', caption:'The logo and mark, upright' }] }},
       { id:'krwsite', label:'KRW Site', page:{
         lede:'Coming soon.',
         story:'[What it will be]',

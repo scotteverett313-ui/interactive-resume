@@ -276,7 +276,7 @@ export default function NodePage({ node, instant, seq, stack, reduce, onBack, on
             return typeof li === 'string' ? <li key={j}><Ph text={li} /></li> : <li key={j}><b>{li[0]}</b> <Ph text={li[1]} /></li>;
           })}</ul>
         );
-        if (b.images) return <div className="study-pair" key={i}>{b.images.map(function(x){ return pic(x); })}</div>;
+        if (b.images) return <div className={'study-pair' + (b.screens ? ' screens n' + b.images.length : '')} key={i}>{b.images.map(function(x){ return pic(x); })}</div>;
         if (typeof b.image === 'string'){
           /* a slot still in [brackets] is a picture that has not arrived yet */
           if (bracket(b.image)) return <div className="study-slot" key={i}><span className="ph">{b.image}</span></div>;

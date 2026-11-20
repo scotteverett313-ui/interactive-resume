@@ -382,6 +382,11 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
 #page .study-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start}
 #page .study-pair .study-pic{align-self:start}
 #page .study-pair .study-pic img{width:100%}
+/* phone screens (`screens:true`): one row, every width, so tall screenshots stay small */
+#page .study-pair.screens{max-width:720px;margin-left:auto;margin-right:auto}
+#page .study-pair.screens.n2{max-width:480px}
+#page .study-pair.screens.n3{grid-template-columns:repeat(3,minmax(0,1fr))}
+#page .study-pair.screens .study-pic{border-radius:16px}
 /* a picture that has not arrived yet */
 #page .study-slot{border:2.5px solid var(--ink);border-radius:22px;padding:44px 20px;text-align:center;font-family:var(--mono);font-size:13px;line-height:1.5;
   background:repeating-linear-gradient(135deg,transparent 0 18px,color-mix(in srgb,var(--ink) 14%,transparent) 18px 20px),var(--ground)}
@@ -603,6 +608,8 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
   #page .page-doc{padding-right:56px;padding-left:16px}
   #page .page-study{padding-right:56px;padding-left:16px}
   #page .study-pair{grid-template-columns:minmax(0,1fr)}
+  #page .study-pair.screens{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  #page .study-pair.screens.n3{grid-template-columns:repeat(3,minmax(0,1fr))}
   #page .facts{grid-template-columns:minmax(0,1fr)}
   #page .facts > div{grid-template-columns:92px minmax(0,1fr)}
   /* on a phone the light and dark toggle sits in the bottom-right corner: keep Next clear of it */
