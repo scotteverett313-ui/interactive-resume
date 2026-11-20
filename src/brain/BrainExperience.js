@@ -6,7 +6,7 @@ import BrainMap from './BrainMap';
 import NodePage from './NodePage';
 import DotNav from './DotNav';
 import Crumbs from './Crumbs';
-import SiteNav from './SiteNav';
+import Menu from './Menu';
 import StudioPage from './StudioPage';
 import NotesPage from './NotesPage';
 import GalleryPage from './GalleryPage';
@@ -14,7 +14,7 @@ import LevelCards from './LevelCards';
 import IndexPage from './IndexPage';
 import { pathFor, parsePath, titleFor, settle, sheetFor, lineOf } from './routes';
 import { PALETTES, paletteVars } from './palettes';
-import ThemeToggle, { readThemeChoice, saveThemeChoice } from './ThemeToggle';
+import { readThemeChoice, saveThemeChoice } from './ThemeToggle';
 import './brain.css';
 
 var SITE = "Inside Scott's Brain";
@@ -199,6 +199,9 @@ export default function BrainExperience(){
     setStack([ROOT]);
     setDone(false);
   }, [closePage]);
+  /* the map sits under the character until the intro is over: out of reach for the keyboard and screen readers
+     until then, so Tab goes from the stickers straight to the menu */
+  useEffect(function(){ if (mapLayerRef.current) mapLayerRef.current.inert = !done; }, [done]);
   /* whenever the intro starts or ends, the section height changes; start from the top either way */
   useLayoutEffect(function(){ window.scrollTo(0, 0); }, [done]);
 
@@ -242,7 +245,7 @@ export default function BrainExperience(){
         <div className={'stage' + (done ? ' is-done' : '') + (wantCards && cardsOn ? ' cards-on' : '')} id="stage" ref={stageRef}>
           <div className="grain" aria-hidden="true" />
           <Intro ref={introRef} stageRef={stageRef} sectionRef={sectionRef} mapLayerRef={mapLayerRef} dotTagRef={dotTagRef}
-            reduce={reduce} done={done} onFinish={finishIntro} onMapArrival={onMapArrival} onSticker={onSticker} onWork={openIndex} />
+            reduce={reduce} done={done} onFinish={finishIntro} onMapArrival={onMapArrival} onSticker={onSticker} />
           <BrainMap stack={stack} done={done} reduce={reduce}
             busyRef={busyRef} modeRef={modeRef} sceneRef={sceneRef} mapLayerRef={mapLayerRef}
             mapShowing={mapShowing} onDive={onDive} onOpenPage={openPage} />
@@ -269,10 +272,10 @@ export default function BrainExperience(){
           {/* at the top level the title takes the crumbs' corner; there is nowhere to go back to from there */}
           {wantCards && cardsOn && <LevelCards node={level} onOpen={openPage} />}
           <Crumbs done={done && !atTop} stack={stack} pageNode={page.node} onBack={onBack} onGoTo={goTo} />
-          <button id="skip" className="chip-btn" type="button" hidden={done} onClick={finishIntro}>Skip intro</button>
-          <button id="replay" className="chip-btn" type="button" hidden={!done} onClick={replayIntro}>Replay intro</button>
-          <ThemeToggle mode={mode} onToggle={toggleTheme} />
-          <SiteNav onStudio={openStudio} onNotes={function(){ openNote(null); }} onGallery={openGallery} />
+          {/* every way out sits in one menu, top right: the bottom of the screen is left to the character and the map */}
+          <Menu done={done} mode={mode} path={location.pathname} hidden={!!page.node}
+            onIndex={openIndex} onStudio={openStudio} onGallery={openGallery} onNotes={function(){ openNote(null); }}
+            onSkip={finishIntro} onReplay={replayIntro} onToggleTheme={toggleTheme} />
           <DotNav done={done} stack={stack} pageNode={page.node || sheet} tagRef={dotTagRef} onReplay={replayIntro}
             onGoTo={function(d){ setSheet(null); goTo(d); }} />
           <NodePage node={page.node} instant={page.instant} seq={page.seq} stack={stack} reduce={reduce}

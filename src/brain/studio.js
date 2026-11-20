@@ -25,8 +25,8 @@ export const SOCIALS = [
   { label: 'Facebook', url: 'https://www.facebook.com/profile.php?id=61564506484267' }
 ];
 
-/* The "open for work" status. It shows as a dot on the Work with me button, a small chip on the opening
-   screen, and a line at the top of the Work with me page. Set `open` to false to hide all three. */
+/* The "open for work" status. It shows at the top of the menu and at the top of the Work with me page.
+   Set `open` to false to hide both. */
 export const STATUS = { open: true, label: 'Open for work' };
 
 export const STUDIO = {

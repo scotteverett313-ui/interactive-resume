@@ -133,10 +133,20 @@ A node's page can link to it with `action: { label: '...', go: 'studio' }`.
 A page button can also leave the site: `action: { label: '...', url:
 'https://...' }` opens that address in a new tab.
 
+### The menu
+
+Every way out of the brain sits in one menu: the button in the top-right
+corner of the opening screen and the map. It opens a small card with the
+"Open for work" status, then Just the work, Work with me, Gallery and Notes,
+then Skip intro (while the intro is on screen) or Replay intro (after it),
+and the light and dark switch. Escape, a press outside, or any choice closes
+it; the light and dark switch leaves it open. It hides while a page is open
+over the map, since the page has its own way back. The bottom of the screen
+is left to the character and the map. The menu is `src/brain/Menu.js`.
+
 ### The gallery
 
-The Gallery button sits with Work with me and Notes, bottom left, on the
-opening screen and the map. One press shows every picture on the site in one
+Gallery, in the menu, shows every picture on the site in one
 wall, at `/gallery`. There is nothing to maintain: the wall is gathered from
 `content.js` (each page's `image` and `more`), so adding a picture to a page
 puts it on the wall. Filters narrow it by gravity point and by tag. Pressing a
@@ -219,17 +229,14 @@ pages. Case Studies is the only one for now. The row is
 
 ### Just the work
 
-On the opening screen, "Just the work" (bottom right) skips the brain and
-opens a short stack of large tiles at `/the-work`, one per project: its name,
+"Just the work", in the menu, skips the brain and opens a short stack of large tiles at `/the-work`, one per project: its name,
 its first two tags, a number and its picture. A tile opens that project's
 case study, and the Next card at the bottom of each one carries on through
 the same list, so the six read as one run.
 
 Which projects, and in what order, is `INDEX.picks` in `content.js`. `as`
 gives a project a clearer name there than its page has ("Civilla" for
-"Overview"), and the page wears that name when opened from the tiles. The
-button goes away once scrolling starts, like the stickers. The page is
-`src/brain/IndexPage.js`.
+"Overview"), and the page wears that name when opened from the tiles. The page is `src/brain/IndexPage.js`.
 
 ### Single-item levels
 
@@ -344,10 +351,9 @@ before the map settles.
 
 ### Open for work
 
-`STATUS` in `src/brain/studio.js` controls the "Open for work" status: a dot
-on the Work with me button, a small chip on the opening screen, and a line at
-the top of the Work with me page. Change `label` for different words, or set
-`open: false` to hide all three.
+`STATUS` in `src/brain/studio.js` controls the "Open for work" status: a line
+at the top of the menu and at the top of the Work with me page. Change
+`label` for different words, or set `open: false` to hide both.
 
 ### Color on hover
 
@@ -441,8 +447,8 @@ curiosity or a hub brightens its lines and speeds them up. Reduced motion
 holds everything still and shows no pulses.
 
 **Which mode a visitor sees.** They start in whichever their device is set to.
-The round button in the bottom-right corner switches modes and remembers the
-choice in that browser. Until they press it, the site keeps following the
+The switch in the menu changes modes and remembers the choice in that
+browser. Until they press it, the site keeps following the
 device. Adding `?theme=light` or `?theme=dark` to the address opens that mode
 for one visit, which is useful for sharing a link. This lives in
 `src/brain/ThemeToggle.js`.
@@ -494,10 +500,11 @@ along the zoom is.
 | `src/brain/routes.js` | Addresses: which link shows what. |
 | `src/brain/studio.js`, `StudioPage.js` | The Work with me page: its words, and its layout. |
 | `src/brain/notes.js`, `NotesPage.js` | The notes: the writing, and the layout. |
-| `src/brain/ContactForm.js`, `Sheet.js`, `SiteNav.js` | The message form, the full-screen page frame, and the two site buttons. |
+| `src/brain/ContactForm.js`, `Sheet.js` | The message form, and the full-screen page frame. |
+| `src/brain/Menu.js` | The menu: every way out, Skip and Replay intro, and the light and dark switch. |
 | `src/brain/DotNav.js`, `Crumbs.js` | Depth dots and the breadcrumb trail. |
 | `src/brain/palettes.js` | The light and dark palettes. The only place colors are defined. |
-| `src/brain/ThemeToggle.js` | The light / dark button, and remembering the visitor's choice. |
+| `src/brain/ThemeToggle.js` | Remembering the visitor's light or dark choice. |
 | `src/brain/blob.js` | The blob path math, pure functions. |
 | `src/brain/brain.css` | All brain styles, scoped so they never touch the resume. |
 

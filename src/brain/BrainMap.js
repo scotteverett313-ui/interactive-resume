@@ -297,8 +297,9 @@ export function createScene(o){
     var tagW = Math.min(node.label.length * 8, Math.min(W * .4, 220)) + 18;
     var rowY = H / 2 - (DOT_COUNT * 30 - 2) / 2 + 14 + (depth + 1) * 30;
     var tag = { x0:W - 52 - tagW - 10, y0:rowY - 20, x1:W, y1:rowY + 20 };
-    /* the site buttons sit in the bottom-left corner, with the legend above them on wide screens */
-    var corner = W <= 820 ? { x0:0, y0:H - 66, x1:Math.min(W - 62, 310), y1:H } : { x0:0, y0:H - 100, x1:340, y1:H };
+    /* the legend sits in the bottom-left corner on wide screens */
+    /* the bottom-left corner: the legend on a wide screen; nothing on a phone */
+    var corner = W <= 820 ? { x0:0, y0:H - 30, x1:0, y1:H } : { x0:0, y0:H - 48, x1:300, y1:H };
     var fw = full.x1 - full.x0, fh = full.y1 - full.y0;
     /* a crowded level on a small screen: shrink the blobs a step at a time until the level fills
        no more than about half the room, so the scatter can still pull everything apart */

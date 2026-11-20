@@ -6,7 +6,6 @@ import { CHARACTER as C, BRAIN as B, BACKDROP as K, MONO } from './character';
 import { blobPath } from './blob';
 import Stickers from './Stickers';
 import { INTRO_SAYS } from './content';
-import { STATUS } from './studio';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -25,8 +24,6 @@ gsap.registerPlugin(ScrollTrigger);
      #boil       the hand-drawn line wobble filter (slit, and the map links)
      #stickerSvg the sticker buttons, in their own drawing laid over this one (see Stickers.js)
      #introSays  the lines Scott says as the intro scrolls, one .say per line (the words are in content.js)
-     #openChip   the "Open for work" chip above the site buttons (studio.js)
-     #justWork   the "Just the work" button: the way past the brain, straight to a plain list of the work
 
    The art and its measurements live in character.js.
 
@@ -49,7 +46,6 @@ gsap.registerPlugin(ScrollTrigger);
      done:        true once the intro is finished or skipped; false again on replay
      onFinish:    called when the scrub reaches the end
      onSticker:   called with where a sticker goes when it is pressed
-     onWork:      called when "Just the work" is pressed
 
    The ref handle exposes mapShowing() so the map only draws once it is on screen. */
 
@@ -59,7 +55,7 @@ var ZOOM = 11;
    so it never stalls at the start or rushes at the end */
 function zoomEase(p){ return (Math.pow(ZOOM, p) - 1) / (ZOOM - 1); }
 
-var Intro = forwardRef(function Intro({ stageRef, sectionRef, mapLayerRef, dotTagRef, reduce, done, onFinish, onMapArrival, onSticker, onWork }, ref){
+var Intro = forwardRef(function Intro({ stageRef, sectionRef, mapLayerRef, dotTagRef, reduce, done, onFinish, onMapArrival, onSticker }, ref){
   var svgRef = useRef(null), stickRef = useRef(null), boilRef = useRef(null), backdropRef = useRef(null), backdropClipRef = useRef(null);
   var tlRef = useRef(null), triggerRef = useRef(null);
   var onFinishRef = useRef(onFinish); onFinishRef.current = onFinish;
@@ -102,9 +98,6 @@ var Intro = forwardRef(function Intro({ stageRef, sectionRef, mapLayerRef, dotTa
     tl.fromTo(hint, { opacity:1 }, { opacity:0, duration:.5 }, 0)
       /* the opening title lifts away as the scroll begins */
       .to(homeTitle, { opacity:0, y:-14, duration:.9, ease:'power1.in' }, 0)
-      .fromTo(sectionRef.current.querySelector('#openChip'), { opacity:1 }, { opacity:0, duration:.5 }, .2)
-      /* autoAlpha hides it too, so it cannot be pressed or tabbed to once the intro is under way */
-      .fromTo(sectionRef.current.querySelector('#justWork'), { autoAlpha:1 }, { autoAlpha:0, duration:.5 }, .2)
       /* the stickers go with it; autoAlpha also hides them, so they cannot be pressed or tabbed to once gone */
       .fromTo(stickRef.current, { autoAlpha:1, y:0 }, { autoAlpha:0, y:-14, duration:.7, ease:'power1.in' }, 0)
 
@@ -355,8 +348,6 @@ var Intro = forwardRef(function Intro({ stageRef, sectionRef, mapLayerRef, dotTa
       <div id="introSays">
         {INTRO_SAYS.map(function(t, i){ return <p className="say" key={i}>{t}</p>; })}
       </div>
-      <button id="justWork" className="chip-btn" type="button" onClick={onWork}>Just the work →</button>
-      <div id="openChip" hidden={!STATUS.open}><i className="open-dot" aria-hidden="true" />{STATUS.label}</div>
     </>
   );
 });

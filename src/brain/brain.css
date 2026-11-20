@@ -115,11 +115,6 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
 .brain a.chip-btn.solid:hover{color:var(--ink)}
 .brain .chip-btn[disabled]{opacity:.6;cursor:default}
 
-/* the two doors that are always there, bottom-left on the opening screen and the map. Pages cover them */
-#siteNav{position:absolute;left:calc(14px + env(safe-area-inset-left,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:6;display:flex;gap:8px}
-#siteNav .chip-btn{min-height:0;height:44px;padding:0 16px;box-sizing:border-box;display:inline-flex;align-items:center}
-#skip{position:absolute;top:calc(16px + env(safe-area-inset-top,0px));right:calc(16px + env(safe-area-inset-right,0px));z-index:5}
-#replay{position:absolute;top:calc(16px + env(safe-area-inset-top,0px));right:calc(16px + env(safe-area-inset-right,0px));z-index:5}
 #hint{position:absolute;left:50%;bottom:calc(28px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;font-family:var(--mono);font-size:13px;letter-spacing:.08em;text-transform:uppercase;pointer-events:none}
 /* the hint sits over the figure's black hoodie, so the label is a paper chip and the drip line is outlined */
 #hint span:first-child{background:var(--paper);border:1.5px solid var(--ink);padding:5px 9px;border-radius:3px}
@@ -167,23 +162,15 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
 #introSays .say::after{content:'';position:absolute;left:34px;bottom:-11px;width:16px;height:16px;background:var(--ground);
   border-right:3px solid var(--ink);border-bottom:3px solid var(--ink);transform:rotate(45deg) skew(12deg,12deg)}
 .stage.is-done #introSays{visibility:hidden}
-/* "open for work": the dot, and the small chip above the site buttons on the opening screen */
+/* "open for work": the dot beside the status, in the menu and on the Work with me page */
 .brain .open-dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--work);margin-right:8px;flex:0 0 auto;
   box-shadow:0 0 0 0 var(--work);animation:brain-open 2.4s ease-out infinite}
 @keyframes brain-open{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--work) 70%,transparent)}70%,100%{box-shadow:0 0 0 7px transparent}}
-#openChip{position:absolute;left:calc(14px + env(safe-area-inset-left,0px));bottom:calc(68px + env(safe-area-inset-bottom,0px));z-index:6;
-  display:flex;align-items:center;font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;
-  background:var(--paper);border:1.5px solid var(--ink);border-radius:999px;padding:5px 10px 5px 9px;pointer-events:none}
-.stage.is-done #openChip{visibility:hidden}
-/* "Just the work": the way past the brain, opposite the status chip, above the light and dark toggle */
-#justWork{position:absolute;right:calc(14px + env(safe-area-inset-right,0px));bottom:calc(68px + env(safe-area-inset-bottom,0px));z-index:6;
-  min-height:0;height:44px;padding:0 16px;box-sizing:border-box;display:inline-flex;align-items:center;white-space:nowrap}
-.stage.is-done #justWork{visibility:hidden!important}
 
 /* ---- a level shown as cards (view:'cards' in content.js, LevelCards.js): a row that slides sideways ---- */
 .stage.cards-on #nodes,.stage.cards-on #links{visibility:hidden}
 .stage.cards-on #legend,.stage.cards-on #dotTag{display:none}
-#levelCards{position:absolute;left:0;right:calc(50px + env(safe-area-inset-right,0px));bottom:calc(70px + env(safe-area-inset-bottom,0px));z-index:4;display:flex;flex-direction:column;
+#levelCards{position:absolute;left:0;right:calc(50px + env(safe-area-inset-right,0px));bottom:calc(72px + env(safe-area-inset-bottom,0px));z-index:4;display:flex;flex-direction:column;
   animation:brain-cards-in .4s ease both}
 @keyframes brain-cards-in{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 #levelCards ul{flex:1;min-height:0;list-style:none;margin:0;display:flex;gap:16px;align-items:stretch;overflow-x:auto;overflow-y:hidden;
@@ -279,7 +266,7 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
 #dots .tag{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;background:var(--paper);border:1.5px solid var(--ink);padding:3px 7px;border-radius:3px;white-space:nowrap;
   max-width:min(40vw,220px);overflow:hidden;text-overflow:ellipsis}
 
-#legend{position:absolute;left:calc(16px + env(safe-area-inset-left,0px));bottom:calc(72px + env(safe-area-inset-bottom,0px));display:flex;gap:16px;flex-wrap:wrap;font-family:var(--mono);font-size:12px;z-index:4;pointer-events:none}
+#legend{position:absolute;left:calc(16px + env(safe-area-inset-left,0px));bottom:calc(18px + env(safe-area-inset-bottom,0px));display:flex;gap:16px;flex-wrap:wrap;font-family:var(--mono);font-size:12px;z-index:4;pointer-events:none}
 #legend span{display:flex;align-items:center;gap:6px}
 #legend b{display:inline-block;width:12px;height:12px;border-radius:50%}
 #legend b.fill{background:var(--ink)}
@@ -421,6 +408,26 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
 #page .proof .pic-open:focus-visible::after{opacity:1}
 #page .proof .cap{position:relative;background:var(--paper);border:2px solid var(--ink);padding:10px 14px;font-family:var(--mono);font-size:12px;letter-spacing:.04em;max-width:100%}
 
+/* ---- the menu (Menu.js): one button top right, and a small card with every way out ---- */
+#menu{position:absolute;top:calc(16px + env(safe-area-inset-top,0px));right:calc(16px + env(safe-area-inset-right,0px));z-index:11;
+  display:flex;flex-direction:column;align-items:flex-end}
+#menuBtn{min-height:0;height:44px;padding:0 18px 0 14px;box-sizing:border-box;display:inline-flex;align-items:center;gap:8px}
+#menu.open #menuBtn{background:var(--ink);color:var(--paper)}
+#menuCard{margin-top:10px;width:min(300px,calc(100vw - 32px));box-sizing:border-box;padding:16px 18px 18px;
+  background:var(--ground);border:2.5px solid var(--ink);border-radius:22px;box-shadow:5px 6px 0 var(--ink);
+  transform-origin:top right;animation:brain-menu-in .18s ease both}
+@keyframes brain-menu-in{from{opacity:0;transform:translateY(-6px) scale(.97)}to{opacity:1;transform:none}}
+#menuCard .m-status{display:flex;align-items:center;margin:0 0 6px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+#menuCard .m-ways{list-style:none;margin:0;padding:0}
+#menuCard .m-ways li{border-bottom:1.5px solid var(--ink)}
+#menuCard .m-ways button{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;background:none;border:0;cursor:pointer;text-align:left;
+  font-family:var(--display);font-weight:800;font-size:24px;line-height:1.05;letter-spacing:-.01em}
+#menuCard .m-ways button span{font-size:18px;transition:transform .16s ease}
+#menuCard .m-ways button:hover span,#menuCard .m-ways button:focus-visible span{transform:translateX(4px)}
+#menuCard .m-ways button:hover{text-decoration:underline;text-underline-offset:4px}
+#menuCard .m-foot{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+#menuCard .m-foot .chip-btn{min-height:0;height:40px;padding:0 14px;box-sizing:border-box;display:inline-flex;align-items:center;gap:7px;font-size:13px}
+
 /* ---- the picture viewer (PictureViewer.js): a page's picture shown whole, over everything ----
    It is always dark with light controls, whichever mode the site is in: inside it, ink and ground
    are re-pointed so the usual chip buttons and focus rings come out light on dark */
@@ -542,9 +549,6 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
 }
 /* ---- end sheets ---- */
 
-/* light / dark toggle: a round chip in the bottom-right corner, above the map and the pages */
-#themeToggle{position:absolute;right:calc(14px + env(safe-area-inset-right,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:10;
-  width:44px;height:44px;min-height:0;padding:0;display:grid;place-items:center;box-sizing:border-box}
 
 /* switching modes eases the colors across instead of snapping */
 .brain .grain{transition:background-color .35s ease,opacity .35s ease}
@@ -573,10 +577,6 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
   .brain .filters.small .chip-btn{flex:0 0 auto;white-space:nowrap}
   #page .proof img.whole{inset:10px;width:calc(100% - 20px);height:calc(100% - 20px)}
   /* three site buttons have to fit beside the light and dark toggle on a phone */
-  #siteNav{gap:6px}
-  #siteNav .chip-btn{padding:0 12px;font-size:13px}
-  #siteNav .open-dot{width:8px;height:8px;margin-right:6px}
-  #justWork{padding:0 13px;font-size:13px;height:40px}
   .brain .tiles{grid-template-columns:minmax(0,1fr);gap:12px}
   .brain .tiles button{min-height:190px;padding:18px 18px 16px}
   .brain .tiles .tile-pic{width:96px;height:96px}
@@ -587,6 +587,7 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
   #page .s-next{min-height:210px;padding:20px}
   /* on a phone the arrows give way to swiping, and the cards run nearly to the depth dots */
   #levelCards .rail-arrows{display:none}
+  #levelCards{bottom:calc(18px + env(safe-area-inset-bottom,0px))}
   #levelCards ul{gap:12px}
   #levelCards .words{padding:11px 13px 13px;gap:6px}
   #levelCards .line{font-size:14px}
@@ -605,22 +606,12 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
   #levelSays p{font-size:13.5px;line-height:18px;padding:8px 12px 9px}
   #levelSays p::before{top:12px}
   #legend{display:none}
-  /* the site buttons take the bottom-left corner, so the centered hints move up out of their way */
-  #hint{bottom:calc(74px + env(safe-area-inset-bottom,0px))}
-  #pickHint{bottom:calc(70px + env(safe-area-inset-bottom,0px));left:calc(16px + env(safe-area-inset-left,0px));transform:none}
   .brain .sheet-in{padding-right:56px;padding-left:18px;gap:44px}
   .brain .work{grid-template-columns:minmax(0,1fr);gap:28px}
   .brain .ways .go{display:none}
 }
-/* the narrowest phones: the three site buttons get tighter still */
-@media (max-width:350px){
-  #siteNav{gap:4px}
-  #siteNav .chip-btn{padding:0 8px}
-  /* no room for the status dot beside three buttons here; the chip on the opening screen still says it */
-  #siteNav .open-dot{display:none}
-}
 @media (prefers-reduced-motion:reduce){
-  .brain .open-dot,#levelCards{animation:none}
+  .brain .open-dot,#levelCards,#menuCard{animation:none}
   .brain .grain,#hint span.line,#mapTitle,#homeTitle .bubble,.brain .sheet,.brain .sticker-art,.brain .mark,#viewer,#viewer .viewer-stage img{animation:none}
   .brain,.brain *{transition:none!important}
 }
