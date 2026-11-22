@@ -180,11 +180,12 @@ export default function BrainExperience(){
   var onSticker = useCallback(function(go){
     if (go === 'studio'){ openStudio(); return; }
     if (go === 'notes'){ openNote(null); return; }
+    if (go === 'gallery'){ openGallery(); return; }
     var n = go === CURIO_ROOT.id ? CURIO_ROOT : (BYID[go] || CURIO_BY_ID[go]);
     if (!n || n === ROOT) return;
     setDone(true);
     if (n.curio) openPage(n); else goToNode(n);
-  }, [openStudio, openNote, openPage, goToNode]);
+  }, [openStudio, openNote, openGallery, openPage, goToNode]);
 
   /* from a curiosity page, jump straight into the hub it feeds */
   var diveTo = useCallback(function(id){

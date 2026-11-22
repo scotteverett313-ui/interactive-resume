@@ -8,6 +8,12 @@ import brain4 from './art/brain-04.webp';
 import brain5 from './art/brain-05.webp';
 import brain6 from './art/brain-06.webp';
 import brain7 from './art/brain-07.webp';
+import coffeePool from './art/coffee/pool.webp';
+import coffeeCup from './art/coffee/cup.webp';
+import coffeePapers from './art/coffee/papers.webp';
+import coffeeComputer from './art/coffee/computer.webp';
+import coffeeFlowers from './art/coffee/flowers.webp';
+import coffeeStylus from './art/coffee/stylus.webp';
 
 /* ============================================================
    The character on the home page.
@@ -149,4 +155,36 @@ export const BACKDROP = {
 export const STICKER_SPOTS = {
   bolt:  { x: 538, y: 128, size: 78, rotate: 8 },
   audio: { x: 234, y: 319, size: 44, aim: 222 }
+};
+
+/* ============================================================
+   The coffee inside the head, and what floats in it.
+
+   Once the top of the head lifts off, the hollow fills with coffee
+   and five things bob up out of it. Each is a button while it floats
+   (where they go, and their names, are FLOATERS in content.js).
+   Then the brain rises out of the coffee and they drift away.
+
+   The art: src/brain/art/coffee/. The pool is the coffee's surface,
+   stretched to fill the opening of the head (C.inside.inner). Each
+   thing is a picture on a transparent background.
+
+   Positions are in the intro's 800 x 600 drawing:
+     x:     the center of the thing
+     line:  the coffee line: everything below it is under the coffee
+     h, w:  its size in the drawing (keep w / h the same as the picture's)
+     sink:  how much of its height sits under the coffee, 0 to 1
+     tilt:  how far it leans, in degrees
+     drift: where it floats off to as the brain comes up: [x, y] away from where it was
+   ============================================================ */
+export const COFFEE = {
+  pool: { src: coffeePool, x: 262, y: 211, width: 278, height: 48 },
+  items: [
+    /* listed back to front: later ones are drawn over earlier ones */
+    { id: 'computer', src: coffeeComputer, x: 404, line: 227, h: 100, w: 103.0, sink: .3,  tilt: 3,  drift: [10, -240] },
+    { id: 'cup',      src: coffeeCup,      x: 330, line: 236, h: 86,  w: 70.9,  sink: .3,  tilt: -5, drift: [-150, -200] },
+    { id: 'flowers',  src: coffeeFlowers,  x: 480, line: 236, h: 88,  w: 89.4,  sink: .28, tilt: 6,  drift: [150, -200] },
+    { id: 'papers',   src: coffeePapers,   x: 270, line: 248, h: 82,  w: 100.2, sink: .3,  tilt: -9, drift: [-220, -110] },
+    { id: 'stylus',   src: coffeeStylus,   x: 534, line: 248, h: 94,  w: 48.7,  sink: .34, tilt: 6,  drift: [220, -110] }
+  ]
 };

@@ -211,6 +211,18 @@ export const STICKERS = {
   audio: { label: 'What I am listening to, on Spotify', go: 'https://open.spotify.com/playlist/0DJIRlDoAI6vq1X7ILXecI' }
 };
 
+/* The things floating in the coffee inside Scott's head, once the top of it lifts off during the intro.
+   Each one is a button while it floats: what it is called (read out, and shown on hover) and where it goes.
+   `go` is a page or level id from ROOT below, or 'studio' (Work with me) or 'gallery'.
+   Where each one floats, and its picture, are in character.js (COFFEE). */
+export const FLOATERS = {
+  cup:      { label: 'Work with me', go: 'studio' },
+  papers:   { label: 'Graphic design, in the Gallery', go: 'gallery' },
+  computer: { label: 'Things I build', go: 'build' },
+  flowers:  { label: 'Dirt Rich, my garden app', go: 'dirtrich' },
+  stylus:   { label: 'Wesson Art, my digital painting', go: 'samples' }
+};
+
 /* The Gallery: every picture on the site in one wall, opened from the Gallery button. */
 export const GALLERY = {
   title: 'Gallery',

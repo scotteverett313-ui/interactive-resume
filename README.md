@@ -320,11 +320,31 @@ redirect, since Work is now a level of the map. Links shared while the hubs
 were called Learn and Improve go to `/work` and `/build`. They are temporary
 redirects for now; change `"permanent": false` to `true` once the move is final.
 
+### The coffee in the head
+
+Once the top of the head lifts off, the head fills with coffee and five things
+bob up out of it: a coffee cup, papers and posters, a '90s computer, flowers,
+and a stylus. Each is a button while it floats, with its name on hover:
+
+| Thing | Goes to |
+| --- | --- |
+| Coffee cup | Work with me |
+| Papers and posters | The Gallery |
+| Computer | Build |
+| Flowers | Dirt Rich |
+| Stylus | Wesson Art |
+
+Then the brain rises out of the coffee, they drift off, and the coffee drains.
+Where each one goes, and its name, is `FLOATERS` in `content.js`. Where each one
+floats (and how big it is) is `COFFEE` in `character.js`. The art is in
+`src/brain/art/coffee/`, generated with Higgsfield in the character's clay style.
+
 ### The splash
 
 On the first visit in a browser session, the front door opens with a full
-screen card: the name rising in letter by letter, the title, and three dots in
-the Work, Teach and Build colors. After about two seconds it slides up and the
+screen card: the name rising in letter by letter, the title, and the SE|Design
+logo stamping down under them (`public/logo.png`, recolored to the ink color so
+it works light or dark). After about two seconds it slides up and the
 character makes his entrance. A press, a key, a scroll or a swipe skips ahead.
 It never shows on a link to anywhere else, or with reduced motion. The words
 are `TITLES.splash` in `content.js`; the card is `src/brain/Splash.js`. Add

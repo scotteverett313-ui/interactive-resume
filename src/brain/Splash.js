@@ -5,9 +5,10 @@ import { TITLES } from './content';
 /* The splash: Scott's name and title, full screen, before the character. The words are TITLES.splash in
    content.js.
 
-   The name rises in letter by letter, the title follows, three dots in the Work, Teach and Build colors pop
-   in, it holds a moment, then the whole card slides up and away to reveal the character, whose speech bubble
-   and stickers only then make their entrance.
+   The name rises in letter by letter, the title follows, then the SE|Design logo stamps down under them
+   (public/logo.png, painted in the ink color so it works light or dark). It holds a moment, then the whole
+   card slides up and away to reveal the character, whose speech bubble and stickers only then make their
+   entrance.
 
    It shows on the first visit in a browser session, at the front door only (a link to anywhere else lands
    straight there, and counts as the visit), and never with reduced motion. Adding ?splash=1 to the address shows it again; ?splash=0
@@ -18,6 +19,8 @@ import { TITLES } from './content';
    The words are read once by screen readers as the site's name; the card itself is decoration. */
 
 var KEY = 'brain-splash-seen';
+/* the SE|Design logo in public/; its shape is used as a mask so it takes the ink color */
+var LOGO = 'url(' + process.env.PUBLIC_URL + '/logo.png)';
 
 /* whether to show it on this load: the front door, motion allowed, and not yet this session (or asked for) */
 export function wantSplash(home, reduce){
@@ -45,8 +48,8 @@ export default function Splash({ onDone }){
     var tl = gsap.timeline({ onComplete:function(){ onDoneRef.current(); } });
     tl.fromTo(q('.ch'), { yPercent:115, rotate:6 }, { yPercent:0, rotate:0, duration:.7, ease:'power3.out', stagger:.035, clearProps:'transform' }, .15)
       .fromTo(q('.sp-title'), { autoAlpha:0, letterSpacing:'.5em' }, { autoAlpha:1, letterSpacing:'.14em', duration:.8, ease:'power2.out' }, .55)
-      .fromTo(q('.sp-dots i'), { scale:0 }, { scale:1, duration:.45, ease:'back.out(2.4)', stagger:.09 }, .8)
-      .addLabel('leave', 2.1)
+      .fromTo(q('.sp-logo'), { autoAlpha:0, scale:1.5, rotate:-8 }, { autoAlpha:1, scale:1, rotate:0, duration:.5, ease:'back.out(2)' }, 1.05)
+      .addLabel('leave', 2.4)
       .to(root, { yPercent:-100, duration:.75, ease:'power3.inOut' }, 'leave');
     tlRef.current = tl;
     return function(){ tl.kill(); };
@@ -84,7 +87,7 @@ export default function Splash({ onDone }){
           })}
         </p>
         <p className="sp-title">{words.sub}</p>
-        <p className="sp-dots"><i className="d-work" /><i className="d-teach" /><i className="d-build" /></p>
+        <span className="sp-logo" style={{ WebkitMaskImage:LOGO, maskImage:LOGO }} />
       </div>
     </div>
   );

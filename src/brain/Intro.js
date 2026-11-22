@@ -2,10 +2,10 @@ import React, { forwardRef, useEffect, useImperativeHandle, useLayoutEffect, use
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-import { CHARACTER as C, BRAIN as B, BACKDROP as K, MONO } from './character';
+import { CHARACTER as C, BRAIN as B, BACKDROP as K, COFFEE as F, MONO } from './character';
 import { blobPath } from './blob';
 import Stickers from './Stickers';
-import { INTRO_SAYS } from './content';
+import { INTRO_SAYS, FLOATERS } from './content';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -22,6 +22,10 @@ gsap.registerPlugin(ScrollTrigger);
      #brainWrap  the brain, lifts out and zooms (contains one .bv image per angle)
      #angleTag   "angle n / 8" caption
      #boil       the hand-drawn line wobble filter (slit, and the map links)
+     #poolG      the coffee that fills the open head (the pool picture, cut to the opening)
+     .fl-go      one per thing floating in the coffee: moved up out of it, and away (also in #floatSvg)
+     .fl-bob     inside it: the gentle bob while it floats (also in #floatSvg)
+     #floatSvg   the buttons for the floating things, laid over this drawing like the stickers
      #stickerSvg the sticker buttons, in their own drawing laid over this one (see Stickers.js)
      #introSays  the lines Scott says as the intro scrolls, one .say per line (the words are in content.js)
 
@@ -31,7 +35,9 @@ gsap.registerPlugin(ScrollTrigger);
 
      1. a cut draws across the forehead
      2. the top of the head lifts off and leaves through the top of the screen
-     3. the brain rises out of the hollow head, already turning
+     2b. the head fills with coffee, and five things bob up out of it. Each is a button
+         (FLOATERS in content.js) for as long as it floats
+     3. the brain rises out of the coffee, already turning; the things drift away and the coffee drains
      4. the head drops away while the brain keeps turning and starts to grow
      5. the map's gravity points and connections appear inside the brain and
         grow with it, the brain dissolves, and the map is left full screen
@@ -51,12 +57,14 @@ gsap.registerPlugin(ScrollTrigger);
 
 /* how many times bigger the brain gets by the end of the zoom */
 var ZOOM = 11;
+/* how much later everything from the brain's rise on starts, to make room for the coffee */
+var SHIFT = 1.8;
 /* a steady zoom: each bit of scroll multiplies the size by the same amount,
    so it never stalls at the start or rushes at the end */
 function zoomEase(p){ return (Math.pow(ZOOM, p) - 1) / (ZOOM - 1); }
 
 var Intro = forwardRef(function Intro({ stageRef, sectionRef, mapLayerRef, dotTagRef, reduce, done, onFinish, onMapArrival, onSticker }, ref){
-  var svgRef = useRef(null), stickRef = useRef(null), boilRef = useRef(null), backdropRef = useRef(null), backdropClipRef = useRef(null);
+  var svgRef = useRef(null), stickRef = useRef(null), floatRef = useRef(null), boilRef = useRef(null), backdropRef = useRef(null), backdropClipRef = useRef(null);
   var tlRef = useRef(null), triggerRef = useRef(null);
   var onFinishRef = useRef(onFinish); onFinishRef.current = onFinish;
   var onArriveRef = useRef(onMapArrival); onArriveRef.current = onMapArrival;
@@ -90,6 +98,12 @@ var Intro = forwardRef(function Intro({ stageRef, sectionRef, mapLayerRef, dotTa
     gsap.set(cap, { svgOrigin:'400 205' });
 
     var arrive = { p:0 };
+    /* the floating things: each has its picture in this drawing and its button in #floatSvg, moved together */
+    var floatSvg = floatRef.current;
+    var goOf = function(i){ return [svg.querySelector('.fl-go[data-i="' + i + '"]'), floatSvg.querySelector('.fl-go[data-i="' + i + '"]')]; };
+    var lines = svg.querySelectorAll('.wl'), poolG = $('#poolG'), poolImg = $('#poolImg');
+    F.items.forEach(function(it, i){ gsap.set(goOf(i), { svgOrigin:it.x + ' ' + it.line }); });
+
     var tl = gsap.timeline({ paused:true });
     /* Every tween below whose target also has an "intro is done" rule in brain.css is given its starting value
        outright (fromTo), never read from the page. When the intro is skipped, or the visit starts on a deep link,
@@ -107,20 +121,39 @@ var Intro = forwardRef(function Intro({ stageRef, sectionRef, mapLayerRef, dotTa
 
       /* 2. the top of the head lifts off: slow at first, then gone through the top of the screen.
             No fade. The brain and the inside of the head are switched on underneath it just before */
-      .to([brain, $('#insideG'), $('#rimG')], { opacity:1, duration:.15 }, 1)
+      .to([$('#insideG'), $('#rimG')], { opacity:1, duration:.15 }, 1)
       .to(cap, { y:-480, rotation:-8, duration:2.4, ease:'power2.in' }, 1)
       .to(slit, { opacity:0, duration:.4 }, 1.2)
 
-      /* 3. the brain rises out once the lid is clear, turning as it comes; the head sinks to give it room */
-      .to(brain, { y:lift, duration:2.2, ease:'power2.inOut' }, 2.2)
-      .to(figure, { y:150, duration:2, ease:'power2.inOut' }, 2.4)
-      .to(svg.querySelectorAll('.pupil'), { y:C.lookUp.y, x:C.lookUp.x, duration:.8 }, 2.6)
-      .to(turn, { a:nVariants - 1, duration:4.4, ease:'none', onUpdate:setVariant }, 3)
-      .to(angleTag, { opacity:1, duration:.3 }, 3.4)
-      .to(angleTag, { opacity:0, duration:.3 }, 5)
+      /* 2b. coffee fills the head as the lid clears, and the things bob up out of it, one after another */
+      .fromTo(poolG, { opacity:0 }, { opacity:1, duration:.3 }, 1.25)
+      .fromTo(poolImg, { y:22 }, { y:0, duration:.7, ease:'power2.out' }, 1.25);
+    F.items.forEach(function(it, i){
+      var go = goOf(i), at = 1.7 + i * .12;
+      tl.fromTo(go, { y:it.h * .95 }, { y:0, duration:.7, ease:'back.out(1.6)', immediateRender:true }, at)
+        .fromTo(go[1], { autoAlpha:0 }, { autoAlpha:1, duration:.2 }, at + .1)
+        /* 3. as the brain comes up they let go of the coffee and drift off; their buttons go first */
+        .to(go[1], { autoAlpha:0, duration:.2 }, 2 + SHIFT)
+        .to(go, { x:it.drift[0], y:it.drift[1], rotation:it.tilt * 2.5, duration:1.6, ease:'power2.in' }, 2.2 + SHIFT + i * .05)
+        .to(go[0], { opacity:0, duration:.5 }, 3.3 + SHIFT);
+    });
+    /* the coffee line stops hiding their lower halves once they lift out */
+    tl.to(lines, { attr:{ height:2000 }, duration:.01 }, 2.15 + SHIFT)
+
+      /* 3. the brain rises out of the coffee once the lid is clear, turning as it comes; the head sinks to give it room.
+            It starts low enough that the coffee covers it, so it comes up out of it; the coffee drains behind it */
+      .to(brain, { opacity:1, duration:.1 }, 2.2 + SHIFT)
+      .fromTo(brain, { y:75 }, { y:lift, duration:2.2, ease:'power2.inOut' }, 2.2 + SHIFT)
+      .to(poolImg, { y:26, duration:.9, ease:'power1.in' }, 2.7 + SHIFT)
+      .to(poolG, { opacity:0, duration:.3 }, 3.3 + SHIFT)
+      .to(figure.concat(poolG), { y:150, duration:2, ease:'power2.inOut' }, 2.4 + SHIFT)
+      .to(svg.querySelectorAll('.pupil'), { y:C.lookUp.y, x:C.lookUp.x, duration:.8 }, 2.6 + SHIFT)
+      .to(turn, { a:nVariants - 1, duration:4.4, ease:'none', onUpdate:setVariant }, 3 + SHIFT)
+      .to(angleTag, { opacity:1, duration:.3 }, 3.4 + SHIFT)
+      .to(angleTag, { opacity:0, duration:.3 }, 5 + SHIFT)
 
       /* 4. the head drops away while the brain settles in the middle and starts to grow */
-      .addLabel('zoom', 4.4)
+      .addLabel('zoom', 4.4 + SHIFT)
       .to(figure, { y:560, duration:1.6, ease:'power2.in' }, 'zoom')
       .to($('#backdropG'), { opacity:0, duration:1, ease:'power1.in' }, 'zoom')
       .to(brain, { y:78, duration:1, ease:'power2.inOut' }, 'zoom')
@@ -129,15 +162,15 @@ var Intro = forwardRef(function Intro({ stageRef, sectionRef, mapLayerRef, dotTa
       /* 5. the map comes together on top of the growing brain: the gravity points spiral out from its center
             while the curiosities and their connections sweep in from beyond the screen (BrainMap moves each
             part; this only tells it how far along we are). Then the brain dissolves underneath */
-      .addLabel('map', 5)
+      .addLabel('map', 5 + SHIFT)
       .fromTo(mapLayer, { opacity:0 }, { opacity:1, duration:.4 }, 'map')
       .fromTo(arrive, { p:0 }, { p:1, duration:4, ease:'none', onUpdate:function(){ onArriveRef.current(arrive.p); } }, 'map')
-      .to(brain, { opacity:0, duration:1.6 }, 7.2)
-      .to(svg, { opacity:0, duration:.6 }, 8.4);
+      .to(brain, { opacity:0, duration:1.6 }, 7.2 + SHIFT)
+      .to(svg, { opacity:0, duration:.6 }, 8.4 + SHIFT);
     /* the lines said along the way: each gets an equal share of the stretch between the title leaving and the
        map settling, rises in, holds, and lifts away as the next one comes */
     var says = sectionRef.current.querySelectorAll('#introSays .say');
-    var from = 1, until = 6.4, share = says.length ? (until - from) / says.length : 0;
+    var from = 1, until = 6.4 + SHIFT, share = says.length ? (until - from) / says.length : 0;
     says.forEach(function(el, i){
       var at = from + i * share;
       tl.fromTo(el, { autoAlpha:0, y:12 }, { autoAlpha:1, y:0, duration:.3, ease:'power2.out' }, at)
@@ -202,6 +235,7 @@ var Intro = forwardRef(function Intro({ stageRef, sectionRef, mapLayerRef, dotTa
       var box = r.width / r.height < .8 ? '190 30 420 570' : '0 0 800 600';
       svgRef.current.setAttribute('viewBox', box);
       stickRef.current.setAttribute('viewBox', box); /* the stickers stay locked to the character */
+      floatRef.current.setAttribute('viewBox', box); /* so do the floating things' buttons */
     }
     fitIntro();
     window.addEventListener('resize', fitIntro);
@@ -229,6 +263,18 @@ var Intro = forwardRef(function Intro({ stageRef, sectionRef, mapLayerRef, dotTa
     }
     raf = requestAnimationFrame(frame);
     return function(){ cancelAnimationFrame(raf); };
+  }, [reduce, done]);
+
+  /* the floating things bob in the coffee while the intro is on screen, each at its own pace */
+  useEffect(function(){
+    if (reduce || done) return undefined;
+    var tweens = F.items.map(function(it, i){
+      var bob = [svgRef.current.querySelector('.fl-bob[data-i="' + i + '"]'), floatRef.current.querySelector('.fl-bob[data-i="' + i + '"]')];
+      gsap.set(bob, { svgOrigin:it.x + ' ' + it.line });
+      return gsap.fromTo(bob, { y:1.5, rotation:-1.6 * (i % 2 ? 1 : -1) },
+        { y:-3.5, rotation:2.2 * (i % 2 ? 1 : -1), duration:1.3 + i * .21, ease:'sine.inOut', yoyo:true, repeat:-1, delay:i * .17 });
+    });
+    return function(){ tweens.forEach(function(t){ t.kill(); }); };
   }, [reduce, done]);
 
   /* boil: redraw the line wobble a few times a second, like a hand-drawn loop */
@@ -261,6 +307,11 @@ var Intro = forwardRef(function Intro({ stageRef, sectionRef, mapLayerRef, dotTa
           <clipPath id="bodyClip"><path d={C.clip.body} /></clipPath>
           {C.eyes.map(function(e){ return <clipPath id={e.id} key={e.id}><path d={e.outline} /></clipPath>; })}
           <clipPath id="lowerClip"><path d={C.clip.lower} /></clipPath>
+          {/* the opening of the head, for the coffee; and one coffee line per floating thing (lifted when they drift off) */}
+          <clipPath id="hollowClip"><path d={C.inside.inner} /></clipPath>
+          {F.items.map(function(it){
+            return <clipPath id={'wl-' + it.id} key={it.id}><rect className="wl" x="-400" y="-800" width="1600" height={it.line + 800} /></clipPath>;
+          })}
           <clipPath id="rimFrontClip"><rect x="0" y={C.inside.chord} width="800" height="60" /></clipPath>
           <linearGradient id="rimFrontFill" x1="0" y1="0" x2="1" y2="0">
             <stop offset={C.inside.skinFrom - .008} stopColor={C.inside.rimHair} />
@@ -307,6 +358,26 @@ var Intro = forwardRef(function Intro({ stageRef, sectionRef, mapLayerRef, dotTa
             })}
           </g>
 
+          {/* the coffee, over the bottom of the brain so the brain comes up out of it */}
+          <g id="poolG" clipPath="url(#hollowClip)" opacity="0">
+            <image id="poolImg" href={F.pool.src} x={F.pool.x} y={F.pool.y} width={F.pool.width} height={F.pool.height} preserveAspectRatio="none" />
+          </g>
+          {/* the things floating in it, each cut at its coffee line */}
+          <g id="floatG">
+            {F.items.map(function(it, i){
+              return (
+                <g key={it.id} clipPath={'url(#wl-' + it.id + ')'}>
+                  <g className="fl-go" data-i={i}>
+                    <g className="fl-bob" data-i={i}>
+                      <image href={it.src} x={it.x - it.w / 2} y={it.line - it.h * (1 - it.sink)} width={it.w} height={it.h}
+                        transform={'rotate(' + it.tilt + ' ' + it.x + ' ' + it.line + ')'} />
+                    </g>
+                  </g>
+                </g>
+              );
+            })}
+          </g>
+
           <g id="charInk" stroke="none">
             <g id="bodyG" clipPath="url(#bodyClip)">
               <image href={C.src} width={C.width} height={C.height} transform={C.place} />
@@ -344,6 +415,29 @@ var Intro = forwardRef(function Intro({ stageRef, sectionRef, mapLayerRef, dotTa
         </g>
       </svg>
       <Stickers svgRef={stickRef} mono={MONO} onPress={onSticker} />
+      {/* the floating things' buttons: laid over the drawing, moved with their pictures by the timeline */}
+      <svg id="floatSvg" ref={floatRef} className={MONO ? 'mono' : undefined} viewBox="0 0 800 600" preserveAspectRatio="xMidYMid meet">
+        {F.items.map(function(it, i){
+          var f = FLOATERS[it.id], top = it.line - it.h * (1 - it.sink), tagW = f.label.length * 6.4 + 20;
+          var press = function(){ onSticker(f.go); };
+          return (
+            <g className="fl-go" data-i={i} key={it.id} style={{ visibility:'hidden', opacity:0 }}>
+              <g className="fl-bob" data-i={i}>
+                <g className="floater" role="button" tabIndex={0} aria-label={f.label} onClick={press}
+                  onKeyDown={function(e){ if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); press(); } }}>
+                  <title>{f.label}</title>
+                  <rect className="hit" x={it.x - it.w / 2 - 4} y={top - 4} width={it.w + 8} height={it.line - top + 8} rx="10" />
+                  <rect className="ring" x={it.x - it.w / 2 - 4} y={top - 4} width={it.w + 8} height={it.line - top + 8} rx="10" />
+                  <g className="fl-tag">
+                    <rect x={it.x - tagW / 2} y={top - 30} width={tagW} height="22" rx="11" />
+                    <text x={it.x} y={top - 15} textAnchor="middle">{f.label}</text>
+                  </g>
+                </g>
+              </g>
+            </g>
+          );
+        })}
+      </svg>
       <div id="hint"><span>Scroll to open</span><span className="line" /></div>
       <div id="introSays">
         {INTRO_SAYS.map(function(t, i){ return <p className="say" key={i}>{t}</p>; })}
