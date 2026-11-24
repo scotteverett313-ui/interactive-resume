@@ -131,18 +131,20 @@ intro and lands straight on that place. The Back and Forward buttons work.
 | Address | What it shows |
 |---|---|
 | `/` | The opening screen, then the map |
-| `/work`, `/work/what-i-do/se-design` | A level of the map (levels nest as deep as the tree) |
-| `/work/what-i-do/se-design/case-studies/robear-detroit` | A page |
-| `/work/resume/resume-pdf` | The resume, shown on screen with a download button |
-| `/orbit`, `/orbit/gardening` | The outer orbit's pages |
-| `/work-with-me` | The SE\|Design services page |
+| `/work`, `/build/more` | A level of the map (never more than two below a gravity point) |
+| `/work/robear-detroit`, `/build/first-fire` | A page |
+| `/work/civilla/secretary-of-state` | A page that lives under a page |
+| `/teach/uofm-flint` | The Teach page (`/teach` opens it) |
+| `/about` | About, with the resume download |
+| `/orbit` | Can't Stop Thinking About |
+| `/work-with-me` | Work with me (Contact in the menu) |
 | `/gallery` | Every picture on the site |
 | `/the-work` | Just the work: six projects as tiles |
 | `/notes`, `/notes/<slug>` | The list of notes, and one note |
 | `/resume` | The classic resume |
 
-A node's part of the address comes from its label ("Case Studies" becomes
-`case-studies`).
+A node's part of the address comes from its label ("Robear Detroit" becomes
+`robear-detroit`).
 Renaming a node changes its address. To pin it, give the node a `slug` in
 `content.js`. The rules are in `src/brain/routes.js`.
 
@@ -191,10 +193,10 @@ that picture is from. Its title and one line are `GALLERY` in `content.js`;
 the gathering is `src/brain/gallery.js` and the page is
 `src/brain/GalleryPage.js`.
 
-A leaf written with `go:'gallery'` (the Gallery node under SE|Design) opens
-the same wall narrowed to the level it sits in. Its `tags` are the filter
-buttons, and its `gallery` list holds extra pictures that belong to no page:
-`{ src: '/proof/name.webp', tag: 'Branding', caption: '...' }`.
+Pictures that belong to no page (the logos, the Daily UI shots) are
+`GALLERY.extras` in `content.js`: `{ src: '/proof/name.webp', tag: 'Branding',
+caption: '...' }`. They show under Work. Pictures on parked pages, and on pages
+held back in More, stay off the wall.
 
 ### Case studies
 
@@ -224,64 +226,44 @@ lossy compression so they stay crisp.
 
 ### Featured pages, and Next and Previous
 
-A level can offer previews of pages straight from its own screen, however
-deep they really sit. Give the level a `featured` list in `content.js`:
+A gravity point's `featured` list in `content.js` names the projects that get
+the biggest picture blobs there, with the tag "featured":
 
 ```js
-featured:[
-  { as:'Civilla', pages:['civoverview'] },
-  { as:'SE|Design', image:'/proof/brand-system.webp', pages:['robear','martez','krw'] }
-]
+featured:[{ pages:['civilla'] }, { pages:['robear'] }]
 ```
 
-Each entry is one extra blob on that level, bigger than the rest, with a
-picture inside and the tag "featured". `as` is the name under it. Pressing it
-opens the first of its `pages`. The picture is the entry's `image`, or the
-first page's own picture when there is none; with no picture at all it is a
-plain color blob until that page gets one. Work, Teach and Build have
-previews.
+Work features Civilla and Robear Detroit, Build features First Fire and This
+Site, and Teach (one page) has none. Pressing a featured blob opens its page,
+and Next and Previous on that page step through the featured list. (An entry
+can also preview a page that sits deeper, as its own extra blob, with `as` for
+its name and `image` for its picture; none do right now.)
 
-If a featured page is already one press away on that level, no second blob is
-added: the one already there becomes the big one. That is how Build features
-First Fire and VaultMark, which sit behind Games and Software.
-
-Every page with neighbors has a bar at the bottom with Previous and Next.
-Opened from a featured blob with several pages, they step through that list
-in order. Opened any other way, or from a preview with one page, they step
-through the other pages in the same level. A single-page preview whose page
-has no neighbors steps through the level's other single-page previews instead
-(First Fire and VaultMark).
-The left and right arrow keys and a sideways swipe do the same, and the list
-wraps around at the ends.
-
-### A level as cards
-
-A level with `view:'cards'` in `content.js` is shown as a row of large cards
-that slide sideways, one per page, instead of blobs on the map: swipe on a
-phone, or use the two arrow buttons. Each card shows the page's picture, name,
-one line and tags, and opens the page. It suits a level that holds only
-pages. Case Studies is the only one for now. The row is
-`src/brain/LevelCards.js`.
+Every page with neighbors has Previous and Next: opened any other way, they
+step through the other pages on the same level (Civilla's two sub-pages step
+through each other). The left and right arrow keys and a sideways swipe do
+the same, and the list wraps around at the ends.
 
 ### Just the work
 
-"Just the work", bottom right and in the menu, skips the brain and opens a short stack of large tiles at `/the-work`, one per project: its name,
-its first two tags, a number and its picture. A tile opens that project's
-case study, and the Next card at the bottom of each one carries on through
-the same list, so the six read as one run.
+"See the work", bottom right, and Work in the menu skip the brain and open a
+short stack of large tiles at `/the-work`, one per project: its name, its first
+two tags, a number and its picture. A tile opens that project's page, and Next
+at the bottom of each one carries on through the same list, so the six read
+as one run: Civilla, Robear Detroit, Micro Money Management, Wesson Art,
+First Fire, This Site.
 
 Which projects, and in what order, is `INDEX.picks` in `content.js`. `as`
-gives a project a clearer name there than its page has ("Civilla" for
-"Overview"), and the page wears that name when opened from the tiles. The page is `src/brain/IndexPage.js`.
+gives a project a different name on its tile, and the page wears that name
+when opened from the tiles. The page is `src/brain/IndexPage.js`.
 
 ### Single-item levels
 
 A level with only one thing inside is passed straight through, so nobody
-presses twice to reach one page. Pressing Apps opens Dirt Rich; pressing the
-UX role lands inside Civilla. Back, Escape, and the breadcrumbs skip those
-levels on the way up too. Nothing marks a level as pass-through: it is any
-level with exactly one item, so adding a second item makes it a normal level
-again. Addresses do not change (`/build/apps/dirt-rich`).
+presses twice to reach one page. Pressing Teach opens the Teach page. Back,
+Escape, and the breadcrumbs skip those levels on the way up too. Nothing marks
+a level as pass-through: it is any level with exactly one item, so adding a
+second item makes it a normal level again.
 
 ### Notes
 
@@ -291,26 +273,22 @@ add an entry at the top; the comment in that file lists the fields. A note's
 
 ### The three gravity points
 
-- **Work** is the body of work: What I Do (SE|Design, the UX and research
-  roles, Wesson Art), the Resume, and the Background.
-- **Teach** is teaching: UofM Flint and the curriculum.
-- **Build** is what I am making now: my stack, apps, games, software, and
-  websites.
+- **Work** is the body of work: Civilla, Robear Detroit, Micro Money
+  Management, Wesson Art, and More.
+- **Teach** is teaching: one page, UofM Flint, with the seven courses.
+- **Build** is what I am making now: First Fire, This Site, and More.
 
-The map goes as deep as the tree does. The depth dots on the right count the
+The map is never more than two levels below a gravity point. The depth dots on the right count the
 levels for themselves, a crowded level shrinks its blobs on a small screen
 until nothing overlaps, and on a phone the breadcrumbs show only the last two
 levels after a "…".
 
 ### The resume
 
-`/work/resume/resume-pdf` shows the resume on screen and offers it as a download. Two
-things in `public/cv/` make that work: `scott-everett-resume.pdf` is the file
-people download, and `page-1.webp` is a picture of its page, which is what
-shows on screen (a picture displays on every phone; an embedded PDF does not).
-To use a different resume, replace the PDF and export a picture of each page
-under the same names, adding `page-2.webp` to the `pages` list in `content.js`
-if it runs to two pages.
+The About page (`/about`) has a "Download my resume (PDF)" button. The file is
+`public/cv/scott-everett-resume.pdf`; replace it under the same name to update
+it. (The old on-screen resume page is parked, with its picture of the page,
+`public/cv/page-1.webp`.)
 
 ### Pictures on pages
 
@@ -502,12 +480,12 @@ The curiosities under `CURIO_ROOT` can be parked the same way.
 2. Give it a `page` (leaf) or its own `kids` (branch).
 3. Link to it from elsewhere with `{ to:'<its id>', why:'...' }`.
 
-### The outer orbit
+### Can't Stop Thinking About
 
-`CURIO_ROOT` holds the loose curiosities drawn around the outside. Each one
-also has `fx, fy` (position as a fraction of the screen), `hubs` (which of
-`work`, `teach`, `build` it feeds, drawn as dashed lines), `also` (ids of
-other curiosities it touches), and an optional `sub` tag.
+`CURIO_ROOT` in `content.js` is one page, `/orbit`: the loose curiosities,
+each a section (`study.sections`, folded, so only written lines show). The
+curiosities' own pages are parked under it. The map's stickers and the bolt
+sticker on the opening screen are the way in.
 
 ### The character
 
@@ -574,12 +552,7 @@ away, so a line passes behind the words with nothing drawn around the text.
 The scatter and the web are the `scatter` and `webLinks` functions in
 `src/brain/blob.js`.
 
-The dashed lines around the outside come in two kinds. A line from a curiosity
-to the gravity point it feeds is dotted and tinted with that hub's color; the
-dots flow toward the hub, and a pulse of hub color travels along it every few
-seconds. A line between two curiosities is fine ink dashes. Hovering a
-curiosity or a hub brightens its lines and speeds them up. Reduced motion
-holds everything still and shows no pulses.
+Reduced motion holds everything on the map still.
 
 **Which mode a visitor sees.** They start in whichever their device is set to.
 The round button in the bottom-right corner switches modes and remembers the
@@ -614,7 +587,7 @@ through on its own. Before that point it stays wherever you stop.
 
 During the zoom the map does not simply grow as one picture. The gravity
 points start tiny at the center of the brain and spiral outward as it grows,
-while the curiosities and their dotted connections start beyond the edges of
+while the stickers start beyond the edges of
 the screen and are pulled inward into orbit. That motion lives in the
 "arrival" section of `src/brain/BrainMap.js`; the intro only tells it how far
 along the zoom is.

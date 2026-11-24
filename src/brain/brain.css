@@ -426,6 +426,9 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
 #page .pager .chip-btn{min-height:0;height:44px;padding:0 14px;box-sizing:border-box;display:inline-flex;align-items:center;gap:6px;max-width:40%;white-space:nowrap}
 #page .pager .chip-btn span{overflow:hidden;text-overflow:ellipsis}
 #page .pager-count{font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+/* on a narrow phone the count gives way first ("Featured · 5 / 6" shortens with an ellipsis) so the row never runs off the side */
+#page .pager-count{min-width:0;flex:0 1 auto;overflow:hidden;text-overflow:ellipsis}
+#page .pager .chip-btn{flex:0 1 auto;min-width:0}
 #page .page-doc .pager{margin-bottom:-64px}
 /* a document page (the resume): its pages as pictures, on a white sheet like paper, with the download button above */
 #page .page-doc{max-width:980px;margin:0 auto;padding:calc(20px + env(safe-area-inset-top,0px)) 72px 64px 24px;display:flex;flex-direction:column;gap:22px}
