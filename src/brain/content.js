@@ -211,29 +211,19 @@ export const STICKERS = {
   audio: { label: 'What I am listening to, on Spotify', go: 'https://open.spotify.com/playlist/0DJIRlDoAI6vq1X7ILXecI' }
 };
 
-/* The things floating in the coffee inside Scott's head, once the top of it lifts off during the intro.
-   Each one is a button while it floats: what it is called (read out, and shown on hover), the `short` name
-   printed under its sticker on the map, and where it goes.
-   `go` is a page or level id from ROOT below, or 'studio' (Work with me) or 'gallery'.
-   Where each one floats, and its picture, are in character.js (COFFEE). */
-export const FLOATERS = {
-  cup:      { label: 'Work with me', short: 'Work with me', go: 'studio' },
-  papers:   { label: 'Graphic design, in the Gallery', short: 'Gallery', go: 'gallery' },
-  computer: { label: 'Things I build', short: 'Build', go: 'build' },
-  flowers:  { label: 'Dirt Rich, my garden app', short: 'Dirt Rich', go: 'dirtrich' },
-  stylus:   { label: 'Wesson Art, my digital painting', short: 'Wesson Art', go: 'samples' }
-};
-
-/* The same five things again, as stickers slapped on the brain map's top level (where Work, Teach and
-   Build are). Each goes where FLOATERS above says. Where each sits is a fraction of the screen (0 to 1):
-   `wide` on a landscape screen, `tall` on a phone held upright. `tilt` is how far it is turned, in degrees.
-   The sticker art (white border and shadow included) is src/brain/art/coffee/sticker-*.webp. */
+/* The five clay things from the coffee in the head, as stickers on the brain map's top level (where Work, Teach and
+   Build are). Together they are the door to Can't Stop Thinking About: each opens that page at its own section
+   (`section`, an id in CURIO_ROOT's study.sections), and its `label` is printed under it. A section that is not
+   written yet does not show, and its sticker opens the page at the top.
+   Where each sits is a fraction of the screen (0 to 1): `wide` on a landscape screen, `tall` on a phone held
+   upright. `tilt` is how far it is turned, in degrees. The art (white border and shadow included) is
+   src/brain/art/coffee/sticker-*.webp. */
 export const MAP_STICKERS = [
-  { id: 'cup',      wide: [.08, .4],  tall: [.15, .6],  tilt: -9 },
-  { id: 'papers',   wide: [.47, .12], tall: [.84, .2],  tilt: 7 },
-  { id: 'computer', wide: [.84, .62], tall: [.14, .8],  tilt: -5 },
-  { id: 'flowers',  wide: [.13, .8],  tall: [.84, .8],  tilt: 10 },
-  { id: 'stylus',   wide: [.74, .84], tall: [.63, .21], tilt: -14 }
+  { id: 'cup',      section: 'podcasts',   label: 'Podcasts',   wide: [.08, .4],  tall: [.15, .6],  tilt: -9 },
+  { id: 'papers',   section: 'books',      label: 'Books',      wide: [.47, .12], tall: [.84, .2],  tilt: 7 },
+  { id: 'computer', section: 'technology', label: 'Technology', wide: [.84, .62], tall: [.14, .8],  tilt: -5 },
+  { id: 'flowers',  section: 'gardening',  label: 'Gardening',  wide: [.13, .8],  tall: [.84, .8],  tilt: 10 },
+  { id: 'stylus',   section: 'science',    label: 'Science',    wide: [.74, .84], tall: [.63, .21], tilt: -14 }
 ];
 
 /* The Gallery: every picture on the site in one wall, opened from the Gallery button. */
@@ -286,11 +276,11 @@ export const INDEX = {
      name ("Overview") needs a clearer one. The line under each name is the page's first two tags. */
   picks: [
     { to: 'civilla' },
-    { to: 'mmm' },
     { to: 'robear' },
+    { to: 'mmm' },
+    { to: 'wesson' },
     { to: 'ff' },
-    { to: 'vault' },
-    { to: 'wesson' }
+    { to: 'thissite' }
   ]
 };
 

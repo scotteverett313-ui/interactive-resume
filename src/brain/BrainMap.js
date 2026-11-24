@@ -1,6 +1,6 @@
 import React, { useEffect, useLayoutEffect, useRef } from 'react';
 import { gsap } from 'gsap';
-import { ROOT, CURIO_ROOT, BYID, only, FLOATERS, MAP_STICKERS } from './content';
+import { ROOT, BYID, only, MAP_STICKERS } from './content';
 import stickerCup from './art/coffee/sticker-cup.webp';
 import stickerPapers from './art/coffee/sticker-papers.webp';
 import stickerComputer from './art/coffee/sticker-computer.webp';
@@ -125,20 +125,12 @@ export function createScene(o){
       g.addEventListener('click', function(){ if (done && !busy() && view.node === ROOT) fn(); });
       g.addEventListener('keydown', function(e){ if ((e.key === 'Enter' || e.key === ' ') && done && !busy() && view.node === ROOT){ e.preventDefault(); fn(); } });
     }
-    /* the way into the curiosities keeps the spot its first curiosity used to have */
-    var c0 = CURIO_ROOT.kids[0] || { fx:.09, fy:.17 }, first = { x:c0.fx * W, y:c0.fy * H };
-    var tg = el('g', {});
-    tg.appendChild(el('rect', { 'class':'hit', x:first.x - 10, y:first.y - 46, width:260, height:30 }));
-    var tt = el('text', { x:first.x - 4, y:first.y - 26, 'class':'ctitle' });
-    tt.textContent = "CAN'T STOP THINKING ABOUT →";
-    tg.appendChild(tt);
-    curioBtn(tg, "Open page: Can't stop thinking about", function(){ o.onOpenPage(CURIO_ROOT); });
-    curioG.appendChild(tg); curioTitle = tg;
+    /* the stickers are the way into Can't Stop Thinking About; there is no separate text link */
     /* each sticker: its picture turned a little, as if slapped on by hand, with its name underneath.
        The size follows the screen: about an eighth of its short side, never smaller than 58 */
     var size = clamp(M * .13, 58, 112);
     kids.forEach(function(c){
-      var pt = curioPos[c.id], art = STICKER_ART[c.id], f = FLOATERS[c.id];
+      var pt = curioPos[c.id], art = STICKER_ART[c.id];
       var h = c.id === 'stylus' || c.id === 'cup' ? size * 1.08 : size, w = h * art.ratio;
       var g = el('g', { 'class':'msticker' });
       var tilt = el('g', { transform:'rotate(' + c.tilt + ' ' + pt.x.toFixed(1) + ' ' + pt.y.toFixed(1) + ')' });
@@ -147,9 +139,9 @@ export function createScene(o){
       pop.appendChild(el('image', { href:art.src, x:(pt.x - w / 2).toFixed(1), y:(pt.y - h / 2).toFixed(1), width:w.toFixed(1), height:h.toFixed(1) }));
       tilt.appendChild(pop); g.appendChild(tilt);
       var t = el('text', { x:pt.x.toFixed(1), y:(pt.y + h / 2 + 15).toFixed(1), 'text-anchor':'middle' });
-      t.textContent = f.short || f.label;
+      t.textContent = c.label;
       g.appendChild(t);
-      curioBtn(g, f.label, function(){ if (o.onSticker) o.onSticker(f.go); });
+      curioBtn(g, "Can't stop thinking about: " + c.label, function(){ if (o.onSticker) o.onSticker('curio#' + c.section); });
       curioG.appendChild(g); curioEls[c.id] = g;
     });
   }

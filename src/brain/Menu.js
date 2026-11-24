@@ -1,9 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { NOTES } from './notes';
 
 /* The menu: a single button in the top-right corner of the opening screen and the map. Pressing it opens a
    small card with every way out:
 
-     Just the work, Work with me, Gallery, Notes
+     Work (Just the work), About, Gallery, Contact (Work with me), and Notes once notes.js holds three posts
      Skip intro while the intro is on screen, Replay intro after it
 
    On the opening screen the card takes the speech bubble's place: the character says the menu, and "What up
@@ -30,7 +31,7 @@ function Icon({ name }){
   );
 }
 
-export default function Menu({ done, path, hidden, onIndex, onStudio, onGallery, onNotes, onSkip, onReplay, onOpen }){
+export default function Menu({ done, path, hidden, onIndex, onAbout, onStudio, onGallery, onNotes, onSkip, onReplay, onOpen }){
   var [open, setOpen] = useState(false);
   var wrapRef = useRef(null), btnRef = useRef(null), cardRef = useRef(null);
   /* on the opening screen the card is the speech bubble */
@@ -72,11 +73,13 @@ export default function Menu({ done, path, hidden, onIndex, onStudio, onGallery,
 
   function pick(fn){ return function(){ setOpen(false); fn(); }; }
   var ways = [
-    { id:'menuWork', label:'Just the work', fn:onIndex },
-    { id:'menuStudio', label:'Work with me', fn:onStudio },
+    { id:'menuWork', label:'Work', fn:onIndex },
+    { id:'menuAbout', label:'About', fn:onAbout },
     { id:'menuGallery', label:'Gallery', fn:onGallery },
-    { id:'menuNotes', label:'Notes', fn:onNotes }
+    { id:'menuStudio', label:'Contact', fn:onStudio }
   ];
+  /* Notes waits until there are three posts to read */
+  if (NOTES.length >= 3) ways.push({ id:'menuNotes', label:'Notes', fn:onNotes });
 
   return (
     <div id="menu" ref={wrapRef} hidden={hidden} className={open ? 'open' : undefined}>

@@ -137,17 +137,6 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
 /* stickers: the drawn buttons around the character (Stickers.js). An ink edge, a bright face, and the thick ink side
    that makes them read as stuck on. Only the stickers themselves take presses; the rest of the layer lets them through */
 #stickerSvg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
-/* the floating things' buttons (Intro.js): invisible hit areas over the pictures; a ring when focused, a name tag on hover or focus */
-#floatSvg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
-.stage.is-done #floatSvg{visibility:hidden}
-.brain .floater{pointer-events:auto;cursor:pointer;outline:none;-webkit-tap-highlight-color:transparent}
-.brain .floater .hit{fill:transparent}
-.brain .floater .ring{fill:none;stroke:var(--ink);stroke-width:2px;stroke-dasharray:5 5;opacity:0}
-.brain .floater:focus-visible .ring{opacity:1}
-.brain .floater .fl-tag{opacity:0;transition:opacity .15s ease;pointer-events:none}
-.brain .floater .fl-tag rect{fill:var(--ink)}
-.brain .floater .fl-tag text{fill:var(--ground);font-family:var(--mono);font-size:11px;letter-spacing:.02em}
-.brain .floater:hover .fl-tag,.brain .floater:focus-visible .fl-tag{opacity:1}
 .stage.is-done #stickerSvg{visibility:hidden}
 .brain .sticker{pointer-events:auto;cursor:pointer;outline:none;-webkit-tap-highlight-color:transparent}
 .brain .sticker .edge{fill:var(--ink);stroke:var(--ink);stroke-width:3px;stroke-linejoin:round}

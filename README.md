@@ -162,8 +162,8 @@ A page button can also leave the site: `action: { label: '...', url:
 ### The menu and the bar along the bottom
 
 The Menu button sits in the top-right corner of the opening screen and the
-map. It opens a small card with Just the work, Work with me, Gallery and
-Notes, then Skip intro (while the intro is on screen) or Replay intro (after
+map. It opens a small card with Work (Just the work), About, Gallery and
+Contact (Work with me), then Skip intro (while the intro is on screen) or Replay intro (after
 it). On the opening screen the card opens in place of the "What up doe."
 speech bubble, tail and all, so the character says the menu; the bubble comes
 back when it closes, and starting to scroll closes it. On the map it drops
@@ -171,8 +171,9 @@ down under the button. Escape, a press outside, or any choice closes it. The
 menu is `src/brain/Menu.js`.
 
 Along the bottom of the opening screen and the map: the status button on the
-left ("Open for work", which opens Work with me), Just the work on the right,
-and the round light and dark button in the corner. A page open over the map
+left ("Open for work", which opens Work with me), "See the work" on the right
+(it opens Just the work), and the round light and dark button in the corner.
+Notes stays out of the menu until `notes.js` holds three posts. A page open over the map
 covers the bar and the menu; the light and dark button stays.
 
 The depth dots down the right edge show on the opening screen and the map
@@ -350,28 +351,32 @@ redirects for now; change `"permanent": false` to `true` once the move is final.
 
 Once the top of the head lifts off, the head fills with coffee and five things
 bob up out of it: a coffee cup, papers and posters, a '90s computer, flowers,
-and a stylus. Each is a button while it floats, with its name on hover:
-
-| Thing | Goes to |
-| --- | --- |
-| Coffee cup | Work with me |
-| Papers and posters | The Gallery |
-| Computer | Build |
-| Flowers | Dirt Rich |
-| Stylus | Wesson Art |
-
-Then the brain rises out of the coffee, they drift off, and the coffee drains.
-The same five come back as stickers on the map's top level (with Work, Teach
-and Build), turned a little as if slapped on by hand, with a short name under
-each. They took the place of the five curiosity dots; the curiosities are still
-one press away through "Can't stop thinking about" on the map and the lightning
-bolt sticker. Where each sticker sits, on a landscape screen and on an upright
-phone, and how far it is turned, is `MAP_STICKERS` in `content.js`; the short
-names are `short` in `FLOATERS`. The sticker art, white border and shadow baked
-in, is `src/brain/art/coffee/sticker-*.webp`.
-Where each one goes, and its name, is `FLOATERS` in `content.js`. Where each one
-floats (and how big it is) is `COFFEE` in `character.js`. The art is in
+and a stylus. They are just to look at (not buttons). Then the brain rises out
+of the coffee, they drift off, and the coffee drains. Where each one floats
+(and how big it is) is `COFFEE` in `character.js`. The art is in
 `src/brain/art/coffee/`, generated with Higgsfield in the character's clay style.
+
+### The stickers on the map
+
+The same five come back as stickers on the map's top level (with Work, Teach
+and Build), turned a little as if slapped on by hand. Together they are the
+one door to Can't Stop Thinking About: each opens that page at its own
+section.
+
+| Sticker | Opens at |
+| --- | --- |
+| Coffee cup | Podcasts |
+| Papers and posters | Books |
+| Computer | Technology |
+| Flowers | Gardening |
+| Stylus | Science |
+
+A section that is not written yet does not show, so its sticker opens the
+page at the top. Where each sticker sits (on a landscape screen and on an
+upright phone), its section, its name and its tilt are `MAP_STICKERS` in
+`content.js`. The sticker art, white border and shadow baked in, is
+`src/brain/art/coffee/sticker-*.webp`. The lightning bolt sticker on the
+opening screen opens the same page.
 
 ### The splash
 

@@ -58,11 +58,23 @@ var EXPAND = (
    stack:    current map stack, for the crumb line
    onBack, onGoToNode(node), onDiveTo(hubId), onOpenPage(node)
    onAction(action): the page's optional button, for example opening the Work with me page */
-export default function NodePage({ node, instant, seq, stack, reduce, onBack, onGoToNode, onDiveTo, onOpenPage, onAction }){
+export default function NodePage({ node, instant, seq, anchor, stack, reduce, onBack, onGoToNode, onDiveTo, onOpenPage, onAction }){
   var pageRef = useRef(null), titleRef = useRef(null), guardRef = useRef(0);
   useEffect(function(){ return function(){ clearTimeout(guardRef.current); }; }, []);
   var D = function(x){ return reduce ? 0 : x; };
   var [shown, setShown] = useState(null);
+  /* a section to open at (a map sticker opens Can't Stop Thinking About at its curiosity) */
+  var anchorRef = useRef(null); anchorRef.current = anchor;
+  /* start at the top, or at the section asked for. Measured by layout, not on screen, so the page's own
+     slide-in does not throw it off. A section not written yet is not on the page: the page stays at its top */
+  function toStart(){
+    var page = pageRef.current; if (!page) return;
+    page.scrollTop = 0;
+    var sec = anchorRef.current && page.querySelector('#sec-' + anchorRef.current);
+    if (!sec) return;
+    var y = 0; for (var e = sec; e && e !== page; e = e.offsetParent) y += e.offsetTop;
+    page.scrollTop = Math.max(0, y - 24);
+  }
   /* the picture viewer: which picture is open (null for none), and the button that opened it, to hand focus back to */
   var [view, setView] = useState(null), openerRef = useRef(null);
   function openPic(i, from){ openerRef.current = from; setView(i); }
@@ -88,6 +100,8 @@ export default function NodePage({ node, instant, seq, stack, reduce, onBack, on
         clearTimeout(guardRef.current);
         guardRef.current = setTimeout(function(){ page.style.pointerEvents = ''; }, 350);
         gsap.fromTo(page, { opacity:0, y:30 }, { opacity:1, y:0, duration:D(.45), ease:'power3.out', delay:D(.15) });
+        /* opened again on the same page (a second sticker, say): the content is already there, so start it over */
+        requestAnimationFrame(toStart);
       }
     } else if (!page.hidden){
       gsap.killTweensOf(page);
@@ -100,8 +114,8 @@ export default function NodePage({ node, instant, seq, stack, reduce, onBack, on
   /* after the new content is in the DOM: scroll to the top and put focus on the title */
   useEffect(function(){
     if (!shown || !titleRef.current) return;
-    pageRef.current.scrollTop = 0;
     titleRef.current.focus({ preventScroll:true });
+    toStart();
     /* arriving by Next or Previous: the new page slides in from the side it came from */
     var dir = slideRef.current; slideRef.current = 0;
     if (dir && pageRef.current.firstElementChild){

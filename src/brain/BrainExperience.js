@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { ROOT, CURIO_ROOT, TITLES, BYID, CURIO_BY_ID, only } from './content';
+import { ROOT, CURIO_ROOT, ABOUT, TITLES, BYID, CURIO_BY_ID, only } from './content';
 import Intro from './Intro';
 import BrainMap from './BrainMap';
 import NodePage from './NodePage';
@@ -117,9 +117,10 @@ export default function BrainExperience(){
   }, [palette]);
 
   /* open a node's page. A leaf marked `go` has no page of its own: it opens Work with me, or the gallery */
-  var openPage = useCallback(function(node, seq){
+  /* anchor: a section to open the page at (`sec-<anchor>` on the page), from the map's stickers */
+  var openPage = useCallback(function(node, seq, anchor){
     if (node && node.go){ setSheet(sheetFor(node)); return; }
-    setPage({ node:node, instant:false, seq:seq || null });
+    setPage({ node:node, instant:false, seq:seq || null, anchor:anchor || null });
   }, []);
   var closePage = useCallback(function(instant){
     if (!pageRef.current.node) return;
@@ -180,13 +181,16 @@ export default function BrainExperience(){
 
   /* a sticker on the opening screen was pressed: leave the intro and land where it points */
   var onSticker = useCallback(function(go){
+    /* 'curio#books': Can't Stop Thinking About, opened at its Books section */
+    var hash = go.indexOf('#'), anchor = hash > 0 ? go.slice(hash + 1) : null;
+    if (anchor) go = go.slice(0, hash);
     if (go === 'studio'){ openStudio(); return; }
     if (go === 'notes'){ openNote(null); return; }
     if (go === 'gallery'){ openGallery(); return; }
     var n = go === CURIO_ROOT.id ? CURIO_ROOT : (BYID[go] || CURIO_BY_ID[go]);
     if (!n || n === ROOT) return;
     setDone(true);
-    if (n.curio || n.outside) openPage(n); else goToNode(n);
+    if (n.curio || n.outside){ setSheet(null); openPage(n, null, anchor); } else goToNode(n);
   }, [openStudio, openNote, openGallery, openPage, goToNode]);
 
   /* from a curiosity page, jump straight into the hub it feeds */
@@ -285,7 +289,7 @@ export default function BrainExperience(){
           <Crumbs done={done && !atTop} stack={stack} pageNode={page.node} onBack={onBack} onGoTo={goTo} />
           {/* every way out sits in one menu, top right: the bottom of the screen is left to the character and the map */}
           <Menu done={done} path={location.pathname} hidden={!!page.node} onOpen={setMenuBubble}
-            onIndex={openIndex} onStudio={openStudio} onGallery={openGallery} onNotes={function(){ openNote(null); }}
+            onIndex={openIndex} onAbout={function(){ goToNode(ABOUT); }} onStudio={openStudio} onGallery={openGallery} onNotes={function(){ openNote(null); }}
             onSkip={finishIntro} onReplay={replayIntro} />
           {/* along the bottom: the status, which opens Work with me, and Just the work. Pages cover them */}
           <div id="siteBar" hidden={!!page.node}>
@@ -293,8 +297,8 @@ export default function BrainExperience(){
               aria-label={STATUS.open ? STATUS.label + '. Work with me' : 'Work with me'}>
               {STATUS.open && <i className="open-dot" aria-hidden="true" />}{STATUS.open ? STATUS.label : 'Work with me'}
             </button>
-            <button id="justWork" className="chip-btn" type="button" onClick={openIndex} aria-label="Just the work">
-              <span className="jw-full" aria-hidden="true">Just the work →</span><span className="jw-short" aria-hidden="true">Work →</span>
+            <button id="justWork" className="chip-btn" type="button" onClick={openIndex} aria-label="See the work">
+              <span className="jw-full" aria-hidden="true">See the work →</span><span className="jw-short" aria-hidden="true">The work →</span>
             </button>
           </div>
           <ThemeToggle mode={mode} onToggle={toggleTheme} />
@@ -303,7 +307,7 @@ export default function BrainExperience(){
             <DotNav done={done} stack={stack} pageNode={null} tagRef={dotTagRef} onReplay={replayIntro}
               onGoTo={function(d){ goTo(d); }} />
           )}
-          <NodePage node={page.node} instant={page.instant} seq={page.seq} stack={stack} reduce={reduce}
+          <NodePage node={page.node} instant={page.instant} seq={page.seq} anchor={page.anchor} stack={stack} reduce={reduce}
             onBack={function(){ closePage(); }} onGoToNode={goToNode} onDiveTo={diveTo} onOpenPage={openPage} onAction={onAction} />
           {sheet && sheet.type === 'studio' && <StudioPage onClose={closeSheet} onGoToNode={goToNodeFromSheet} />}
           {sheet && sheet.type === 'gallery' && <GalleryPage node={sheet.node} reduce={reduce} onClose={closeSheet} onGoToNode={goToNodeFromSheet} onIndex={openIndex} />}
