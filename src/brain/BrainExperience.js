@@ -154,13 +154,15 @@ export default function BrainExperience(){
        Work with me). It ends the intro, so the map is what is behind the page when it closes */
     setDone(true);
     /* an outer-orbit curiosity has no level of its own: its page opens over wherever the map is */
-    if (n.curio){ closePage(true); openPage(n, seq); return; }
+    if (n.curio || n.outside){ closePage(true); openPage(n, seq); return; }
     var line = lineOf(n);
     if (line[0] !== ROOT) return;
     closePage(true);
     modeRef.current = { mode:'instant' };
     /* single-item levels are passed through on the way, the same as on the map */
-    var at = n.kids && n.kids.length ? settle(line, null) : settle(line.slice(0, -1), n);
+    /* the stack holds levels only: a page that lives under a page (Civilla's) opens over its page's level */
+    var levels = line.slice(0, -1).filter(function(x){ return x === ROOT || (x.kids && x.kids.length); });
+    var at = n.kids && n.kids.length ? settle(line, null) : settle(levels, n);
     setStack(at.stack);
     if (at.go) openPage(at.go); else if (at.pageNode) openPage(at.pageNode, seq);
   }, [closePage, openPage]);
@@ -184,7 +186,7 @@ export default function BrainExperience(){
     var n = go === CURIO_ROOT.id ? CURIO_ROOT : (BYID[go] || CURIO_BY_ID[go]);
     if (!n || n === ROOT) return;
     setDone(true);
-    if (n.curio) openPage(n); else goToNode(n);
+    if (n.curio || n.outside) openPage(n); else goToNode(n);
   }, [openStudio, openNote, openGallery, openPage, goToNode]);
 
   /* from a curiosity page, jump straight into the hub it feeds */

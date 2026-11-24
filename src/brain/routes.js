@@ -1,4 +1,4 @@
-import { ROOT, CURIO_ROOT, BYID, PARKED_PATHS, only } from './content';
+import { ROOT, CURIO_ROOT, ABOUT, BYID, PARKED_PATHS, only } from './content';
 import { NOTE_BY_SLUG } from './notes';
 
 /* ============================================================
@@ -9,6 +9,8 @@ import { NOTE_BY_SLUG } from './notes';
      /work/what-i-do/se-design      a level deeper (levels nest as far as the tree does)
      /work/what-i-do/se-design/case-studies/robear-detroit    a page
      /work/resume/resume-pdf        the resume, shown on screen with a download button
+     /about                         the About page (from the Menu)
+     /work/civilla/secretary-of-state   a page that lives under a page (`subs` in content.js)
      /orbit                         the "Can't stop thinking about" page
      /orbit/gardening               a curiosity's page
      /work-with-me                  the SE|Design services page
@@ -27,6 +29,7 @@ export const NOTES_PATH = '/notes';
 export const ORBIT_PATH = '/orbit';
 export const GALLERY_PATH = '/gallery';
 export const INDEX_PATH = '/the-work';
+export const ABOUT_PATH = '/about';
 
 /* a node's ancestors from the brain down to the node itself: [ROOT, ..., node] */
 export function lineOf(node){
@@ -67,6 +70,7 @@ export function pathFor(view){
   /* the gallery narrowed to a level lives at the address of the node that opens it */
   if (sheet && sheet.type === 'index') return INDEX_PATH;
   if (sheet && sheet.type === 'gallery') return sheet.node ? '/' + lineOf(sheet.node).slice(1).map(slugOf).join('/') : GALLERY_PATH;
+  if (pageNode === ABOUT) return ABOUT_PATH;
   if (pageNode && pageNode.curio) return pageNode === CURIO_ROOT ? ORBIT_PATH : ORBIT_PATH + '/' + slugOf(pageNode);
   /* a page's address is its own place in the tree, whatever level is showing behind it */
   if (pageNode) return '/' + lineOf(pageNode).slice(1).map(slugOf).join('/');
@@ -81,6 +85,7 @@ export function parsePath(pathname){
   var first = '/' + parts[0];
   if (first === STUDIO_PATH && parts.length === 1) return { stack:[ROOT], pageNode:null, sheet:{ type:'studio' }, found:true };
   if (first === INDEX_PATH) return { stack:[ROOT], pageNode:null, sheet:{ type:'index' }, found:parts.length === 1 };
+  if (first === ABOUT_PATH) return { stack:[ROOT], pageNode:ABOUT, sheet:null, found:parts.length === 1 };
   if (first === GALLERY_PATH) return { stack:[ROOT], pageNode:null, sheet:{ type:'gallery', node:null }, found:parts.length === 1 };
   if (first === NOTES_PATH){
     if (parts.length === 1) return { stack:[ROOT], pageNode:null, sheet:{ type:'notes', slug:null }, found:true };
@@ -112,7 +117,12 @@ export function parsePath(pathname){
     if (!next) return land(stack, null, false);
     if (next.go) return { stack:settle(stack, next).stack, pageNode:null, sheet:sheetFor(next), found:true };
     if (next.kids && next.kids.length){ stack.push(next); node = next; }
-    else return land(stack, next, i === parts.length - 1);
+    else {
+      /* a page can hold pages of its own (subs): /work/civilla/secretary-of-state */
+      var sub = i < parts.length - 1 ? kidCalled({ kids:next.subs }, parts[i + 1]) : null;
+      if (sub) return land(stack, sub, i + 1 === parts.length - 1);
+      return land(stack, next, i === parts.length - 1);
+    }
   }
   return land(stack, null, true);
 }

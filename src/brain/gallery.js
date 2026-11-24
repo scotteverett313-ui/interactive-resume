@@ -1,4 +1,4 @@
-import { ROOT, CURIO_ROOT } from './content';
+import { ROOT, CURIO_ROOT, ABOUT, BYID, GALLERY } from './content';
 
 /* ============================================================
    Every picture on the site, gathered for the Gallery.
@@ -6,8 +6,8 @@ import { ROOT, CURIO_ROOT } from './content';
    Nothing here needs editing. The list is built from content.js:
      - each page's `image` (with its `proof` caption) and `more`
      - the pictures inside a page's case study (`study`)
-     - the `gallery` extras on a go:'gallery' leaf, which belong to
-       no page of their own
+     - GALLERY.extras in content.js, which belong to no page of their own
+       (they show under Work)
 
    Each picture:
      src, caption
@@ -66,10 +66,14 @@ export const PICTURES = (function(){
           : { src:m.src, caption:m.caption || n.label, page:n, hub:hub, tags:tags, line:line });
       });
     }
-    (n.kids || []).forEach(function(k){ walk(k, line.concat(n.id)); });
+    (n.kids || []).concat(n.subs || []).forEach(function(k){ walk(k, line.concat(n.id)); });
   }
   walk(ROOT, []);
+  (GALLERY.extras || []).forEach(function(g){
+    add({ src:g.src, caption:g.caption || g.tag, page:null, level:BYID.work, hub:BYID.work, tags:g.tag ? [g.tag] : [], line:['root', 'work'] });
+  });
   walk(CURIO_ROOT, []);
+  walk(ABOUT, []);
   return out;
 })();
 

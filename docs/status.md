@@ -7,7 +7,7 @@ As of Nov 24, 2026. Paste this into a new chat session to pick up where we left 
 Shrinking the site so every page that shows is finished. Six steps, each committed on its own:
 
 1. **Parking** (done): `parked: true` in content.js takes a node off the site without deleting it (see README, "Parking a page"). The Sketchbook is parked.
-2. The new tree: Work, Teach, Build, plus About and Can't Stop Thinking About as single pages.
+2. **The new tree** (done): Work (Civilla with two sub-pages, Robear, MMM, Wesson Art, More), Teach (one page), Build (First Fire, This Site, More), About and Can't Stop Thinking About as single pages. Folded sections show only written lines.
 3. The "More" door on each hub.
 4. Fewer doors: menu, front door, stickers, Just the work, featured.
 5. Redirects in vercel.json for every moved or parked address.

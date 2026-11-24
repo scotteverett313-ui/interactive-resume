@@ -95,6 +95,32 @@ not need to touch any component to change the content.
 - `links` become the **Connects to** buttons on the page. They can jump
   anywhere in the brain, up or down any branch. Links are one-way; add the
   reverse on the other node if you want it both ways.
+- A page can hold pages of its own in `subs: [ ... ]`. Civilla does:
+  Secretary of State and Project Cohere live under it, at
+  `/work/civilla/secretary-of-state` and `/work/civilla/project-cohere`, and
+  show on the Civilla page as a card each ("Inside Civilla"). On the map,
+  Civilla is still a page blob.
+- A case study's `study.sections` can be marked `fold: true`. Those are words
+  folded in from pages that were parked (MDHHS on the Civilla page, the
+  courses on the Teach page, the old Background pages on About). A folded
+  section shows only what is written: any line or list item still in
+  `[brackets]` waits in `content.js`, and a section with nothing written and
+  no pictures does not show at all.
+- A link to a page that was folded into another (`FOLDED` in `content.js`,
+  for example `c2` → the Teach page) lands on the page it was folded into.
+
+### The shape of the site
+
+- **Work:** Civilla (with Secretary of State and Project Cohere under it),
+  Robear Detroit, Micro Money Management, Wesson Art, and More (KRW,
+  Martez Hurd, iRule).
+- **Teach:** one page, UofM Flint, with the seven courses a line each.
+  Teach has one page inside, so pressing Teach opens it.
+- **Build:** First Fire, This Site, and More (Dirt Rich, VaultMark, Miss G).
+- **About** (`/about`, `ABOUT` in `content.js`) and **Can't Stop Thinking
+  About** (`/orbit`, `CURIO_ROOT`) are single pages outside the three
+  gravity points.
+- Everything else is parked, kept whole in `content.js`.
 
 ### Addresses
 

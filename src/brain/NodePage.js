@@ -114,7 +114,9 @@ export default function NodePage({ node, instant, seq, stack, reduce, onBack, on
   var slideRef = useRef(0), turnRef = useRef(null), touchRef = useRef(null);
   var list = null, inSeq = false;
   if (shown){
-    var near = ((shown.parent && shown.parent.kids) || [])
+    /* a page that lives under a page steps through its fellow sub-pages */
+    var home = shown.parent && shown.parent.subs && shown.parent.subs.indexOf(shown) >= 0 ? shown.parent.subs : shown.parent && shown.parent.kids;
+    var near = (home || [])
       .filter(function(k){ return !(k.kids && k.kids.length) && !k.go; })
       .map(function(k){ return { node:k, name:k.label }; });
     /* the list it was opened from wins when it has somewhere to go. A soft list (a level's single previews
@@ -190,7 +192,8 @@ export default function NodePage({ node, instant, seq, stack, reduce, onBack, on
     /* the crumb line is the page's own place in the tree, whatever level is showing behind it.
        An outer-orbit page has no place in the tree, so it shows where you came from */
     var trail;
-    if (n.curio){
+    if (n.outside) trail = [n.label];
+    else if (n.curio){
       trail = stack.slice(1).map(function(x){ return x.label; });
       if (n !== CURIO_ROOT) trail.push(CURIO_ROOT.label);
       trail.push(n.label);
@@ -201,17 +204,22 @@ export default function NodePage({ node, instant, seq, stack, reduce, onBack, on
     var items = p.list || (n === CURIO_ROOT ? n.kids.map(function(k){
       return k.label + (k.sub ? ' ' + k.sub : '') + ': feeds ' + k.hubs.map(hubName).join(' and ');
     }) : []);
-    var links = (p.links || []).map(function(l){ return { t:BYID[l.to], why:l.why }; }).filter(function(l){ return l.t; });
+    /* a link to a folded page lands on the page it was folded into; never on this page itself */
+    var links = (p.links || []).map(function(l){ return { t:BYID[l.to], why:l.why }; }).filter(function(l){ return l.t && l.t !== n; })
+      .filter(function(l, i, all){ return all.findIndex(function(o){ return o.t === l.t; }) === i; });
     var nLinks = links.length;
     var hubs = n.hubs || [];
+    var homeList = n.parent && n.parent.subs && n.parent.subs.indexOf(n) >= 0 ? n.parent.subs : n.parent && n.parent.kids;
     var sibs = n === CURIO_ROOT ? n.kids.slice() :
-      ((n.parent && n.parent.kids) || []).filter(function(s){ return s !== n && !(s.kids && s.kids.length); });
+      (homeList || []).filter(function(s){ return s !== n && !(s.kids && s.kids.length); });
     if (n.also) sibs.sort(function(a, b){ return (n.also.indexOf(b.id) >= 0) - (n.also.indexOf(a.id) >= 0); });
     var empty = !sibs.length && !nLinks && !hubs.length;
     if (nLinks) sibs = sibs.filter(function(s){ return !(p.links || []).some(function(l){ return l.to === s.id; }); });
     sibs = sibs.slice(0, nLinks ? 4 : 6);
     /* a page inside a hub carries that hub's colors; outer-orbit pages have no hub */
-    var hubClass = n.curio ? '' : ' in-' + hub.id;
+    var hubClass = n.curio || n.outside ? '' : ' in-' + hub.id;
+    /* pages that live under this page (Civilla's): a card each */
+    var subs = n.subs || [];
 
     var top = (
       <div className="page-top">
@@ -309,7 +317,7 @@ export default function NodePage({ node, instant, seq, stack, reduce, onBack, on
         <div className={'page-study' + hubClass}>
           {top}
           <header className="s-title">
-            <div className="pull" id="pPull"><i />Pulled toward {hub.label}</div>
+            {!(n.curio || n.outside) && <div className="pull" id="pPull"><i />Pulled toward {hub.label}</div>}
             {/* opened from a list that gives it a clearer name ("Civilla" for "Overview"), the page wears that name */}
             <h1 id="pTitle" tabIndex={-1} ref={titleRef}>{(inSeq && list[at].name) || n.label}</h1>
             {(st.sub || p.lede) && <p className="lede" id="pLede"><Ph text={st.sub || p.lede} /></p>}
@@ -365,13 +373,37 @@ export default function NodePage({ node, instant, seq, stack, reduce, onBack, on
                 </dl>
               )}
               {long_.sections.map(function(sec, i){
+                /* a fold:true section shows only what is written: a line or list item still in [brackets]
+                   waits in content.js. With nothing written and no pictures, the section does not show */
+                var body = sec.fold ? (sec.body || []).map(function(b){
+                  if (typeof b === 'string') return /\[/.test(b) ? null : b;
+                  if (b.list){ var l = b.list.filter(function(li){ return !/\[/.test(typeof li === 'string' ? li : li.join(' ')); }); return l.length ? { list:l } : null; }
+                  return b;
+                }).filter(Boolean) : (sec.body || []);
+                if (!body.length) return null;
                 return (
-                  <section className="study-text" key={i}>
+                  <section className="study-text" key={i} id={sec.id ? 'sec-' + sec.id : undefined}>
                     {sec.title && <h2>{sec.title}</h2>}
-                    {(sec.body || []).map(block)}
+                    {body.map(block)}
                   </section>
                 );
               })}
+            </div>
+          )}
+          {subs.length > 0 && (
+            <div className="s-subs">
+              <h2>Inside {n.label}</h2>
+              <div className="tiles-mini">
+                {subs.map(function(x){
+                  var xp = x.page || {}, src = xp.image || (xp.study && xp.study.hero && xp.study.hero.src);
+                  return (
+                    <button type="button" key={x.id} className="sub-tile" onClick={function(){ onGoToNode(x); }}>
+                      {src && <img src={thumbOf(src)} onError={fullOnError(src)} alt="" loading="lazy" />}
+                      <b>{x.label} →</b>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           )}
           <div className="study-end">{connects}</div>

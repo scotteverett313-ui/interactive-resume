@@ -126,7 +126,7 @@ export function createScene(o){
       g.addEventListener('keydown', function(e){ if ((e.key === 'Enter' || e.key === ' ') && done && !busy() && view.node === ROOT){ e.preventDefault(); fn(); } });
     }
     /* the way into the curiosities keeps the spot its first curiosity used to have */
-    var c0 = CURIO_ROOT.kids[0], first = { x:c0.fx * W, y:c0.fy * H };
+    var c0 = CURIO_ROOT.kids[0] || { fx:.09, fy:.17 }, first = { x:c0.fx * W, y:c0.fy * H };
     var tg = el('g', {});
     tg.appendChild(el('rect', { 'class':'hit', x:first.x - 10, y:first.y - 46, width:260, height:30 }));
     var tt = el('text', { x:first.x - 4, y:first.y - 26, 'class':'ctitle' });

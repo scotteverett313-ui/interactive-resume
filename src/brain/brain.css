@@ -397,6 +397,14 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
 #page .study-text > ul{padding-left:20px;display:flex;flex-direction:column;gap:10px}
 #page .study-text h2{font-family:var(--display);font-weight:800;font-size:clamp(24px,2.8vw,34px);line-height:1.1;letter-spacing:-.01em;text-transform:none;margin:14px 0 0;text-wrap:balance}
 /* two pictures side by side; one above the other on a phone */
+/* the pages that live under a page (Civilla's): a card each, with its picture */
+#page .s-subs{margin:8px 0 0}
+#page .s-subs h2{font-size:clamp(22px,2.6vw,30px);margin:0 0 12px}
+#page .tiles-mini{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+#page .sub-tile{display:flex;flex-direction:column;gap:10px;padding:10px 10px 14px;border:2.5px solid var(--ink);border-radius:20px;background:var(--paper);color:var(--ink);font:inherit;text-align:left;cursor:pointer}
+#page .sub-tile img{width:100%;aspect-ratio:16/10;object-fit:cover;border-radius:12px;display:block}
+#page .sub-tile b{font-family:var(--display);font-size:20px;padding:0 4px}
+#page .sub-tile:hover,#page .sub-tile:focus-visible{border-color:var(--hub,var(--ink));outline:none}
 #page .study-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start}
 #page .study-pair .study-pic{align-self:start}
 #page .study-pair .study-pic img{width:100%}
