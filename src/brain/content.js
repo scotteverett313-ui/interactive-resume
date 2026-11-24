@@ -618,7 +618,7 @@ export const ROOT = { id:'root', label:'Brain', kids:[
           lede:'[One line: what this course is about]',
           story:'[What students learn, and one project they make]',
           tags:['Teaching'] }} ]} ]},
-  { id:'build', label:'Build', blurb:'[Short blurb]', featured:[{ pages:['ff'] }, { pages:['thissite'] }], kids:[
+  { id:'build', label:'Build', blurb:'[Short blurb]', rich:true, featured:[{ pages:['ff'] }, { pages:['thissite'] }], kids:[
 { id:'ff', label:'First Fire', page:{
       brief:{
         cards:[['Project', `My own game, built with an AI partner`], ['Role', `Game design, writing, illustration, art direction`], ['Year', `2026`]],
@@ -720,7 +720,9 @@ export const ROOT = { id:'root', label:'Brain', kids:[
         story:'It started as an experiment: could a designer with some coding experience ship a real site with Claude Code? The first interactive resume went live. This brain is version two.',
         list:['Built with React, GSAP, and Claude Code'],
         tags:['Website','Interaction Design','Code'],
-        proof:'This site',
+        proof:'This site: the brain map',
+        image:'/proof/this-site/1.webp',
+        more:[{ src:'/proof/this-site/2.webp', caption:'Opening the head: coffee, and the things that float in it' }],
         links:[{ to:'c5', why:'I teach interaction design.' },{ to:'sketch', why:'The storyboard started in the sketchbook.' }] }},
     { id:'buildmore', label:'More', slug:'more', more:true, kids:[
   { id:'dirtrich', label:'Dirt Rich', page:{
@@ -1005,6 +1007,27 @@ export const PARKED_PATHS = {};
     n[list] = live;
   });
 })(ROOT, '', null);
+
+/* THE MORE DOOR. A node marked `more: true` is the one smaller "More" blob on a gravity point. A page inside it
+   shows only once it is ready: it has a picture, and its lede and story have no [brackets] left. A page that is
+   not ready yet is held back like a parked one (off the site, its address lands on the gravity point) until it
+   is. If nothing inside More is ready, More itself does not show. HELD lists what is waiting, by More node. */
+export const HELD = {};
+function readyForMore(n){
+  var p = n.page || {}, pic = p.image || (p.study && p.study.hero && p.study.hero.src);
+  return !!pic && !/\[/.test((p.lede || '') + ' ' + (p.story || ''));
+}
+ROOT.kids.forEach(function(hub){
+  (hub.kids || []).forEach(function(m){
+    if (!m.more) return;
+    var mPath = '/' + slugOfNode(hub) + '/' + slugOfNode(m);
+    HELD[m.id] = m.kids.filter(function(k){ return !readyForMore(k); });
+    HELD[m.id].forEach(function(k){ PARKED_BYID[k.id] = k; PARKED_PATHS[mPath + '/' + slugOfNode(k)] = hub.id; });
+    m.kids = m.kids.filter(readyForMore);
+    if (!m.kids.length) PARKED_PATHS[mPath] = hub.id;
+  });
+  hub.kids = hub.kids.filter(function(m){ return !m.more || m.kids.length; });
+});
 
 export const BYID = {};
 (function link(n, parent, hub){

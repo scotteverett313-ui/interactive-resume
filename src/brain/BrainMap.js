@@ -271,9 +271,11 @@ export function createScene(o){
         var deeper = !!(kid.kids && kid.kids.length);
         /* a level that ends in a single page opens that page, so it is drawn as one */
         for (var one = only(kid); one && deeper; one = only(one)) if (!(one.kids && one.kids.length)) deeper = false;
-        /* a featured blob holds a picture, so it is the biggest thing on the level */
+        /* a featured blob holds a picture, so it is the biggest thing on the level. On a gravity point the
+           projects themselves are big picture blobs too, and the one "More" blob is the small one */
         var big = ent.feature || ent.promote;
-        var r = M * (big ? .1 : (deeper ? .054 : .07)) * k;
+        var core = node.parent === ROOT && !deeper && !kid.go;
+        var r = M * (big ? .1 : core ? .088 : kid.more ? .046 : (deeper ? .054 : .07)) * k;
         var lines = wrapLabel(ent.feature ? ent.feature.name : kid.label), chars = Math.max.apply(null, lines.map(function(x){ return x.length; }));
         /* a picture blob is big enough that its wobble needs a little more air around it */
         var air = big ? r * .12 + 8 : 0;

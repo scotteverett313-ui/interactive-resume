@@ -435,6 +435,22 @@ Where there is a pointer to hover with, pictures in map blobs and Gallery
 tiles rest in gray and show their color under the pointer or keyboard focus.
 On a touch screen they stay in color.
 
+### The More door
+
+Each gravity point shows its projects as big picture blobs, plus one smaller
+**More** blob that opens the rest (a node with `more: true` in `content.js`:
+`workmore` under Work, `buildmore` under Build).
+
+A page inside More shows only once it is ready: it has a picture (`image`, or
+a case study `hero`), and its `lede` and `story` have no `[brackets]` left.
+A page that is not ready is held back like a parked one: off the map, out of
+the Gallery, and its address lands on its gravity point. Write its lines and
+give it a picture, and it appears on its own. If nothing in a More is ready,
+the More blob does not show at all.
+
+Right now Work's More is hidden (KRW, Martez Hurd and iRule are waiting), and
+Build's More shows Dirt Rich and VaultMark (Miss G is waiting).
+
 ### Parking a page
 
 To take a page (or a whole level) off the site without losing it, add

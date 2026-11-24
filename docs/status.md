@@ -8,7 +8,7 @@ Shrinking the site so every page that shows is finished. Six steps, each committ
 
 1. **Parking** (done): `parked: true` in content.js takes a node off the site without deleting it (see README, "Parking a page"). The Sketchbook is parked.
 2. **The new tree** (done): Work (Civilla with two sub-pages, Robear, MMM, Wesson Art, More), Teach (one page), Build (First Fire, This Site, More), About and Can't Stop Thinking About as single pages. Folded sections show only written lines.
-3. The "More" door on each hub.
+3. **The "More" door** (done): projects are big picture blobs; one small More blob shows pages that have a picture and no [brackets]. Work's More is hidden for now (KRW, Martez, iRule waiting); Build's shows Dirt Rich and VaultMark (Miss G waiting). This Site has two screenshots of the site as its pictures.
 4. Fewer doors: menu, front door, stickers, Just the work, featured.
 5. Redirects in vercel.json for every moved or parked address.
 6. Checks, and this file and the README brought up to date.
