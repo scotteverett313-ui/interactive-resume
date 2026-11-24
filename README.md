@@ -335,6 +335,14 @@ and a stylus. Each is a button while it floats, with its name on hover:
 | Stylus | Wesson Art |
 
 Then the brain rises out of the coffee, they drift off, and the coffee drains.
+The same five come back as stickers on the map's top level (with Work, Teach
+and Build), turned a little as if slapped on by hand, with a short name under
+each. They took the place of the five curiosity dots; the curiosities are still
+one press away through "Can't stop thinking about" on the map and the lightning
+bolt sticker. Where each sticker sits, on a landscape screen and on an upright
+phone, and how far it is turned, is `MAP_STICKERS` in `content.js`; the short
+names are `short` in `FLOATERS`. The sticker art, white border and shadow baked
+in, is `src/brain/art/coffee/sticker-*.webp`.
 Where each one goes, and its name, is `FLOATERS` in `content.js`. Where each one
 floats (and how big it is) is `COFFEE` in `character.js`. The art is in
 `src/brain/art/coffee/`, generated with Higgsfield in the character's clay style.

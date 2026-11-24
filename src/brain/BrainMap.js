@@ -1,8 +1,23 @@
 import React, { useEffect, useLayoutEffect, useRef } from 'react';
 import { gsap } from 'gsap';
-import { ROOT, CURIO_ROOT, BYID, only } from './content';
+import { ROOT, CURIO_ROOT, BYID, only, FLOATERS, MAP_STICKERS } from './content';
+import stickerCup from './art/coffee/sticker-cup.webp';
+import stickerPapers from './art/coffee/sticker-papers.webp';
+import stickerComputer from './art/coffee/sticker-computer.webp';
+import stickerFlowers from './art/coffee/sticker-flowers.webp';
+import stickerStylus from './art/coffee/sticker-stylus.webp';
+
 import { DOT_COUNT } from './DotNav';
 import { blobPath, rng, clamp, wrapLabel, curvePath, curvePoint, seedOf, scatter, webLinks } from './blob';
+
+/* the sticker art for the map's top level, and each picture's width over its height */
+var STICKER_ART = {
+  cup:      { src: stickerCup, ratio: .849 },
+  papers:   { src: stickerPapers, ratio: 1.185 },
+  computer: { src: stickerComputer, ratio: 1.026 },
+  flowers:  { src: stickerFlowers, ratio: 1.011 },
+  stylus:   { src: stickerStylus, ratio: .588 }
+};
 
 const NS = 'http://www.w3.org/2000/svg';
 /* Colors are never set here. Elements get a class, and brain.css paints them from the palette tokens. */
@@ -57,7 +72,7 @@ export function createScene(o){
   }
   /* move the curiosities, the net, and the hint to where the arrival puts them; once arrived, hand them back untouched */
   function applyArrival(){
-    var arriving = arr < 1, kids = CURIO_ROOT.kids;
+    var arriving = arr < 1, kids = MAP_STICKERS;
     kids.forEach(function(c, j){
       var p0 = curioPos[c.id], g = curioEls[c.id]; if (!p0) return;
       var A = arriving ? curioArrive(c, j) : { x:p0.x, y:p0.y, a:1 };
@@ -102,14 +117,16 @@ export function createScene(o){
       bgNet.appendChild(el('circle', { 'class':'net-dot', cx:p[0].toFixed(0), cy:p[1].toFixed(0), r:(2 + R() * 3).toFixed(1) }));
     });
     curioG.innerHTML = ''; curioLinksG.innerHTML = ''; curioLinks = []; curioPos = {}; curioEls = {}; curioNow = {}; arrSettled = false;
-    var kids = CURIO_ROOT.kids;
-    kids.forEach(function(c){ curioPos[c.id] = { x:c.fx * W, y:c.fy * H }; curioNow[c.id] = { x:c.fx * W, y:c.fy * H, a:1 }; });
+    /* the stickers: a landscape screen and an upright phone each get their own spots */
+    var tall = W < H * .9, kids = MAP_STICKERS;
+    kids.forEach(function(c){ var f = tall ? c.tall : c.wide; curioPos[c.id] = { x:f[0] * W, y:f[1] * H }; curioNow[c.id] = { x:f[0] * W, y:f[1] * H, a:1 }; });
     function curioBtn(g, label, fn){
-      g.setAttribute('class', 'cnode'); g.setAttribute('tabindex', '0'); g.setAttribute('role', 'button'); g.setAttribute('aria-label', label);
+      g.setAttribute('class', ((g.getAttribute('class') || '') + ' cnode').trim()); g.setAttribute('tabindex', '0'); g.setAttribute('role', 'button'); g.setAttribute('aria-label', label);
       g.addEventListener('click', function(){ if (done && !busy() && view.node === ROOT) fn(); });
       g.addEventListener('keydown', function(e){ if ((e.key === 'Enter' || e.key === ' ') && done && !busy() && view.node === ROOT){ e.preventDefault(); fn(); } });
     }
-    var first = curioPos[kids[0].id];
+    /* the way into the curiosities keeps the spot its first curiosity used to have */
+    var c0 = CURIO_ROOT.kids[0], first = { x:c0.fx * W, y:c0.fy * H };
     var tg = el('g', {});
     tg.appendChild(el('rect', { 'class':'hit', x:first.x - 10, y:first.y - 46, width:260, height:30 }));
     var tt = el('text', { x:first.x - 4, y:first.y - 26, 'class':'ctitle' });
@@ -117,39 +134,27 @@ export function createScene(o){
     tg.appendChild(tt);
     curioBtn(tg, "Open page: Can't stop thinking about", function(){ o.onOpenPage(CURIO_ROOT); });
     curioG.appendChild(tg); curioTitle = tg;
+    /* each sticker: its picture turned a little, as if slapped on by hand, with its name underneath.
+       The size follows the screen: about an eighth of its short side, never smaller than 58 */
+    var size = clamp(M * .13, 58, 112);
     kids.forEach(function(c){
-      var pt = curioPos[c.id], right = c.fx > .5;
-      var g = el('g', {});
-      g.appendChild(el('circle', { 'class':'hit', cx:pt.x, cy:pt.y, r:24 }));
-      g.appendChild(el('circle', { 'class':'vis', cx:pt.x, cy:pt.y, r:7 }));
-      var t = el('text', { x: right ? pt.x - 14 : pt.x + 14, y:pt.y + 4, 'text-anchor': right ? 'end' : 'start' });
-      t.textContent = c.label + (c.sub ? ' ' + c.sub : '');
+      var pt = curioPos[c.id], art = STICKER_ART[c.id], f = FLOATERS[c.id];
+      var h = c.id === 'stylus' || c.id === 'cup' ? size * 1.08 : size, w = h * art.ratio;
+      var g = el('g', { 'class':'msticker' });
+      var tilt = el('g', { transform:'rotate(' + c.tilt + ' ' + pt.x.toFixed(1) + ' ' + pt.y.toFixed(1) + ')' });
+      var pop = el('g', { 'class':'ms-art' });
+      pop.appendChild(el('rect', { 'class':'ring', x:(pt.x - w / 2 - 6).toFixed(1), y:(pt.y - h / 2 - 6).toFixed(1), width:(w + 12).toFixed(1), height:(h + 12).toFixed(1), rx:14 }));
+      pop.appendChild(el('image', { href:art.src, x:(pt.x - w / 2).toFixed(1), y:(pt.y - h / 2).toFixed(1), width:w.toFixed(1), height:h.toFixed(1) }));
+      tilt.appendChild(pop); g.appendChild(tilt);
+      var t = el('text', { x:pt.x.toFixed(1), y:(pt.y + h / 2 + 15).toFixed(1), 'text-anchor':'middle' });
+      t.textContent = f.short || f.label;
       g.appendChild(t);
-      curioBtn(g, c.label + ', open page', function(){ o.onOpenPage(c); });
-      g.addEventListener('pointerenter', function(){ hot[c.id] = true; });
-      g.addEventListener('pointerleave', function(){ hot[c.id] = false; });
-      g.addEventListener('focus', function(){ hot[c.id] = true; });
-      g.addEventListener('blur', function(){ hot[c.id] = false; });
+      curioBtn(g, f.label, function(){ if (o.onSticker) o.onSticker(f.go); });
       curioG.appendChild(g); curioEls[c.id] = g;
-      (c.hubs || []).forEach(function(h){ addCurioLink(c, h, null); });
-      (c.also || []).forEach(function(x){ if (x > c.id) addCurioLink(c, null, x); });
     });
   }
-  /* Two kinds of dashed connection:
-       feeds  a curiosity to the gravity point it feeds. Dotted, tinted with that hub's color,
-              and the dots flow toward the hub. A pulse of hub color travels along it now and then.
-       also   a curiosity to another curiosity it touches. Fine ink dashes that drift slowly. */
-  function addCurioLink(c, hubId, otherId){
-    var p = el('path', { 'class': hubId ? 'clink feeds in-' + hubId : 'clink also' });
-    curioLinksG.appendChild(p);
-    var pulse = null;
-    if (hubId && !reduce){
-      pulse = el('circle', { 'class':'cpulse in-' + hubId, r:4 });
-      pulse.style.opacity = 0;
-      curioLinksG.appendChild(pulse);
-    }
-    curioLinks.push({ c:c, hub:hubId, other:otherId, p:p, pulse:pulse, k:curioLinks.length, off:0 });
-  }
+  /* The stickers have no connection lines; curioLinks stays empty and drawCurio below has nothing to draw.
+     (The curiosities' own dotted links lived here before the stickers took their place.) */
   var lastCurioT = 0;
   function drawCurio(t){
     if (view.node !== ROOT) return;
@@ -716,12 +721,12 @@ export function createScene(o){
              changes the stack, so the map knows how to transition
    sceneRef: BrainExperience uses it to call activateById (curio "Feeds" buttons)
    ------------------------------------------------------------------ */
-export default function BrainMap({ stack, done, reduce, busyRef, modeRef, sceneRef, mapLayerRef, mapShowing, onDive, onOpenPage }){
+export default function BrainMap({ stack, done, reduce, busyRef, modeRef, sceneRef, mapLayerRef, mapShowing, onDive, onOpenPage, onSticker }){
   var svgRef = useRef(null), nodesRef = useRef(null), linksRef = useRef(null), bgRef = useRef(null), wmRef = useRef(null);
   var curioRef = useRef(null), curioLinksRef = useRef(null), legendRef = useRef(null), pickRef = useRef(null);
   var maskRef = useRef(null), maskAllRef = useRef(null);
   var cb = useRef(null);
-  cb.current = { onDive:onDive, onOpenPage:onOpenPage, mapShowing:mapShowing };
+  cb.current = { onDive:onDive, onOpenPage:onOpenPage, onSticker:onSticker, mapShowing:mapShowing };
 
   useLayoutEffect(function(){
     var scene = createScene({
@@ -731,7 +736,8 @@ export default function BrainMap({ stack, done, reduce, busyRef, modeRef, sceneR
       linkMask:maskRef.current, linkMaskAll:maskAllRef.current,
       mapShowing:function(){ return cb.current.mapShowing(); },
       onDive:function(n, it){ cb.current.onDive(n, it); },
-      onOpenPage:function(n, seq){ cb.current.onOpenPage(n, seq); }
+      onOpenPage:function(n, seq){ cb.current.onOpenPage(n, seq); },
+      onSticker:function(go){ cb.current.onSticker(go); }
     });
     scene.init();
     sceneRef.current = scene;

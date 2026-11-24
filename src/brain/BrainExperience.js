@@ -257,7 +257,7 @@ export default function BrainExperience(){
             reduce={reduce} done={done} onFinish={finishIntro} onMapArrival={onMapArrival} onSticker={onSticker} />
           <BrainMap stack={stack} done={done} reduce={reduce}
             busyRef={busyRef} modeRef={modeRef} sceneRef={sceneRef} mapLayerRef={mapLayerRef}
-            mapShowing={mapShowing} onDive={onDive} onOpenPage={openPage} />
+            mapShowing={mapShowing} onDive={onDive} onOpenPage={openPage} onSticker={onSticker} />
           {/* the opening title is a speech bubble; it stays mounted so the intro can fade it.
               The map title shows at the top level of the map */}
           <div id="homeTitle" className="site-title" aria-hidden={done}>

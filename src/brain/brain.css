@@ -95,6 +95,13 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
 .brain .hit{fill:transparent}
 .brain .curio .vis{fill:var(--map-ground);stroke:var(--ink);stroke-width:1.8px;stroke-dasharray:3 3}
 .brain .curio text{font-family:var(--mono);font-size:12px;fill:var(--ink);pointer-events:none}
+/* the stickers on the map's top level (BrainMap.js): a little lift and turn on hover, a dashed ring on keyboard focus */
+.brain .msticker{cursor:pointer;outline:none;-webkit-tap-highlight-color:transparent}
+.brain .msticker .ms-art{transform-box:fill-box;transform-origin:center;transition:transform .18s cubic-bezier(.3,1.5,.5,1)}
+.brain .msticker:hover .ms-art,.brain .msticker:focus-visible .ms-art{transform:scale(1.08) rotate(-3deg)}
+.brain .msticker .ring{fill:none;stroke:var(--ink);stroke-width:2px;stroke-dasharray:5 5;opacity:0}
+.brain .msticker:focus-visible .ring{opacity:1}
+.brain .curio .msticker text{font-size:11px;letter-spacing:.02em}
 .brain .ctitle{letter-spacing:.08em;text-decoration:underline}
 .brain .cnode{cursor:pointer;outline:none}
 .brain .cnode:hover .vis,.brain .cnode:focus-visible .vis{stroke-width:3.2}

@@ -212,16 +212,29 @@ export const STICKERS = {
 };
 
 /* The things floating in the coffee inside Scott's head, once the top of it lifts off during the intro.
-   Each one is a button while it floats: what it is called (read out, and shown on hover) and where it goes.
+   Each one is a button while it floats: what it is called (read out, and shown on hover), the `short` name
+   printed under its sticker on the map, and where it goes.
    `go` is a page or level id from ROOT below, or 'studio' (Work with me) or 'gallery'.
    Where each one floats, and its picture, are in character.js (COFFEE). */
 export const FLOATERS = {
-  cup:      { label: 'Work with me', go: 'studio' },
-  papers:   { label: 'Graphic design, in the Gallery', go: 'gallery' },
-  computer: { label: 'Things I build', go: 'build' },
-  flowers:  { label: 'Dirt Rich, my garden app', go: 'dirtrich' },
-  stylus:   { label: 'Wesson Art, my digital painting', go: 'samples' }
+  cup:      { label: 'Work with me', short: 'Work with me', go: 'studio' },
+  papers:   { label: 'Graphic design, in the Gallery', short: 'Gallery', go: 'gallery' },
+  computer: { label: 'Things I build', short: 'Build', go: 'build' },
+  flowers:  { label: 'Dirt Rich, my garden app', short: 'Dirt Rich', go: 'dirtrich' },
+  stylus:   { label: 'Wesson Art, my digital painting', short: 'Wesson Art', go: 'samples' }
 };
+
+/* The same five things again, as stickers slapped on the brain map's top level (where Work, Teach and
+   Build are). Each goes where FLOATERS above says. Where each sits is a fraction of the screen (0 to 1):
+   `wide` on a landscape screen, `tall` on a phone held upright. `tilt` is how far it is turned, in degrees.
+   The sticker art (white border and shadow included) is src/brain/art/coffee/sticker-*.webp. */
+export const MAP_STICKERS = [
+  { id: 'cup',      wide: [.08, .4],  tall: [.15, .6],  tilt: -9 },
+  { id: 'papers',   wide: [.47, .12], tall: [.84, .2],  tilt: 7 },
+  { id: 'computer', wide: [.84, .62], tall: [.14, .8],  tilt: -5 },
+  { id: 'flowers',  wide: [.13, .8],  tall: [.84, .8],  tilt: 10 },
+  { id: 'stylus',   wide: [.74, .84], tall: [.63, .21], tilt: -14 }
+];
 
 /* The Gallery: every picture on the site in one wall, opened from the Gallery button. */
 export const GALLERY = {
