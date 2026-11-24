@@ -1,0 +1,70 @@
+/* ============================================================
+   Old addresses, from before the focus pass (Nov 2026), and where
+   each one goes now. vercel.json holds the same list as redirects,
+   so a shared link lands in the right place on the live site; this
+   copy does the same inside the app (and on any other host).
+
+   A page that moved goes to its new address. A page folded into
+   another goes to that page. A parked page goes to its gravity
+   point. A page held back in More goes to its address under More,
+   which shows it once it is ready and sends visitors on to its
+   gravity point until then.
+   ============================================================ */
+export const MOVED = {
+  '/work/what-i-do': '/work',
+  '/work/what-i-do/se-design': '/work',
+  '/work/what-i-do/se-design/case-studies': '/work',
+  '/work/what-i-do/se-design/case-studies/robear-detroit': '/work/robear-detroit',
+  '/work/what-i-do/se-design/case-studies/martez-hurd': '/work/more/martez-hurd',
+  '/work/what-i-do/se-design/case-studies/krw': '/work/more/krw',
+  '/work/what-i-do/se-design/case-studies/micro-money-management': '/work/micro-money-management',
+  '/work/what-i-do/se-design/gallery': '/gallery',
+  '/work/what-i-do/se-design/work-with-me': '/work-with-me',
+  '/work/what-i-do/senior-ux-ui-designer-design-researcher': '/work',
+  '/work/what-i-do/senior-ux-ui-designer-design-researcher/civilla': '/work/civilla',
+  '/work/what-i-do/senior-ux-ui-designer-design-researcher/civilla/overview': '/work/civilla',
+  '/work/what-i-do/senior-ux-ui-designer-design-researcher/civilla/mdhhs': '/work/civilla',
+  '/work/what-i-do/senior-ux-ui-designer-design-researcher/civilla/eastern-michigan-probation-dept': '/work/civilla',
+  '/work/what-i-do/senior-ux-ui-designer-design-researcher/civilla/unemployment-insurance-agency': '/work/civilla',
+  '/work/what-i-do/senior-ux-ui-designer-design-researcher/civilla/secretary-of-state': '/work/civilla/secretary-of-state',
+  '/work/what-i-do/senior-ux-ui-designer-design-researcher/civilla/project-cohere': '/work/civilla/project-cohere',
+  '/work/what-i-do/wesson-art': '/work/wesson-art',
+  '/work/what-i-do/wesson-art/work-samples': '/work/wesson-art',
+  '/work/what-i-do/wesson-art/sketchbook': '/work',
+  '/work/resume': '/about',
+  '/work/resume/resume-pdf': '/about',
+  '/work/resume/interactive-resume': '/work',
+  '/work/resume/interactive-resume/irule': '/work/more/irule',
+  '/work/resume/interactive-resume/civilla': '/work',
+  '/work/resume/interactive-resume/uofm-flint': '/work',
+  '/work/resume/interactive-resume/skills': '/about',
+  '/work/background': '/about',
+  '/work/background/where-it-started': '/about',
+  '/work/background/college-for-creative-studies': '/about',
+  '/work/background/saci-florence-italy': '/about',
+  '/work/background/about': '/about',
+  '/teach/curriculum': '/teach/uofm-flint',
+  '/teach/curriculum/design-thinking': '/teach/uofm-flint',
+  '/teach/curriculum/info-experience-design': '/teach/uofm-flint',
+  '/teach/curriculum/app-design': '/teach/uofm-flint',
+  '/teach/curriculum/storytelling': '/teach/uofm-flint',
+  '/teach/curriculum/digital-media': '/teach/uofm-flint',
+  '/teach/curriculum/interaction-design-i-ii': '/teach/uofm-flint',
+  '/teach/curriculum/web-design': '/teach/uofm-flint',
+  '/build/my-stack': '/about',
+  '/build/apps': '/build',
+  '/build/apps/dirt-rich': '/build/more/dirt-rich',
+  '/build/games': '/build',
+  '/build/games/first-fire': '/build/first-fire',
+  '/build/software': '/build',
+  '/build/software/vaultmark': '/build/more/vaultmark',
+  '/build/websites': '/build',
+  '/build/websites/this-site': '/build/this-site',
+  '/build/websites/miss-g-site': '/build/more/miss-g-site',
+  '/build/websites/krw-site': '/build',
+  '/orbit/podcasts': '/orbit',
+  '/orbit/science': '/orbit',
+  '/orbit/books': '/orbit',
+  '/orbit/gardening': '/orbit',
+  '/orbit/technology': '/orbit'
+};

@@ -10,7 +10,7 @@ Shrinking the site so every page that shows is finished. Six steps, each committ
 2. **The new tree** (done): Work (Civilla with two sub-pages, Robear, MMM, Wesson Art, More), Teach (one page), Build (First Fire, This Site, More), About and Can't Stop Thinking About as single pages. Folded sections show only written lines.
 3. **The "More" door** (done): projects are big picture blobs; one small More blob shows pages that have a picture and no [brackets]. Work's More is hidden for now (KRW, Martez, iRule waiting); Build's shows Dirt Rich and VaultMark (Miss G waiting). This Site has two screenshots of the site as its pictures.
 4. **Fewer doors** (done): Menu is Work, About, Gallery, Contact, Skip/Replay (Notes waits for three posts). Front door: character, bubble, See the work, Open for work, light/dark. The clay things in the intro are not buttons; the map stickers open Can't Stop Thinking About at their sections. Just the work: Civilla, Robear, MMM, Wesson Art, First Fire, This Site. Featured: Civilla and Robear on Work, First Fire and This Site on Build.
-5. Redirects in vercel.json for every moved or parked address.
+5. **Redirects** (done): 56 old addresses in `vercel.json` and `src/brain/moved.js` (the app's own copy). The old `/about` → `/` redirect is gone.
 6. Checks, and this file and the README brought up to date.
 
 ## The project

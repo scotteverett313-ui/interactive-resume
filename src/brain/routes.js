@@ -1,5 +1,6 @@
 import { ROOT, CURIO_ROOT, ABOUT, BYID, PARKED_PATHS, only } from './content';
 import { NOTE_BY_SLUG } from './notes';
+import { MOVED } from './moved';
 
 /* ============================================================
    Addresses. Every place in the brain has its own link:
@@ -82,6 +83,9 @@ export function parsePath(pathname){
   var home = { stack:[ROOT], pageNode:null, sheet:null, found:true };
   var parts = pathname.split('/').filter(Boolean).map(function(p){ return decodeURIComponent(p).toLowerCase(); });
   if (!parts.length) return home;
+  /* an address from before the focus pass (moved.js): show where it lives now; found:false puts the new address in the bar */
+  var moved = MOVED['/' + parts.join('/')];
+  if (moved){ var there = parsePath(moved); there.found = false; return there; }
   var first = '/' + parts[0];
   if (first === STUDIO_PATH && parts.length === 1) return { stack:[ROOT], pageNode:null, sheet:{ type:'studio' }, found:true };
   if (first === INDEX_PATH) return { stack:[ROOT], pageNode:null, sheet:{ type:'index' }, found:parts.length === 1 };

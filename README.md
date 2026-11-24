@@ -341,11 +341,30 @@ worth inspecting at about 2400px on the long side.
 
 `vercel.json` sends the old Wix addresses to their new homes, so existing links
 keep working once the domain points here: `/partnershiplevels`, `/contact`, and
-`/stopguessing` go to `/work-with-me`, `/about` to `/`, `/blog` to `/notes`,
+`/stopguessing` go to `/work-with-me`, `/blog` to `/notes`,
 and `/post/<slug>` to `/notes/<slug>`. The old `/work` address needs no
 redirect, since Work is now a level of the map. Links shared while the hubs
 were called Learn and Improve go to `/work` and `/build`. They are temporary
 redirects for now; change `"permanent": false` to `true` once the move is final.
+
+`/about` used to redirect to `/`; it is the About page now, so that redirect is
+gone.
+
+The focus pass (Nov 2026) moved, folded or parked 56 addresses. Each one is in
+`src/brain/moved.js` and, as the same list of redirects, in `vercel.json`:
+
+- a page that moved goes to its new address
+  (`/build/games/first-fire` → `/build/first-fire`)
+- a page folded into another goes to that page
+  (`/teach/curriculum/design-thinking` → `/teach/uofm-flint`)
+- a parked page or a removed layer goes to its gravity point
+  (`/build/websites/krw-site` → `/build`)
+- a page held back in More goes to its address under More
+  (`/work/what-i-do/se-design/case-studies/krw` → `/work/more/krw`), which
+  sends visitors on to its gravity point until the page is ready
+
+`moved.js` does this inside the app too, so it works on any host and in local
+development. If you move a page again, add its old address to both.
 
 ### The coffee in the head
 

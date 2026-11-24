@@ -16,11 +16,6 @@
       "permanent": false
     },
     {
-      "source": "/about",
-      "destination": "/",
-      "permanent": false
-    },
-    {
       "source": "/blog",
       "destination": "/notes",
       "permanent": false
@@ -48,6 +43,286 @@
     {
       "source": "/improve/:path*",
       "destination": "/build/:path*",
+      "permanent": false
+    },
+    {
+      "source": "/work/what-i-do",
+      "destination": "/work",
+      "permanent": false
+    },
+    {
+      "source": "/work/what-i-do/se-design",
+      "destination": "/work",
+      "permanent": false
+    },
+    {
+      "source": "/work/what-i-do/se-design/case-studies",
+      "destination": "/work",
+      "permanent": false
+    },
+    {
+      "source": "/work/what-i-do/se-design/case-studies/robear-detroit",
+      "destination": "/work/robear-detroit",
+      "permanent": false
+    },
+    {
+      "source": "/work/what-i-do/se-design/case-studies/martez-hurd",
+      "destination": "/work/more/martez-hurd",
+      "permanent": false
+    },
+    {
+      "source": "/work/what-i-do/se-design/case-studies/krw",
+      "destination": "/work/more/krw",
+      "permanent": false
+    },
+    {
+      "source": "/work/what-i-do/se-design/case-studies/micro-money-management",
+      "destination": "/work/micro-money-management",
+      "permanent": false
+    },
+    {
+      "source": "/work/what-i-do/se-design/gallery",
+      "destination": "/gallery",
+      "permanent": false
+    },
+    {
+      "source": "/work/what-i-do/se-design/work-with-me",
+      "destination": "/work-with-me",
+      "permanent": false
+    },
+    {
+      "source": "/work/what-i-do/senior-ux-ui-designer-design-researcher",
+      "destination": "/work",
+      "permanent": false
+    },
+    {
+      "source": "/work/what-i-do/senior-ux-ui-designer-design-researcher/civilla",
+      "destination": "/work/civilla",
+      "permanent": false
+    },
+    {
+      "source": "/work/what-i-do/senior-ux-ui-designer-design-researcher/civilla/overview",
+      "destination": "/work/civilla",
+      "permanent": false
+    },
+    {
+      "source": "/work/what-i-do/senior-ux-ui-designer-design-researcher/civilla/mdhhs",
+      "destination": "/work/civilla",
+      "permanent": false
+    },
+    {
+      "source": "/work/what-i-do/senior-ux-ui-designer-design-researcher/civilla/eastern-michigan-probation-dept",
+      "destination": "/work/civilla",
+      "permanent": false
+    },
+    {
+      "source": "/work/what-i-do/senior-ux-ui-designer-design-researcher/civilla/unemployment-insurance-agency",
+      "destination": "/work/civilla",
+      "permanent": false
+    },
+    {
+      "source": "/work/what-i-do/senior-ux-ui-designer-design-researcher/civilla/secretary-of-state",
+      "destination": "/work/civilla/secretary-of-state",
+      "permanent": false
+    },
+    {
+      "source": "/work/what-i-do/senior-ux-ui-designer-design-researcher/civilla/project-cohere",
+      "destination": "/work/civilla/project-cohere",
+      "permanent": false
+    },
+    {
+      "source": "/work/what-i-do/wesson-art",
+      "destination": "/work/wesson-art",
+      "permanent": false
+    },
+    {
+      "source": "/work/what-i-do/wesson-art/work-samples",
+      "destination": "/work/wesson-art",
+      "permanent": false
+    },
+    {
+      "source": "/work/what-i-do/wesson-art/sketchbook",
+      "destination": "/work",
+      "permanent": false
+    },
+    {
+      "source": "/work/resume",
+      "destination": "/about",
+      "permanent": false
+    },
+    {
+      "source": "/work/resume/resume-pdf",
+      "destination": "/about",
+      "permanent": false
+    },
+    {
+      "source": "/work/resume/interactive-resume",
+      "destination": "/work",
+      "permanent": false
+    },
+    {
+      "source": "/work/resume/interactive-resume/irule",
+      "destination": "/work/more/irule",
+      "permanent": false
+    },
+    {
+      "source": "/work/resume/interactive-resume/civilla",
+      "destination": "/work",
+      "permanent": false
+    },
+    {
+      "source": "/work/resume/interactive-resume/uofm-flint",
+      "destination": "/work",
+      "permanent": false
+    },
+    {
+      "source": "/work/resume/interactive-resume/skills",
+      "destination": "/about",
+      "permanent": false
+    },
+    {
+      "source": "/work/background",
+      "destination": "/about",
+      "permanent": false
+    },
+    {
+      "source": "/work/background/where-it-started",
+      "destination": "/about",
+      "permanent": false
+    },
+    {
+      "source": "/work/background/college-for-creative-studies",
+      "destination": "/about",
+      "permanent": false
+    },
+    {
+      "source": "/work/background/saci-florence-italy",
+      "destination": "/about",
+      "permanent": false
+    },
+    {
+      "source": "/work/background/about",
+      "destination": "/about",
+      "permanent": false
+    },
+    {
+      "source": "/teach/curriculum",
+      "destination": "/teach/uofm-flint",
+      "permanent": false
+    },
+    {
+      "source": "/teach/curriculum/design-thinking",
+      "destination": "/teach/uofm-flint",
+      "permanent": false
+    },
+    {
+      "source": "/teach/curriculum/info-experience-design",
+      "destination": "/teach/uofm-flint",
+      "permanent": false
+    },
+    {
+      "source": "/teach/curriculum/app-design",
+      "destination": "/teach/uofm-flint",
+      "permanent": false
+    },
+    {
+      "source": "/teach/curriculum/storytelling",
+      "destination": "/teach/uofm-flint",
+      "permanent": false
+    },
+    {
+      "source": "/teach/curriculum/digital-media",
+      "destination": "/teach/uofm-flint",
+      "permanent": false
+    },
+    {
+      "source": "/teach/curriculum/interaction-design-i-ii",
+      "destination": "/teach/uofm-flint",
+      "permanent": false
+    },
+    {
+      "source": "/teach/curriculum/web-design",
+      "destination": "/teach/uofm-flint",
+      "permanent": false
+    },
+    {
+      "source": "/build/my-stack",
+      "destination": "/about",
+      "permanent": false
+    },
+    {
+      "source": "/build/apps",
+      "destination": "/build",
+      "permanent": false
+    },
+    {
+      "source": "/build/apps/dirt-rich",
+      "destination": "/build/more/dirt-rich",
+      "permanent": false
+    },
+    {
+      "source": "/build/games",
+      "destination": "/build",
+      "permanent": false
+    },
+    {
+      "source": "/build/games/first-fire",
+      "destination": "/build/first-fire",
+      "permanent": false
+    },
+    {
+      "source": "/build/software",
+      "destination": "/build",
+      "permanent": false
+    },
+    {
+      "source": "/build/software/vaultmark",
+      "destination": "/build/more/vaultmark",
+      "permanent": false
+    },
+    {
+      "source": "/build/websites",
+      "destination": "/build",
+      "permanent": false
+    },
+    {
+      "source": "/build/websites/this-site",
+      "destination": "/build/this-site",
+      "permanent": false
+    },
+    {
+      "source": "/build/websites/miss-g-site",
+      "destination": "/build/more/miss-g-site",
+      "permanent": false
+    },
+    {
+      "source": "/build/websites/krw-site",
+      "destination": "/build",
+      "permanent": false
+    },
+    {
+      "source": "/orbit/podcasts",
+      "destination": "/orbit",
+      "permanent": false
+    },
+    {
+      "source": "/orbit/science",
+      "destination": "/orbit",
+      "permanent": false
+    },
+    {
+      "source": "/orbit/books",
+      "destination": "/orbit",
+      "permanent": false
+    },
+    {
+      "source": "/orbit/gardening",
+      "destination": "/orbit",
+      "permanent": false
+    },
+    {
+      "source": "/orbit/technology",
+      "destination": "/orbit",
       "permanent": false
     }
   ],
