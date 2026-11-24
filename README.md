@@ -409,6 +409,27 @@ Where there is a pointer to hover with, pictures in map blobs and Gallery
 tiles rest in gray and show their color under the pointer or keyboard focus.
 On a touch screen they stay in color.
 
+### Parking a page
+
+To take a page (or a whole level) off the site without losing it, add
+`parked: true` to it in `content.js`:
+
+```js
+{ id:'sketch', label:'Sketchbook', parked:true, page:{ ... } }
+```
+
+A parked node, and everything under it:
+
+- does not show on the map, in Just the work, in the Gallery, in featured
+  previews, or in Next and Previous
+- has no address: a visit to its old address lands on its gravity point
+  (Work, Teach or Build)
+- is skipped wherever another page links to it ("Connects to")
+
+Nothing is deleted. Its words and pictures stay in `content.js`, ready to
+come back: remove `parked: true` and it is live again, at the same address.
+The curiosities under `CURIO_ROOT` can be parked the same way.
+
 ### Adding a node
 
 1. Find the parent inside `ROOT` and add an object to its `kids`.

@@ -1,4 +1,4 @@
-import { ROOT, CURIO_ROOT, only } from './content';
+import { ROOT, CURIO_ROOT, BYID, PARKED_PATHS, only } from './content';
 import { NOTE_BY_SLUG } from './notes';
 
 /* ============================================================
@@ -92,6 +92,9 @@ export function parsePath(pathname){
     var c = CURIO_ROOT.kids.filter(function(k){ return slugOf(k) === parts[1]; })[0];
     return c && parts.length === 2 ? { stack:[ROOT], pageNode:c, sheet:null, found:true } : { stack:[ROOT], pageNode:CURIO_ROOT, sheet:null, found:false };
   }
+  /* a parked page (or anything under it): it has no address now, so it lands on its gravity point */
+  var parkedHub = PARKED_PATHS['/' + parts.join('/')];
+  if (parkedHub && BYID[parkedHub]) return land([ROOT, BYID[parkedHub]], null, false);
   /* walk down the tree one part at a time */
   function kidCalled(node, slug){
     var kids = node.kids || [];

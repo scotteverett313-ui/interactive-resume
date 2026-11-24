@@ -497,7 +497,7 @@ export const ROOT = { id:'root', label:'Brain', kids:[
           ],
           action:{ label:'Visit wessonart.com', url:'https://wessonart.com' },
           links:[{ to:'sketch', why:'Where the pieces start.' },{ to:'vault', why:'The idea came from my own digital art.' }] }},
-        { id:'sketch', label:'Sketchbook', page:{
+        { id:'sketch', label:'Sketchbook', parked:true, page:{
           lede:'Let loose.',
           story:'Random thoughts and drawings, shapes and wireframes. No client, no brief. This site started on these pages.',
           tags:['Illustration','Process'],
@@ -919,6 +919,29 @@ export const CURIO_ROOT = { id:'curio', label:"Can't Stop Thinking About", curio
    (which gravity point it belongs to) and fills BYID so links
    can resolve by id.
    ------------------------------------------------------------ */
+/* PARKING. A node with `parked: true` (and everything under it) is lifted out of the live tree before
+   anything else reads it: it leaves the map, Just the work, the Gallery, featured previews, Next/Previous
+   and "Connects to", and its address is gone. Nothing is deleted: the node keeps all its words and
+   pictures, and is kept in PARKED_BYID. Its old address (worked out here, before it is lifted out)
+   is remembered in PARKED_PATHS so a visit to it lands on its gravity point instead.
+   To bring a page back, remove `parked: true`. */
+function slugOfNode(n){ return n.slug || n.label.toLowerCase().replace(/&/g, ' and ').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''); }
+export const PARKED_BYID = {};
+export const PARKED_PATHS = {};
+(function park(n, path, hubId){
+  var live = [];
+  (n.kids || []).forEach(function(k){
+    var kPath = path + '/' + slugOfNode(k), kHub = hubId || k.id;
+    if (k.parked){
+      (function mark(x, xPath){
+        PARKED_BYID[x.id] = x; PARKED_PATHS[xPath] = kHub;
+        (x.kids || []).forEach(function(y){ mark(y, xPath + '/' + slugOfNode(y)); });
+      })(k, kPath);
+    } else { live.push(k); park(k, kPath, kHub); }
+  });
+  if (n.kids) n.kids = live;
+})(ROOT, '', null);
+
 export const BYID = {};
 (function link(n, parent, hub){
   n.parent = parent; n.hub = hub; BYID[n.id] = n;
@@ -926,7 +949,9 @@ export const BYID = {};
 })(ROOT, null, null);
 ROOT.kids.forEach(function(h){ h.hub = h; });
 
+/* the curiosities can be parked the same way */
 export const CURIO_BY_ID = {};
+CURIO_ROOT.kids = CURIO_ROOT.kids.filter(function(k){ if (k.parked) PARKED_BYID[k.id] = k; return !k.parked; });
 CURIO_ROOT.kids.forEach(function(k){ k.parent = CURIO_ROOT; k.curio = true; CURIO_BY_ID[k.id] = k; });
 
 /* A level with exactly one thing inside is passed straight through. This is that one thing, or null. */
