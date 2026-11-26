@@ -256,7 +256,7 @@ export default function BrainExperience(){
   return (
     <div className="brain" data-scheme={palette.scheme} style={vars}>
       <section id="intro" ref={sectionRef} className={done ? 'done' : undefined} aria-label="Intro">
-        <div className={'stage' + (done ? ' is-done' : '') + (wantCards && cardsOn ? ' cards-on' : '') + (menuBubble ? ' menu-bubble' : '') + (splash ? ' splashing' : '')} id="stage" ref={stageRef}>
+        <div className={'stage' + (done ? ' is-done' : '') + (wantCards && cardsOn ? ' cards-on' : '') + (menuBubble ? ' menu-bubble' : '') + (splash ? ' splashing' : '') + (done && stack.length === 1 && !page.node ? ' at-root' : '')} id="stage" ref={stageRef}>
           <div className="grain" aria-hidden="true" />
           {splash && <Splash onDone={endSplash} />}
           <Intro ref={introRef} stageRef={stageRef} sectionRef={sectionRef} mapLayerRef={mapLayerRef} dotTagRef={dotTagRef}
