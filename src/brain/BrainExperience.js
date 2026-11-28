@@ -11,6 +11,9 @@ import StudioPage from './StudioPage';
 import NotesPage from './NotesPage';
 import GalleryPage from './GalleryPage';
 import LevelCards from './LevelCards';
+import HubList from './HubList';
+import TryPanel from './TryPanel';
+import { readTries, saveTries, hidePanel } from './tries';
 import IndexPage from './IndexPage';
 import Splash, { wantSplash } from './Splash';
 import { pathFor, parsePath, titleFor, settle, sheetFor, lineOf } from './routes';
@@ -62,6 +65,11 @@ export default function BrainExperience(){
 
   var busyRef = useRef(false), modeRef = useRef(null), sceneRef = useRef(null), divedRef = useRef(false);
   var [cardsOn, setCardsOn] = useState(false);
+  /* trial switches (tries.js): which ideas are on, and whether their panel shows */
+  var [tries, setTries] = useState(readTries);
+  var setTry = useCallback(function(id, val){
+    setTries(function(t){ var on = Object.assign({}, t.on); on[id] = val; saveTries(on); return { on:on, panel:t.panel }; });
+  }, []);
   /* the menu is open as the speech bubble on the opening screen: the bubble itself steps aside */
   var [menuBubble, setMenuBubble] = useState(false);
   var stageRef = useRef(null), sectionRef = useRef(null), mapLayerRef = useRef(null), dotTagRef = useRef(null), introRef = useRef(null);
@@ -245,6 +253,8 @@ export default function BrainExperience(){
      Arriving by a dive, the cards wait for the blob that was pressed to finish swelling; any other way in
      (a link, an address, Back) they are there at once */
   var level = stack[stack.length - 1], wantCards = done && level.view === 'cards';
+  /* trial A1: on Work's level, the name list stands in for the blobs */
+  var listOn = !!tries.on.a1 && done && !sheet && stack.length === 2 && stack[1].id === 'work';
   useLayoutEffect(function(){
     var dived = divedRef.current; divedRef.current = false;
     if (!wantCards){ setCardsOn(false); return undefined; }
@@ -256,7 +266,7 @@ export default function BrainExperience(){
   return (
     <div className="brain" data-scheme={palette.scheme} style={vars}>
       <section id="intro" ref={sectionRef} className={done ? 'done' : undefined} aria-label="Intro">
-        <div className={'stage' + (done ? ' is-done' : '') + (wantCards && cardsOn ? ' cards-on' : '') + (menuBubble ? ' menu-bubble' : '') + (splash ? ' splashing' : '') + (done && stack.length === 1 && !page.node ? ' at-root' : '')} id="stage" ref={stageRef}>
+        <div className={'stage' + (done ? ' is-done' : '') + (wantCards && cardsOn ? ' cards-on' : '') + (menuBubble ? ' menu-bubble' : '') + (splash ? ' splashing' : '') + (done && stack.length === 1 && !page.node ? ' at-root' : '') + (listOn ? ' try-list' : '')} id="stage" ref={stageRef}>
           <div className="grain" aria-hidden="true" />
           {splash && <Splash onDone={endSplash} />}
           <Intro ref={introRef} stageRef={stageRef} sectionRef={sectionRef} mapLayerRef={mapLayerRef} dotTagRef={dotTagRef}
@@ -264,6 +274,8 @@ export default function BrainExperience(){
           <BrainMap stack={stack} done={done} reduce={reduce}
             busyRef={busyRef} modeRef={modeRef} sceneRef={sceneRef} mapLayerRef={mapLayerRef}
             mapShowing={mapShowing} onDive={onDive} onOpenPage={openPage} onSticker={onSticker} />
+          {listOn && <HubList node={stack[1]} reduce={reduce} onOpen={function(n){ goToNode(n); }} onBack={function(){ goTo(1); }}
+            from={window.innerWidth < window.innerHeight * .8 ? [.32, .3] : [.27, .37]} />}
           {/* the opening title is a speech bubble; it stays mounted so the intro can fade it.
               The map title shows at the top level of the map */}
           <div id="homeTitle" className="site-title" aria-hidden={done}>
@@ -302,6 +314,7 @@ export default function BrainExperience(){
             </button>
           </div>
           <ThemeToggle mode={mode} onToggle={toggleTheme} />
+          {tries.panel && <TryPanel on={tries.on} onChange={setTry} onHide={function(){ hidePanel(); setTries(function(t){ return { on:t.on, panel:false }; }); }} />}
           {/* the depth dots are for the intro and the map; a page or a full-screen page has its own way back */}
           {!page.node && !sheet && (
             <DotNav done={done} stack={stack} pageNode={null} tagRef={dotTagRef} onReplay={replayIntro}

@@ -297,7 +297,14 @@ export const ROOT = { id:'root', label:'Brain', kids:[
      parked:true keeps a node in this file but off the site (see PARKING below) */
   { id:'work', label:'Work', blurb:'[Short blurb]', rich:true,
     says:'This is the work. Studio clients, design research for the state, and the art underneath all of it.',
-    featured:[{ pages:['civilla'] }, { pages:['robear'] }], kids:[
+    featured:[{ pages:['civilla'] }, { pages:['robear'] }],
+    /* trial A1 (the name list, see tries.js): the groups the list shows, in order. An item can be a page, a page's
+       sub-page, or a More level (which stands for the finished pages inside it) */
+    list:[
+      { name:'Civilla', items:['civilla', 'sos', 'cohere'] },
+      { name:'SE|Design partners', items:['robear', 'mmm', 'workmore'] },
+      { name:'Wesson Art', items:['wesson'] }
+    ], kids:[
 { id:'civilla', label:'Civilla', blurb:'Design research that shaped services for 2M+ Michigan residents.', page:{
             brief:{
               cards:[['Role', `Sr. UX/UI Designer and Design Researcher at Civilla`], ['Services', `Design research, UX/UI, service design`], ['Years', `[Years]`]],
