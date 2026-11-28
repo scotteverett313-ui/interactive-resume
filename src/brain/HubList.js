@@ -16,14 +16,14 @@ import { blobPath } from './blob';
      onBack:  back up to the brain */
 
 /* the one line under a name: its own line if it is written, else its blurb, else its first tags */
-function lineFor(n){
+export function lineFor(n){
   var p = n.page || {}, b = p.brief || {};
   var said = [p.lede, n.blurb, b.question].filter(function(t){ return t && !/\[/.test(t); })[0];
   return said || (p.tags || []).slice(0, 3).join(' · ');
 }
 
 /* a group's ids, as pages: a More level stands for the pages inside it; anything held back or parked is skipped */
-function pagesOf(ids){
+export function pagesOf(ids){
   var out = [];
   ids.forEach(function(id){
     var n = BYID[id];

@@ -15,7 +15,8 @@
 
 /* the ideas that are built so far, in the order they are offered */
 export const TRIES = [
-  { id:'a1', name:'A1 · Name list', note:'Work opens as a list of names on its own color' }
+  { id:'a1', name:'A1 · Name list', note:'Work opens as a list of names on its own color', group:'layout' },
+  { id:'a2', name:'A2 · Card stack', note:'Work opens as one big card per project; swipe or scroll to the next', group:'layout' }
 ];
 
 var KEY = 'brain-try', PANEL = 'brain-try-panel';
@@ -35,7 +36,13 @@ export function readTries(){
     var q = new URLSearchParams(window.location.search).get('try');
     if (q === 'off'){ on = {}; panel = false; store(false, KEY, null); store(false, PANEL, null); }
     else if (q !== null){
-      q.split(',').forEach(function(id){ id = id.trim().toLowerCase(); if (TRIES.some(function(t){ return t.id === id; })) on[id] = true; });
+      q.split(',').forEach(function(id){
+        id = id.trim().toLowerCase();
+        var me = TRIES.filter(function(t){ return t.id === id; })[0]; if (!me) return;
+        /* the layouts are alternatives: the last one named wins */
+        if (me.group) TRIES.forEach(function(t){ if (t.group === me.group) delete on[t.id]; });
+        on[id] = true;
+      });
       panel = true; store(false, PANEL, '1'); store(false, KEY, Object.keys(on).join(','));
     }
   } catch (e) { /* no address to read */ }

@@ -12,8 +12,9 @@ import NotesPage from './NotesPage';
 import GalleryPage from './GalleryPage';
 import LevelCards from './LevelCards';
 import HubList from './HubList';
+import HubDeck from './HubDeck';
 import TryPanel from './TryPanel';
-import { readTries, saveTries, hidePanel } from './tries';
+import { TRIES, readTries, saveTries, hidePanel } from './tries';
 import IndexPage from './IndexPage';
 import Splash, { wantSplash } from './Splash';
 import { pathFor, parsePath, titleFor, settle, sheetFor, lineOf } from './routes';
@@ -68,7 +69,12 @@ export default function BrainExperience(){
   /* trial switches (tries.js): which ideas are on, and whether their panel shows */
   var [tries, setTries] = useState(readTries);
   var setTry = useCallback(function(id, val){
-    setTries(function(t){ var on = Object.assign({}, t.on); on[id] = val; saveTries(on); return { on:on, panel:t.panel }; });
+    setTries(function(t){
+      var on = Object.assign({}, t.on), me = TRIES.filter(function(x){ return x.id === id; })[0];
+      /* the layouts (A1, A2, A3) are alternatives: switching one on switches the others off */
+      if (val && me && me.group) TRIES.forEach(function(x){ if (x.group === me.group) on[x.id] = false; });
+      on[id] = val; saveTries(on); return { on:on, panel:t.panel };
+    });
   }, []);
   /* the menu is open as the speech bubble on the opening screen: the bubble itself steps aside */
   var [menuBubble, setMenuBubble] = useState(false);
@@ -254,7 +260,10 @@ export default function BrainExperience(){
      (a link, an address, Back) they are there at once */
   var level = stack[stack.length - 1], wantCards = done && level.view === 'cards';
   /* trial A1: on Work's level, the name list stands in for the blobs */
-  var listOn = !!tries.on.a1 && done && !sheet && stack.length === 2 && stack[1].id === 'work';
+  var onWork = done && !sheet && stack.length === 2 && stack[1].id === 'work';
+  var listOn = !!tries.on.a1 && onWork;
+  /* trial A2: on Work's level, a stack of big cards stands in for the blobs */
+  var deckOn = !!tries.on.a2 && !listOn && onWork;
   useLayoutEffect(function(){
     var dived = divedRef.current; divedRef.current = false;
     if (!wantCards){ setCardsOn(false); return undefined; }
@@ -266,7 +275,7 @@ export default function BrainExperience(){
   return (
     <div className="brain" data-scheme={palette.scheme} style={vars}>
       <section id="intro" ref={sectionRef} className={done ? 'done' : undefined} aria-label="Intro">
-        <div className={'stage' + (done ? ' is-done' : '') + (wantCards && cardsOn ? ' cards-on' : '') + (menuBubble ? ' menu-bubble' : '') + (splash ? ' splashing' : '') + (done && stack.length === 1 && !page.node ? ' at-root' : '') + (listOn ? ' try-list' : '')} id="stage" ref={stageRef}>
+        <div className={'stage' + (done ? ' is-done' : '') + (wantCards && cardsOn ? ' cards-on' : '') + (menuBubble ? ' menu-bubble' : '') + (splash ? ' splashing' : '') + (done && stack.length === 1 && !page.node ? ' at-root' : '') + (listOn ? ' try-list' : '') + (deckOn ? ' try-deck' : '')} id="stage" ref={stageRef}>
           <div className="grain" aria-hidden="true" />
           {splash && <Splash onDone={endSplash} />}
           <Intro ref={introRef} stageRef={stageRef} sectionRef={sectionRef} mapLayerRef={mapLayerRef} dotTagRef={dotTagRef}
@@ -276,6 +285,7 @@ export default function BrainExperience(){
             mapShowing={mapShowing} onDive={onDive} onOpenPage={openPage} onSticker={onSticker} />
           {listOn && <HubList node={stack[1]} reduce={reduce} onOpen={function(n){ goToNode(n); }} onBack={function(){ goTo(1); }}
             from={window.innerWidth < window.innerHeight * .8 ? [.32, .3] : [.27, .37]} />}
+          {deckOn && <HubDeck node={stack[1]} reduce={reduce} onOpen={function(n){ goToNode(n); }} />}
           {/* the opening title is a speech bubble; it stays mounted so the intro can fade it.
               The map title shows at the top level of the map */}
           <div id="homeTitle" className="site-title" aria-hidden={done}>
