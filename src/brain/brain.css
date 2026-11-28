@@ -785,3 +785,7 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
 /* on a narrow screen the tagged blobs stand in a column and fill the width, so the depth dots step aside
    (the breadcrumbs go back) */
 @media (max-width:599px){ .stage.try-tags #dots{display:none} }
+
+/* a very short phone (600px tall and under): Scott's line under the breadcrumbs steps aside, so the level's blobs have
+   the room they need without touching */
+@media (max-height:600px){ .brain #levelSays{display:none} }

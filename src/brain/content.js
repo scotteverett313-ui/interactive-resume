@@ -271,7 +271,7 @@ export const GALLERY = {
    carries on through the same list. */
 export const INDEX = {
   title: 'Just the work',
-  intro: 'Six projects. Open one, then keep going to the next.',
+  intro: 'Five projects. Open one, then keep going to the next.',
   /* the projects shown, in order. `to` is a page id; `as` is the name on the tile when the page's own
      name ("Overview") needs a clearer one. The line under each name is the page's first two tags. */
   picks: [
@@ -279,8 +279,7 @@ export const INDEX = {
     { to: 'robear' },
     { to: 'mmm' },
     { to: 'wesson' },
-    { to: 'ff' },
-    { to: 'thissite' }
+    { to: 'ff' }
   ]
 };
 
@@ -297,15 +296,15 @@ export const ROOT = { id:'root', label:'Brain', kids:[
      parked:true keeps a node in this file but off the site (see PARKING below) */
   { id:'work', label:'Work', blurb:'[Short blurb]', rich:true,
     says:'This is the work. Studio clients, design research for the state, and the art underneath all of it.',
-    featured:[{ pages:['civilla'] }, { pages:['robear'] }],
+    featured:[{ pages:['civilla'] }],
     /* trial A1 (the name list, see tries.js): the groups the list shows, in order. An item can be a page, a page's
        sub-page, or a More level (which stands for the finished pages inside it) */
     list:[
-      { name:'Civilla', items:['civilla', 'sos', 'cohere'] },
-      { name:'SE|Design partners', items:['robear', 'mmm', 'workmore'] },
+      { name:'Civilla', items:['civilla', 'sos', 'cohere', 'mdhhs'] },
+      { name:'SE|Design', items:['missg', 'martez', 'robear', 'mmm', 'workmore'] },
       { name:'Wesson Art', items:['wesson'] }
     ], kids:[
-{ id:'civilla', label:'Civilla', blurb:'Design research that shaped services for 2M+ Michigan residents.', page:{
+{ id:'civilla', label:'Civilla', role:'Design Researcher', blurb:'Design research that shaped services for 2M+ Michigan residents.', page:{
             brief:{
               cards:[['Role', `Sr. UX/UI Designer and Design Researcher at Civilla`], ['Services', `Design research, UX/UI, service design`], ['Years', `[Years]`]],
               question:`How do you make state services easier for 2M+ Michigan residents to use?`,
@@ -322,12 +321,6 @@ export const ROOT = { id:'root', label:'Brain', kids:[
               intro:['Sr. UX/UI Designer and Design Researcher at Civilla, a small but mighty team. I conducted interviews, defined problems, ideated, prototyped, user tested, and helped implement across state and government institutions. It is where I learned to really be part of a team.'],
               sections:[
                 { title:'What I did', body:[{ list:['Built 75+ web and mobile prototypes for state and federal initiatives','User research informing services for 2M+ residents','Design lead on a multi-agency benefits platform','Developed core journey map design and facilitation, walkthroughs, and brand collateral','Worked with the Michigan Secretary of State, Michigan Health and Human Services, Starfish, Deloitte, and more'] }] },
-                { title:'MDHHS', fold:true, body:['With Michigan Health and Human Services, I [researched / designed ___] to make [service] easier for residents to [action]. My role: [interviews, prototypes, testing]. [Outcome.]',
-                  { images:[
-                    { src:'/proof/civilla/mdhhs/1.webp', caption:'Assistance Application, MDHHS' },
-                    { src:'/proof/civilla/mdhhs/2.webp', caption:'Reading the Assistance Application' },
-                    { src:'/proof/civilla/mdhhs/3.webp', caption:'Program sections: healthcare, food, child care, cash, emergency relief' }
-                  ] }] },
                 { title:'Unemployment Insurance Agency', fold:true, body:['With the Unemployment Insurance Agency, I [researched / designed ___] to help residents [file / understand / get through ___]. My role: [___]. [Outcome.]',
                   { image:'/proof/civilla/uia/1.webp', caption:'Claimant Roadmap on a phone' }] },
                 { title:'Eastern Michigan Probation Dept', fold:true, body:['With the probation department, I [researched / designed ___] so people on probation could [goal]. My role: [___]. [Outcome.]'] }
@@ -383,7 +376,7 @@ export const ROOT = { id:'root', label:'Brain', kids:[
                   { src:'/proof/civilla/cohere/12.webp', caption:'Reviewing paper prototypes' },
                   { src:'/proof/civilla/cohere/13.webp', caption:'The sticky note wall' }
                 ] }},
-    { id:'mdhhs', label:'MDHHS', parked:true, page:{
+{ id:'mdhhs', label:'MDHHS', waits:true, page:{
                 lede:'[My role and what we made]',
                 story:'With Michigan Health and Human Services, I [researched / designed ___] to make [service] easier for residents to [action]. My role: [interviews, prototypes, testing]. [Outcome.]',
                 tags:['Design Research','UX/UI','Government'],
@@ -400,44 +393,84 @@ export const ROOT = { id:'root', label:'Brain', kids:[
                 tags:['Design Research','UX/UI','Government'],
                 proof:'Claimant Roadmap on a phone',
                 image:'/proof/civilla/uia/1.webp' }} ] },
-{ id:'robear', label:'Robear Detroit', page:{
-            brief:{
-              cards:[['Client', `Robear Detroit`], ['Services', `Landing page, branding`], ['Year', `2025`]],
-              question:`[The big question: what did they need to solve?]`,
-              approach:`[The approach, in a sentence]`,
-              impact:`[The impact: what changed after launch]`
-            },
-            lede:'Custom landing page, 2025.',
-            story:'Robear Detroit needed [what they needed]. I designed and built a custom landing page and [brand work], so they could [result]. [What changed for them after launch.]',
-            tags:['Site','Branding'],
-            proof:'Landing page, Robear Detroit',
-            image:'/proof/robear/1.webp',
-            fit:'whole',
-            action:{ label:'Visit robeardetroitvo.com', url:'https://www.robeardetroitvo.com/' },
-            more:[
-              { src:'/proof/robear/2.webp', caption:'About screen on a phone' },
-              { src:'/proof/robear/3.webp', caption:'Brand board' }
-            ],
-            links:[{ to:'sedesign', why:'A studio partnership.' }] }},
-{ id:'mmm', label:'Micro Money Management', page:{
-            brief:{
-              cards:[['Client', `Micro Money Management`], ['Services', `Brand identity, social media`], ['Year', `[Year]`]],
-              question:`[The big question: what did they need to solve?]`,
-              approach:`[The approach, in a sentence]`,
-              impact:`[The impact: what changed for them]`
-            },
-            lede:'[One line: the project]',
-            story:'[Micro Money Management is / does ___]. They needed [brand need]. I designed [what you made], so they could [result].',
-            tags:['Branding','Social Media'],
-            proof:'Brand identity, Micro Money Management',
-            image:'/proof/micro-money-management/1.webp',
-            more:[
-              { src:'/proof/micro-money-management/2.webp', caption:'Stylescape' },
-              { src:'/proof/micro-money-management/3.webp', caption:'Stylescape detail' },
-              { src:'/proof/micro-money-management/4.webp', caption:'Brand voice' },
-              { src:'/proof/micro-money-management/5.webp', caption:'Logo' },
-              { src:'/proof/micro-money-management/6.webp', caption:'Brochure' }
-            ] }},
+    /* SE|Design: the studio's community partnerships. Miss G and Martez Hurd (waits:true) show once they have a
+       picture and no [brackets]; so does anything under More */
+    { id:'sedesign', label:'SE|Design', sub:'Community Partnerships', blurb:'My on-demand design studio for small businesses, nonprofits, and entrepreneurs.', kids:[
+      { id:'missg', label:'Miss G', waits:true, page:{
+                lede:'[My role and what we made]',
+                story:'Miss G Curls & Braids. [What the site and the brand are for, and what I did.]',
+                tags:['Website','Branding'],
+                proof:'Miss G Curls & Braids, brand identity',
+                image:'/proof/miss-g/1.webp',
+                more:[{ src:'/proof/miss-g/2.webp', caption:'Brand guidelines' },{ src:'/proof/miss-g/3.webp', caption:'The logo and mark' },{ src:'/proof/miss-g/4.webp', caption:'The logo and mark, upright' }] }},
+      { id:'martez', label:'Martez Hurd', waits:true, page:{
+                    lede:'[One line: the project]',
+                    story:'[Martez Hurd is / does ___]. He needed a site and a brand that [goal]. I built [what you made], and now [what changed].',
+                    tags:['Site','Branding'],
+                    proof:'Brand board, Martez Hurd',
+                    image:'/proof/martez-hurd/1.webp' }},
+      { id:'robear', label:'Robear Detroit', page:{
+                  brief:{
+                    cards:[['Client', `Robear Detroit`], ['Services', `Landing page, branding`], ['Year', `2025`]],
+                    question:`[The big question: what did they need to solve?]`,
+                    approach:`[The approach, in a sentence]`,
+                    impact:`[The impact: what changed after launch]`
+                  },
+                  lede:'Custom landing page, 2025.',
+                  story:'Robear Detroit needed [what they needed]. I designed and built a custom landing page and [brand work], so they could [result]. [What changed for them after launch.]',
+                  tags:['Site','Branding'],
+                  proof:'Landing page, Robear Detroit',
+                  image:'/proof/robear/1.webp',
+                  fit:'whole',
+                  action:{ label:'Visit robeardetroitvo.com', url:'https://www.robeardetroitvo.com/' },
+                  more:[
+                    { src:'/proof/robear/2.webp', caption:'About screen on a phone' },
+                    { src:'/proof/robear/3.webp', caption:'Brand board' }
+                  ],
+                  links:[{ to:'sedesign', why:'A studio partnership.' }] }},
+      { id:'mmm', label:'Micro Money Management', page:{
+                  brief:{
+                    cards:[['Client', `Micro Money Management`], ['Services', `Brand identity, social media`], ['Year', `[Year]`]],
+                    question:`[The big question: what did they need to solve?]`,
+                    approach:`[The approach, in a sentence]`,
+                    impact:`[The impact: what changed for them]`
+                  },
+                  lede:'[One line: the project]',
+                  story:'[Micro Money Management is / does ___]. They needed [brand need]. I designed [what you made], so they could [result].',
+                  tags:['Branding','Social Media'],
+                  proof:'Brand identity, Micro Money Management',
+                  image:'/proof/micro-money-management/1.webp',
+                  more:[
+                    { src:'/proof/micro-money-management/2.webp', caption:'Stylescape' },
+                    { src:'/proof/micro-money-management/3.webp', caption:'Stylescape detail' },
+                    { src:'/proof/micro-money-management/4.webp', caption:'Brand voice' },
+                    { src:'/proof/micro-money-management/5.webp', caption:'Logo' },
+                    { src:'/proof/micro-money-management/6.webp', caption:'Brochure' }
+                  ] }},
+      { id:'workmore', label:'More', slug:'more', more:true, kids:[
+        { id:'krw', label:'KRW', page:{
+                      lede:'[One line: the project]',
+                      story:'KRW came to me for [brand need]. I designed [logo, brand system, social templates], so they could show up consistently on social. [Result.] Their website is next.',
+                      tags:['Branding','Social Media'],
+                      proof:'Stylescape, KRW Music',
+                      image:'/proof/krw/1.webp',
+                      focus:'top',
+                      more:[
+                        { src:'/proof/krw/2.webp', caption:'Primary logo' },
+                        { src:'/proof/krw/3.webp', caption:'Brandmark, icon and color palette' },
+                        { src:'/proof/krw/4.webp', caption:'Logo on red' },
+                        { src:'/proof/krw/5.webp', caption:'Wordmark' },
+                        { src:'/proof/krw/6.webp', caption:'Record icon' },
+                        { src:'/proof/krw/7.webp', caption:'Stylescape detail' },
+                        { src:'/proof/krw/8.webp', caption:'Badge logo' }
+                      ],
+                      links:[{ to:'krwsite', why:'Their website is next.' }] }},
+        { id:'irule', label:'iRule', page:{
+                      lede:'Where I cut my teeth in user interface design.',
+                      story:'Sr. UX/UI Designer, March 2015 to July 2018, in Detroit. I built a design system and library of custom mobile interfaces that wirelessly control lights, thermostats, shades, and appliances across the iRule, On Controls, and Kramer brands.',
+                      list:['Created a design system and library of custom UIs for mobile devices','Worked with R&D, the dev team, and leadership through wireframes, prototypes, and UX flow charts','Simplified older designs to reflect modern best practices, improving customer experience and workflow','Designed the iRule logo'],
+                      tags:['UX/UI','Design Systems','Mobile','Branding'],
+                      links:[{ to:'c4', why:'Where I designed apps for a living.' }] }} ]} ]},
 { id:'wesson', label:'Wesson Art', blurb:'Where I always land on my feet. The base of it all.', page:{
           brief:{
             cards:[['Practice', `Wesson Art: my digital art, mostly drawn on iPad`], ['Work', `Portraits, animals, editorial`], ['Since', `[Year]`]],
@@ -479,45 +512,14 @@ export const ROOT = { id:'root', label:'Brain', kids:[
             links:[{ to:'samples', why:'Quick thoughts here turn into finished pieces.' },{ to:'thissite', why:'The storyboard for this site came from here.' }] }} ] },
     /* More: the rest of the work, one smaller blob. A page shows in it only once it has a picture and no
        [brackets] in its lede or story; with nothing ready, More does not show at all */
-    { id:'workmore', label:'More', slug:'more', more:true, kids:[
-  { id:'krw', label:'KRW', page:{
-              lede:'[One line: the project]',
-              story:'KRW came to me for [brand need]. I designed [logo, brand system, social templates], so they could show up consistently on social. [Result.] Their website is next.',
-              tags:['Branding','Social Media'],
-              proof:'Stylescape, KRW Music',
-              image:'/proof/krw/1.webp',
-              focus:'top',
-              more:[
-                { src:'/proof/krw/2.webp', caption:'Primary logo' },
-                { src:'/proof/krw/3.webp', caption:'Brandmark, icon and color palette' },
-                { src:'/proof/krw/4.webp', caption:'Logo on red' },
-                { src:'/proof/krw/5.webp', caption:'Wordmark' },
-                { src:'/proof/krw/6.webp', caption:'Record icon' },
-                { src:'/proof/krw/7.webp', caption:'Stylescape detail' },
-                { src:'/proof/krw/8.webp', caption:'Badge logo' }
-              ],
-              links:[{ to:'krwsite', why:'Their website is next.' }] }},
-  { id:'martez', label:'Martez Hurd', page:{
-              lede:'[One line: the project]',
-              story:'[Martez Hurd is / does ___]. He needed a site and a brand that [goal]. I built [what you made], and now [what changed].',
-              tags:['Site','Branding'],
-              proof:'Brand board, Martez Hurd',
-              image:'/proof/martez-hurd/1.webp' }},
-    { id:'irule', label:'iRule', page:{
-              lede:'Where I cut my teeth in user interface design.',
-              story:'Sr. UX/UI Designer, March 2015 to July 2018, in Detroit. I built a design system and library of custom mobile interfaces that wirelessly control lights, thermostats, shades, and appliances across the iRule, On Controls, and Kramer brands.',
-              list:['Created a design system and library of custom UIs for mobile devices','Worked with R&D, the dev team, and leadership through wireframes, prototypes, and UX flow charts','Simplified older designs to reflect modern best practices, improving customer experience and workflow','Designed the iRule logo'],
-              tags:['UX/UI','Design Systems','Mobile','Branding'],
-              links:[{ to:'c4', why:'Where I designed apps for a living.' }] }} ]},
     /* parked: the layers and pages that used to sit here. Kept whole, off the site */
     { id:'does', label:'What I Do', parked:true, blurb:'[Short blurb]', says:'Three lanes: my studio, design research, and my own art.', kids:[
-      { id:'sedesign', label:'SE|Design', parked:true, blurb:'My on-demand design studio for small businesses, nonprofits, and entrepreneurs.', kids:[
-        { id:'cases', label:'Case Studies', parked:true, blurb:'[Short blurb]', view:'cards', says:'Four clients. Swipe through, or open one.', kids:[]},
+      { id:'cases', label:'Case Studies', parked:true, blurb:'[Short blurb]', view:'cards', says:'Four clients. Swipe through, or open one.', kids:[]},
         { id:'gallery', label:'Gallery', go:'gallery', page:{
                   lede:'[Short blurb]',
                   story:'A wall of the work. Logos, sites, packaging, posts, and illustrations from SE|Design projects. Filter by what you’re looking for.',
                   tags:['Branding','Site','Social Media','Packaging','Illustration'] }},
-        { id:'workwithme', label:'Work with me', go:'studio' } ]},
+        { id:'workwithme', label:'Work with me', go:'studio' },
       { id:'uxr', label:'Senior UX/UI Designer + Design Researcher', parked:true, blurb:'[Short blurb]', kids:[]} ]},
     { id:'resume', label:'Resume', parked:true, blurb:'[Short blurb]', says:'The short version. Grab the PDF, or walk through it one role at a time.', kids:[
       { id:'resumepdf', label:'Resume PDF', page:{
@@ -580,6 +582,7 @@ export const ROOT = { id:'root', label:'Brain', kids:[
                     'Web Design' ] }] }
           ] },
         tags:['Teaching','Curriculum Design','Workshops'],
+      action:{ label:'Digital guides', url:'[link TBD]' },
         proof:'[Syllabi, student work, workshop photos]',
         links:[{ to:'curric', why:'The seven courses I designed and taught.' },{ to:'civilla', why:'I teach the design thinking I practiced in the field.' }] }},
   { id:'curric', label:'Curriculum', parked:true, blurb:'[Short blurb]', kids:[
@@ -615,7 +618,7 @@ export const ROOT = { id:'root', label:'Brain', kids:[
           lede:'[One line: what this course is about]',
           story:'[What students learn, and one project they make]',
           tags:['Teaching'] }} ]} ]},
-  { id:'build', label:'Build', blurb:'[Short blurb]', rich:true, featured:[{ pages:['ff'] }, { pages:['thissite'] }], kids:[
+  { id:'build', label:'Build', blurb:'[Short blurb]', rich:true, featured:[{ pages:['ff'] }], kids:[
 { id:'ff', label:'First Fire', page:{
       brief:{
         cards:[['Project', `My own game, built with an AI partner`], ['Role', `Game design, writing, illustration, art direction`], ['Year', `2026`]],
@@ -712,17 +715,7 @@ export const ROOT = { id:'root', label:'Brain', kids:[
         { src:'/proof/first-fire/3.webp', caption:'Icon' }
       ],
       links:[{ to:'thissite', why:'Built with Claude Code.' }] }},
-{ id:'thissite', label:'This Site', page:{
-        lede:'Designing with code, not just for it.',
-        story:'It started as an experiment: could a designer with some coding experience ship a real site with Claude Code? The first interactive resume went live. This brain is version two.',
-        list:['Built with React, GSAP, and Claude Code'],
-        tags:['Website','Interaction Design','Code'],
-        proof:'This site: the brain map',
-        image:'/proof/this-site/1.webp',
-        more:[{ src:'/proof/this-site/2.webp', caption:'Opening the head: coffee, and the things that float in it' }],
-        links:[{ to:'c5', why:'I teach interaction design.' },{ to:'sketch', why:'The storyboard started in the sketchbook.' }] }},
-    { id:'buildmore', label:'More', slug:'more', more:true, kids:[
-  { id:'dirtrich', label:'Dirt Rich', page:{
+{ id:'dirtrich', label:'Dirt Rich', page:{
           brief:{
             cards:[['Project', `My own app, built with an AI partner`], ['Role', `Product design, illustration, art direction, development`], ['Year', `2026`]],
             question:`What would a garden tracker look like if it thought in zones, the way I actually garden?`,
@@ -815,7 +808,7 @@ export const ROOT = { id:'root', label:'Brain', kids:[
             ]
           },
           links:[{ to:'thissite', why:'Built the way I build now.' }] }},
-  { id:'vault', label:'VaultMark', page:{
+{ id:'vault', label:'VaultMark', page:{
           brief:{
             cards:[['Project', `My own invention, designed with an AI partner`], ['Role', `Product design, system architecture, writing`], ['Year', `2026`]],
             question:`How can proof of ownership live inside the image itself?`,
@@ -895,13 +888,18 @@ export const ROOT = { id:'root', label:'Brain', kids:[
             ]
           },
           links:[{ to:'samples', why:'It came from my own digital work.' }] }},
-  { id:'missg', label:'Miss G Site', page:{
-          lede:'[My role and what we made]',
-          story:'Miss G Curls & Braids. [What the site and the brand are for, and what I did.]',
-          tags:['Website','Branding'],
-          proof:'Miss G Curls & Braids, brand identity',
-          image:'/proof/miss-g/1.webp',
-          more:[{ src:'/proof/miss-g/2.webp', caption:'Brand guidelines' },{ src:'/proof/miss-g/3.webp', caption:'The logo and mark' },{ src:'/proof/miss-g/4.webp', caption:'The logo and mark, upright' }] }} ]},
+    /* Miss G lives in SE|Design (its home: its address is under /work/se-design). Build shows the same page here,
+       as a second door to it (alias): it waits, and shows, with the page itself */
+    { id:'missg-build', label:'Miss G', alias:'missg' },
+{ id:'thissite', label:'This Site', parked:true, page:{
+        lede:'Designing with code, not just for it.',
+        story:'It started as an experiment: could a designer with some coding experience ship a real site with Claude Code? The first interactive resume went live. This brain is version two.',
+        list:['Built with React, GSAP, and Claude Code'],
+        tags:['Website','Interaction Design','Code'],
+        proof:'This site: the brain map',
+        image:'/proof/this-site/1.webp',
+        more:[{ src:'/proof/this-site/2.webp', caption:'Opening the head: coffee, and the things that float in it' }],
+        links:[{ to:'c5', why:'I teach interaction design.' },{ to:'sketch', why:'The storyboard started in the sketchbook.' }] }},
     /* parked: folded into About, or layers that are gone */
     { id:'stack', label:'My stack', parked:true, page:{
           lede:'The tools I reach for every day, from sketching on iPad to shipping with code.',
@@ -1005,26 +1003,53 @@ export const PARKED_PATHS = {};
   });
 })(ROOT, '', null);
 
-/* THE MORE DOOR. A node marked `more: true` is the one smaller "More" blob on a gravity point. A page inside it
-   shows only once it is ready: it has a picture, and its lede and story have no [brackets] left. A page that is
-   not ready yet is held back like a parked one (off the site, its address lands on the gravity point) until it
-   is. If nothing inside More is ready, More itself does not show. HELD lists what is waiting, by More node. */
+/* WHAT SHOWS. A page shows once it is ready: it has a picture (`image`, or a case study `hero`), and its lede and
+   story have no [brackets] left. The rule holds for pages marked `waits: true` (new pages: Miss G, Martez Hurd,
+   MDHHS) and for every page inside a More (`more: true`, the one smaller "More" blob). Pages that were already live
+   show as they are until their lines are written. A page that is not ready is held back like a parked one (off the
+   site, its address lands on its gravity point) until it is; write its lines, give it a picture, and it appears.
+   A level left with nothing in it (a More, SE|Design) does not show either.
+   HELD lists what is waiting, by the level it sits in; HELD_PATHS gives each one's address.
+
+   `alias: 'id'` puts a second door to a page somewhere else in the tree (Miss G in Build). The door shows the same
+   page, waits with it, and shows with it. */
 export const HELD = {};
+export const HELD_PATHS = {};
 function readyForMore(n){
   var p = n.page || {}, pic = p.image || (p.study && p.study.hero && p.study.hero.src);
   return !!pic && !/\[/.test((p.lede || '') + ' ' + (p.story || ''));
 }
-ROOT.kids.forEach(function(hub){
-  (hub.kids || []).forEach(function(m){
-    if (!m.more) return;
-    var mPath = '/' + slugOfNode(hub) + '/' + slugOfNode(m);
-    HELD[m.id] = m.kids.filter(function(k){ return !readyForMore(k); });
-    HELD[m.id].forEach(function(k){ PARKED_BYID[k.id] = k; PARKED_PATHS[mPath + '/' + slugOfNode(k)] = hub.id; });
-    m.kids = m.kids.filter(readyForMore);
-    if (!m.kids.length) PARKED_PATHS[mPath] = hub.id;
+(function aliases(){
+  var all = {};
+  (function walk(n){ all[n.id] = n; (n.kids || []).concat(n.subs || []).forEach(walk); })(ROOT);
+  (function walk(n){
+    (n.kids || []).concat(n.subs || []).forEach(function(k){
+      var t = k.alias && all[k.alias];
+      if (t){ k.page = t.page; k.label = k.label || t.label; k.waits = t.waits; k.slug = k.slug || slugOfNode(t); }
+      walk(k);
+    });
+  })(ROOT);
+})();
+(function hold(n, path, hubId, inMore){
+  ['kids', 'subs'].forEach(function(list){
+    if (!n[list]) return;
+    var live = [];
+    n[list].forEach(function(k){
+      var kPath = path + '/' + slugOfNode(k), kHub = hubId || k.id;
+      var isLevel = !!(k.kids && k.kids.length);
+      if (!isLevel && (k.waits || inMore) && !readyForMore(k)){
+        (HELD[n.id] = HELD[n.id] || []).push(k);
+        PARKED_BYID[k.id] = k; PARKED_PATHS[kPath] = kHub; HELD_PATHS[k.id] = kPath;
+        return;
+      }
+      hold(k, kPath, kHub, inMore || !!k.more);
+      /* a level that has nothing left to show does not show */
+      if (isLevel && n !== ROOT && !k.kids.length){ PARKED_PATHS[kPath] = kHub; return; }
+      live.push(k);
+    });
+    n[list] = live;
   });
-  hub.kids = hub.kids.filter(function(m){ return !m.more || m.kids.length; });
-});
+})(ROOT, '', null, false);
 
 export const BYID = {};
 (function link(n, parent, hub){
@@ -1039,7 +1064,7 @@ BYID[CURIO_ROOT.id] = CURIO_ROOT;
 /* FOLDED: pages whose words now live on another page. A link to one of these ids lands on the page it was
    folded into (a link to a page that is only parked is skipped). Their old addresses go there too (vercel.json) */
 export const FOLDED = {
-  civoverview:'civilla', mdhhs:'civilla', uia:'civilla', emprobation:'civilla',
+  civoverview:'civilla', uia:'civilla', emprobation:'civilla',
   samples:'wesson',
   curric:'umf', c1:'umf', c2:'umf', c3:'umf', c4:'umf', c5:'umf', c6:'umf', c7:'umf',
   roots:'about', ccs:'about', saci:'about', skills:'about', stack:'about', resumepdf:'about',

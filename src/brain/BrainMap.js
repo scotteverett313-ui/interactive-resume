@@ -219,6 +219,9 @@ export function createScene(o){
       if (one.kids && one.kids.length) inside = one; else { ends = one; break; }
     }
     if (feature) return 'featured';
+    /* a node's own subtitle wins: Civilla's role, SE|Design's "Community Partnerships" */
+    var own = node.role || node.sub;
+    if (own) return promote ? own + ' · featured' : own;
     if (promote) return ends ? ends.label + ' · featured' : 'featured';
     return ends ? ends.label : (inside ? inside.label + ' · ' + inside.kids.length + ' inside' : (deeper ? node.kids.length + ' inside' : 'page'));
   }

@@ -111,12 +111,16 @@ not need to touch any component to change the content.
 
 ### The shape of the site
 
-- **Work:** Civilla (with Secretary of State and Project Cohere under it),
-  Robear Detroit, Micro Money Management, Wesson Art, and More (KRW,
-  Martez Hurd, iRule).
-- **Teach:** one page, UofM Flint, with the seven courses a line each.
-  Teach has one page inside, so pressing Teach opens it.
-- **Build:** First Fire, This Site, and More (Dirt Rich, VaultMark, Miss G).
+Scott's site map is the source of truth; it is written out in `docs/status.md`
+under "The map".
+
+- **Work:** Civilla (role: Design Researcher; go deeper: Secretary of State,
+  Project Cohere, MDHHS), SE|Design (Community Partnerships: Miss G, Martez
+  Hurd, Robear Detroit, Micro Money Management, and More: KRW, iRule), and
+  Wesson Art.
+- **Teach:** one page, UofM Flint, with the seven courses a line each and a
+  Digital guides button. Teach has one page inside, so pressing Teach opens it.
+- **Build:** First Fire, Dirt Rich, VaultMark, and Miss G (no More).
 - **About** (`/about`, `ABOUT` in `content.js`) and **Can't Stop Thinking
   About** (`/orbit`, `CURIO_ROOT`) are single pages outside the three
   gravity points.
@@ -233,8 +237,8 @@ the biggest picture blobs there, with the tag "featured":
 featured:[{ pages:['civilla'] }, { pages:['robear'] }]
 ```
 
-Work features Civilla and Robear Detroit, Build features First Fire and This
-Site, and Teach (one page) has none. Pressing a featured blob opens its page,
+Work features Civilla, Build features First Fire, and Teach (one page) has
+none. Pressing a featured blob opens its page,
 and Next and Previous on that page step through the featured list. (An entry
 can also preview a page that sits deeper, as its own extra blob, with `as` for
 its name and `image` for its picture; none do right now.)
@@ -249,9 +253,9 @@ the same, and the list wraps around at the ends.
 "See the work", bottom right, and Work in the menu skip the brain and open a
 short stack of large tiles at `/the-work`, one per project: its name, its first
 two tags, a number and its picture. A tile opens that project's page, and Next
-at the bottom of each one carries on through the same list, so the six read
+at the bottom of each one carries on through the same list, so the five read
 as one run: Civilla, Robear Detroit, Micro Money Management, Wesson Art,
-First Fire, This Site.
+First Fire.
 
 Which projects, and in what order, is `INDEX.picks` in `content.js`. `as`
 gives a project a different name on its tile, and the page wears that name
@@ -267,18 +271,21 @@ second item makes it a normal level again.
 
 ### Notes
 
-The blog. Each note is one entry in `src/brain/notes.js`, newest first. To post,
-add an entry at the top; the comment in that file lists the fields. A note's
-`links` become "Connects to" buttons that jump into the brain.
+The blog, parked for now: `NOTES_PARKED` in `src/brain/routes.js` is `true`,
+so `/notes` lands on the front door and the menu leaves it out. Every post is
+still in `src/brain/notes.js`; set `NOTES_PARKED` to `false` to bring it back.
+Each note is one entry there, newest first; to post, add an entry at the top
+(the comment in that file lists the fields). A note's `links` become
+"Connects to" buttons that jump into the brain.
 
 ### The three gravity points
 
-- **Work** is the body of work: Civilla, Robear Detroit, Micro Money
-  Management, Wesson Art, and More.
+- **Work** is the body of work: Civilla, SE|Design, and Wesson Art.
 - **Teach** is teaching: one page, UofM Flint, with the seven courses.
-- **Build** is what I am making now: First Fire, This Site, and More.
+- **Build** is what I am making now: First Fire, Dirt Rich, VaultMark, Miss G.
 
-The map is never more than two levels below a gravity point. The depth dots on the right count the
+The map goes at most three levels below a gravity point (Work › SE|Design ›
+More). The depth dots on the right count the
 levels for themselves, a crowded level shrinks its blobs on a small screen
 until nothing overlaps, and on a phone the breadcrumbs show only the last two
 levels after a "…".
@@ -437,21 +444,27 @@ Where there is a pointer to hover with, pictures in map blobs and Gallery
 tiles rest in gray and show their color under the pointer or keyboard focus.
 On a touch screen they stay in color.
 
-### The More door
+### What shows, and the More door
 
-Each gravity point shows its projects as big picture blobs, plus one smaller
-**More** blob that opens the rest (a node with `more: true` in `content.js`:
-`workmore` under Work, `buildmore` under Build).
+A page shows once it is ready: it has a picture (`image`, or a case study
+`hero`), and its `lede` and `story` have no `[brackets]` left. The rule holds
+for pages marked `waits: true` in `content.js` (the new pages: Miss G, Martez
+Hurd, MDHHS) and for every page inside a **More** (a smaller blob, a node with
+`more: true`; SE|Design has one). Pages that were already live show as they
+are until their lines are written.
 
-A page inside More shows only once it is ready: it has a picture (`image`, or
-a case study `hero`), and its `lede` and `story` have no `[brackets]` left.
 A page that is not ready is held back like a parked one: off the map, out of
 the Gallery, and its address lands on its gravity point. Write its lines and
-give it a picture, and it appears on its own. If nothing in a More is ready,
-the More blob does not show at all.
+give it a picture, and it appears on its own. A level with nothing ready in
+it (SE|Design's More today) does not show at all.
 
-Right now Work's More is hidden (KRW, Martez Hurd and iRule are waiting), and
-Build's More shows Dirt Rich and VaultMark (Miss G is waiting).
+Right now MDHHS, Miss G, Martez Hurd, KRW and iRule are waiting.
+
+**One page in two places.** A page has one home (one address). To show it in
+a second place, add a door there: `{ id:'missg-build', label:'Miss G',
+alias:'missg' }`. Miss G's home is SE|Design (`/work/se-design/miss-g`);
+Build's door shows the same page at `/build/miss-g`, and waits and shows with
+it.
 
 ### Parking a page
 

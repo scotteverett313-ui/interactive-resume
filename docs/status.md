@@ -37,6 +37,57 @@ The site went from about 45 pages and three ways to browse to a small site where
 | 5 | Redirects for all 56 moved or parked addresses | `77cc5a43` |
 | 6 | Checks at three sizes (and a pager fix for 320px phones), docs brought up to date | (this commit) |
 
+## The map
+
+Scott's site map (Nov 28, 2026), the source of truth for the tree in `src/brain/content.js`. Copied here because
+code sessions cannot open Google Docs.
+
+```
+Work
+  Civilla (role: Design Researcher)
+    go deeper: Secretary of State, Project Cohere, MDHHS
+  SE|Design (subtitle: Community Partnerships)  <- new group inside Work
+    Miss G, Martez Hurd, Robear Detroit, Micro Money Management
+    More: KRW, iRule
+  Wesson Art (CTA to Wessonart.com)
+Teach
+  UofM Flint (seven courses, a line each; CTA: Digital guides [link TBD])
+Build
+  First Fire, Dirt Rich, VaultMark, Miss G
+  (no More door in Build)
+Can't Stop Thinking About (one page, unchanged)
+Menu: Work (Just the work), About, Gallery, Contact
+
+Parked (keep in the file, off the site):
+  This Site (remove it from Build's featured and from Just the work)
+  What I Do and Case Studies levels
+  Resume, Interactive Resume, Background levels
+  Curriculum level and the seven course pages
+  Sketchbook, KRW Site, Notes
+  Unemployment Insurance Agency and Probation pages
+```
+
+**The show rule.** A page shows once it has at least one picture and no [brackets] in its lede or story. Scott's
+call (Nov 28): the rule holds for the new pages (Miss G, Martez Hurd, MDHHS, marked `waits: true`) and for every
+page under a More; pages that were already live (Robear Detroit, Micro Money Management, Secretary of State,
+Project Cohere, UofM Flint) show as they are until their lines are written. A level with nothing ready (SE|Design's
+More today) does not show.
+
+**What shows today** (Nov 28):
+
+| Hub | Showing | Waiting (in the file, off the site) |
+|---|---|---|
+| Work › Civilla | Civilla; go deeper: Secretary of State, Project Cohere | MDHHS (lede, story) |
+| Work › SE\|Design | Robear Detroit, Micro Money Management | Miss G (lede, story), Martez Hurd (lede, story); More: KRW (lede, story), iRule (a picture) |
+| Work | Wesson Art | |
+| Teach | UofM Flint (Digital guides button shows as not ready until its link is in) | |
+| Build | First Fire (featured), Dirt Rich, VaultMark | Miss G (the same page as SE\|Design's) |
+
+**Miss G in two places.** One page can only have one address, so Miss G's home is SE|Design
+(`/work/se-design/miss-g`), and Build carries a second door to the same page (`alias: 'missg'`, at `/build/miss-g`).
+The door waits and shows with the page. Opened from Build, the page's breadcrumb reads Build › Miss G, and its
+Next/Previous step through Build's pages. If that ever feels confusing, drop one of the two.
+
 ## The site now
 
 **Splash** (first visit per session): "Scott Everett", "OMNI DESIGNER", the SE|Design logo. `?splash=1` shows it again.
@@ -46,7 +97,7 @@ The site went from about 45 pages and three ways to browse to a small site where
 - The bolt sticker opens Can't Stop Thinking About; the Spotify sound doodles open the playlist.
 - The bottom row: "Open for work" (Work with me), "See the work" (Just the work), and light/dark.
 
-**Menu:** Work (Just the work), About, Gallery, Contact (Work with me), Skip intro / Replay intro. Notes waits until `notes.js` has three posts (it has one).
+**Menu:** Work (Just the work), About, Gallery, Contact (Work with me), Skip intro / Replay intro. Notes is parked (`NOTES_PARKED` in routes.js); its posts stay in `notes.js`.
 
 **Intro:** the forehead line, the top of the head lifts, coffee fills the head with five clay things bobbing in it (not buttons), the brain rises out and grows into the map.
 
@@ -54,9 +105,9 @@ The site went from about 45 pages and three ways to browse to a small site where
 
 | Gravity point | Blobs |
 |---|---|
-| Work | Civilla (featured), Robear Detroit (featured), Micro Money Management, Wesson Art. More is hidden: nothing in it is ready yet. |
+| Work | Civilla (featured; Secretary of State, Project Cohere under it), SE\|Design (Robear Detroit, Micro Money Management; its More is hidden, nothing ready), Wesson Art. |
 | Teach | One page, UofM Flint, with the seven courses a line each. Pressing Teach opens it. |
-| Build | First Fire (featured), This Site (featured), More (Dirt Rich, VaultMark). |
+| Build | First Fire (featured), Dirt Rich, VaultMark. Miss G waits. No More. |
 
 - **Pictures:** every project is a picture blob. More is the small blob.
 - **Depth:** the map is never more than two levels below a gravity point.
@@ -64,10 +115,10 @@ The site went from about 45 pages and three ways to browse to a small site where
 
 **Pages:**
 
-- **Civilla** (`/work/civilla`) is one case study. Secretary of State and Project Cohere live under it at `/work/civilla/…` and show as two cards. MDHHS, UIA and Probation are folded in as sections.
+- **Civilla** (`/work/civilla`) is one case study. Secretary of State, Project Cohere and MDHHS (waiting) live under it at `/work/civilla/…` and show as cards. UIA and Probation are folded in as sections.
 - **About** (`/about`): Where it started, CCS, SACI, Skills, My stack, the resume download, and Scott's photo.
 - **Can't Stop Thinking About** (`/orbit`): one section per curiosity.
-- **Just the work** (`/the-work`): Civilla, Robear Detroit, Micro Money Management, Wesson Art, First Fire, This Site.
+- **Just the work** (`/the-work`): Civilla, Robear Detroit, Micro Money Management, Wesson Art, First Fire.
 - **Folded sections** (`fold: true`) show only written lines; bracketed lines wait in content.js.
 
 ## Where things live
@@ -93,12 +144,14 @@ The site went from about 45 pages and three ways to browse to a small site where
 
 Each of these makes a page appear, or makes a waiting section show, without any code:
 
-**Work's More** (hidden today):
-- **KRW:** a lede and story.
-- **Martez Hurd:** a lede and story.
-- **iRule:** a picture.
+**Waiting pages** (each appears once it has a picture and its lede and story are written):
+- **MDHHS** (Civilla): a lede and story.
+- **Miss G** (SE|Design, and Build's door to it): a lede and story.
+- **Martez Hurd** (SE|Design): a lede and story.
+- **KRW** (SE|Design › More): a lede and story.
+- **iRule** (SE|Design › More): a picture.
+- **UofM Flint:** the Digital guides link.
 
-**Build's More:** Miss G needs a lede and story.
 
 **Copy on pages that show:**
 - **Robear Detroit:** its question, approach and impact, and the story's bracketed parts.

@@ -27,6 +27,8 @@ import { MOVED } from './moved';
 
 export const STUDIO_PATH = '/work-with-me';
 export const NOTES_PATH = '/notes';
+/* Notes is off the site until it has posts to read; set this to false to bring it back */
+export const NOTES_PARKED = true;
 export const ORBIT_PATH = '/orbit';
 export const GALLERY_PATH = '/gallery';
 export const INDEX_PATH = '/the-work';
@@ -91,6 +93,8 @@ export function parsePath(pathname){
   if (first === INDEX_PATH) return { stack:[ROOT], pageNode:null, sheet:{ type:'index' }, found:parts.length === 1 };
   if (first === ABOUT_PATH) return { stack:[ROOT], pageNode:ABOUT, sheet:null, found:parts.length === 1 };
   if (first === GALLERY_PATH) return { stack:[ROOT], pageNode:null, sheet:{ type:'gallery', node:null }, found:parts.length === 1 };
+  /* Notes is parked for now (notes.js keeps every post): its addresses land on the front door */
+  if (first === NOTES_PATH && NOTES_PARKED) return { stack:[ROOT], pageNode:null, sheet:null, found:false };
   if (first === NOTES_PATH){
     if (parts.length === 1) return { stack:[ROOT], pageNode:null, sheet:{ type:'notes', slug:null }, found:true };
     if (parts.length === 2 && NOTE_BY_SLUG[parts[1]]) return { stack:[ROOT], pageNode:null, sheet:{ type:'notes', slug:parts[1] }, found:true };

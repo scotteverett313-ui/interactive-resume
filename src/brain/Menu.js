@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { NOTES } from './notes';
+import { NOTES_PARKED } from './routes';
 
 /* The menu: a single button in the top-right corner of the opening screen and the map. Pressing it opens a
    small card with every way out:
@@ -79,7 +80,7 @@ export default function Menu({ done, path, hidden, onIndex, onAbout, onStudio, o
     { id:'menuStudio', label:'Contact', fn:onStudio }
   ];
   /* Notes waits until there are three posts to read */
-  if (NOTES.length >= 3) ways.push({ id:'menuNotes', label:'Notes', fn:onNotes });
+  if (!NOTES_PARKED && NOTES.length >= 3) ways.push({ id:'menuNotes', label:'Notes', fn:onNotes });
 
   return (
     <div id="menu" ref={wrapRef} hidden={hidden} className={open ? 'open' : undefined}>
