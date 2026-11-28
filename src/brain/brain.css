@@ -776,3 +776,12 @@ html.brain-route ::selection{background:var(--ink);color:var(--ground)}
   #hubDeck .hd-line{font-size:13px}
   #hubDeck .hd-foot{padding-right:0}
 }
+
+/* trial A3, labelled blobs (BrainMap.js): a paper tag behind each name, with Scott's line under it */
+.brain .node .lbl-chip{fill:var(--paper);stroke:var(--ink);stroke-width:2px;filter:drop-shadow(3px 3px 0 var(--ink))}
+.brain .node .said{font-family:var(--mono);font-size:12.5px;fill:var(--ink);pointer-events:none}
+/* on a short screen Scott's line steps aside, so the tagged blobs have the height they need */
+@media (max-height:680px){ .stage.try-tags #levelSays{display:none} }
+/* on a narrow screen the tagged blobs stand in a column and fill the width, so the depth dots step aside
+   (the breadcrumbs go back) */
+@media (max-width:599px){ .stage.try-tags #dots{display:none} }

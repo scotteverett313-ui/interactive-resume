@@ -275,14 +275,14 @@ export default function BrainExperience(){
   return (
     <div className="brain" data-scheme={palette.scheme} style={vars}>
       <section id="intro" ref={sectionRef} className={done ? 'done' : undefined} aria-label="Intro">
-        <div className={'stage' + (done ? ' is-done' : '') + (wantCards && cardsOn ? ' cards-on' : '') + (menuBubble ? ' menu-bubble' : '') + (splash ? ' splashing' : '') + (done && stack.length === 1 && !page.node ? ' at-root' : '') + (listOn ? ' try-list' : '') + (deckOn ? ' try-deck' : '')} id="stage" ref={stageRef}>
+        <div className={'stage' + (done ? ' is-done' : '') + (wantCards && cardsOn ? ' cards-on' : '') + (menuBubble ? ' menu-bubble' : '') + (splash ? ' splashing' : '') + (done && stack.length === 1 && !page.node ? ' at-root' : '') + (listOn ? ' try-list' : '') + (deckOn ? ' try-deck' : '') + (tries.on.a3 && onWork ? ' try-tags' : '')} id="stage" ref={stageRef}>
           <div className="grain" aria-hidden="true" />
           {splash && <Splash onDone={endSplash} />}
           <Intro ref={introRef} stageRef={stageRef} sectionRef={sectionRef} mapLayerRef={mapLayerRef} dotTagRef={dotTagRef}
             reduce={reduce} done={done} onFinish={finishIntro} onMapArrival={onMapArrival} onSticker={onSticker} />
           <BrainMap stack={stack} done={done} reduce={reduce}
             busyRef={busyRef} modeRef={modeRef} sceneRef={sceneRef} mapLayerRef={mapLayerRef}
-            mapShowing={mapShowing} onDive={onDive} onOpenPage={openPage} onSticker={onSticker} />
+            mapShowing={mapShowing} onDive={onDive} onOpenPage={openPage} onSticker={onSticker} labels={!!tries.on.a3} />
           {listOn && <HubList node={stack[1]} reduce={reduce} onOpen={function(n){ goToNode(n); }} onBack={function(){ goTo(1); }}
             from={window.innerWidth < window.innerHeight * .8 ? [.32, .3] : [.27, .37]} />}
           {deckOn && <HubDeck node={stack[1]} reduce={reduce} onOpen={function(n){ goToNode(n); }} />}

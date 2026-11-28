@@ -8,6 +8,7 @@ import stickerFlowers from './art/coffee/sticker-flowers.webp';
 import stickerStylus from './art/coffee/sticker-stylus.webp';
 
 import { DOT_COUNT } from './DotNav';
+import { lineFor } from './HubList';
 import { blobPath, rng, clamp, wrapLabel, curvePath, curvePoint, seedOf, scatter, webLinks } from './blob';
 
 /* the sticker art for the map's top level, and each picture's width over its height */
@@ -192,6 +193,18 @@ export function createScene(o){
 
   /* the fuller look being trialled: on for every level inside a gravity point marked `rich` in content.js */
   function isRich(node){ return node !== ROOT && !!(node.hub && node.hub.rich); }
+  /* trial A3 (tries.js): on Work's level, each blob wears a clearer label: a bigger name, and a line under it, on a
+     paper tag so it reads over the map. Only on a gravity point's own level, and only while the trial is on */
+  function labelled(level){ return !!(o.labels && o.labels() && level && level.parent === ROOT && level.id === 'work'); }
+  /* a line, broken to fit under a blob: up to three lines of about 28 characters */
+  function wrapLine(text, max, most){
+    max = max || 28; most = most || 3;
+    var words = String(text).split(' '), out = [], cur = '';
+    words.forEach(function(w){ if ((cur + ' ' + w).trim().length > max && cur){ out.push(cur); cur = w; } else cur = (cur + ' ' + w).trim(); });
+    if (cur) out.push(cur);
+    if (out.length > most){ out = out.slice(0, most); out[most - 1] = out[most - 1].replace(/[ ,.;:]*$/, '') + '…'; }
+    return out;
+  }
   /* a page's lead picture: its own, or its case study's hero */
   function leadOf(n){
     var p = n.page || {}, hero = p.study && p.study.hero && p.study.hero.src;
@@ -275,7 +288,11 @@ export function createScene(o){
         if (isRich(node) && deeper && !big) air = r * .4 + dotR() * 2 + 8;
         /* the tag under the name can be the widest thing, so it counts toward the room the node needs */
         var tagHalf = tagOf(kid, ent.feature, ent.promote).length * 3.9;
-        return { r:r, hw: Math.max(r + air, chars * fs * .3, tagHalf, 38) + 10, up: r + 8 + air, down: r + fs + 6 + fs * 1.1 * (lines.length - 1) + 18 + 16 };
+        /* trial A3: room for the bigger name and the line under it (12.5px type, about 7.4px a character) */
+        var said = labelled(node) && !kid.more ? wrapLine(lineFor(kid)) : [];
+        var sfs = labelled(node) ? fs * 1.2 : fs, lineHalf = said.length ? Math.max.apply(null, said.map(function(x){ return x.length; })) * 3.8 + 12 : 0;
+        return { r:r, hw: Math.max(r + air, chars * sfs * .3, tagHalf, lineHalf, 38) + 10, up: r + 8 + air,
+          down: r + sfs + 6 + sfs * 1.1 * (lines.length - 1) + 18 + 16 + (said.length ? said.length * 16 + 12 : 0) };
       });
     }
     function areaOf(bs){ return bs.reduce(function(sum, b){ return sum + 2 * b.hw * (b.up + b.down); }, 0); }
@@ -305,6 +322,13 @@ export function createScene(o){
        no more than about half the room, so the scatter can still pull everything apart */
     var shrink = 1, boxes = boxesAt(1);
     while (shrink > .62 && areaOf(boxes) > fw * fh * .52){ shrink -= .1; boxes = boxesAt(shrink); }
+    /* trial A3 on a narrow screen: the tagged blobs do not fit a loose scatter, so they stand in one column on the
+       left, each with its tag beside it (a calmer layout that still keeps the blobs) */
+    if (labelled(node) && W < 600){
+      var rowH = (full.y1 - 8 - full.y0) / Math.max(n, 1), cr = clamp(Math.min(rowH * .34, M * .12), 22, 46);
+      var room = W - 56 - (full.x0 + cr * 2 + 26);
+      return ents.map(function(e, i){ return { x:full.x0 + cr + 4, y:full.y0 + rowH * (i + .5), r:cr, side:true, room:room }; });
+    }
     /* a single node sits in the middle, moved left if the depth tag would be on top of it */
     if (n === 1){
       var one = boxes[0], ox = W / 2, oy = Math.max(H * .5, full.y0 + one.up);
@@ -384,7 +408,16 @@ export function createScene(o){
     sub.textContent = tagOf(node, feature, promote);
     g.appendChild(path);
     if (img){ g.appendChild(img); if (gray) g.appendChild(gray); g.appendChild(edge); }
+    /* trial A3: a paper tag behind the name, and the line under it */
+    var chip = null, said = null, saidSpans = null;
+    if (!isHub && labelled(node.parent) && !node.more){
+      chip = el('rect', { 'class':'lbl-chip', rx:12 });
+      said = el('text', { 'class':'said', 'text-anchor':'middle' });
+      saidSpans = wrapLine(lineFor(node), pos.side ? Math.max(14, Math.floor((pos.room - 28) / 7.6)) : 28, pos.side ? 2 : 3).map(function(s, j){ var ts = el('tspan', { dy: j ? '1.3em' : '0' }); ts.textContent = s; said.appendChild(ts); return ts; });
+      g.appendChild(chip);
+    }
     g.appendChild(lbl); g.appendChild(sub);
+    if (said) g.appendChild(said);
     /* in the fuller look, a blob that goes deeper wears a dot for each thing inside it, with its name beside it
        when the blob is under the pointer or has keyboard focus. A dot is ink if it goes deeper again and the
        hub's color if it is a page, the same as the blobs themselves */
@@ -408,8 +441,8 @@ export function createScene(o){
        on the blob, which already covers the lines.) */
     var gap = null;
     if (!isHub){ gap = el('rect', { fill:'black', rx:5 }); linkMask.appendChild(gap); }
-    var it = { node:node, g:g, path:path, lbl:lbl, spans:spans, sub:sub, isHub:isHub, deeper:deeper, ends:ends, lines:lines.length,
-      feature:feature || null, promote:promote || null, clip:clip, clipPath:clipPath, img:img, gray:gray, edge:edge, sats:sats, r0:pos.r, sway:0, lt:0,
+    var it = { node:node, g:g, path:path, lbl:lbl, spans:spans, sub:sub, chip:chip, said:said, saidSpans:saidSpans, isHub:isHub, deeper:deeper, ends:ends, lines:lines.length,
+      feature:feature || null, promote:promote || null, clip:clip, clipPath:clipPath, img:img, gray:gray, edge:edge, sats:sats, r0:pos.r, side:!!pos.side, sway:0, lt:0,
       idx:i, gap:gap, tw:0, twFs:0, x:pos.x, y:pos.y, r:pos.r, s:1, o:1, hs:1, lx:0, ly:0, px:0, py:0, dragX:0, dragY:0, hover:false,
       seed:i * 1.7 + node.label.length * .37, amp: isHub ? .09 : .07 };
     g.addEventListener('pointerenter', function(){ it.hover = true; });
@@ -592,7 +625,7 @@ export function createScene(o){
       sy = cy + rr * .45;
       it.sub.style.opacity = arriving ? clamp((arrK - .55) / .25, 0, 1) : (rr > 240 ? 0 : 1);
     } else {
-      fs = clamp(M * .026, 14, 20);
+      fs = clamp(M * .026, 14, 20) * (it.said && !it.side ? 1.2 : 1);
       ly = cy + rr + fs + 6;
       sy = ly + fs * 1.1 * (it.lines - 1) + 18;
     }
@@ -600,12 +633,41 @@ export function createScene(o){
     it.lbl.setAttribute('y', ly.toFixed(1));
     it.spans.forEach(function(s){ s.setAttribute('x', cx.toFixed(1)); });
     it.sub.setAttribute('x', cx.toFixed(1)); it.sub.setAttribute('y', sy.toFixed(1));
+    var bottom = sy;
+    /* trial A3, narrow screens: the name, tag and line sit beside the blob instead of under it */
+    var anchor = it.side ? 'start' : 'middle';
+    if (it.anchorNow !== anchor){ [it.lbl, it.sub, it.said].forEach(function(e){ if (e) e.setAttribute('text-anchor', anchor); }); it.anchorNow = anchor; }
+    if (!it.side && it.sub.style.display) it.sub.style.display = '';
+    if (it.side && it.said){
+      /* beside the blob: the name and the line only (the small tag would not fit the row) */
+      var sideX = cx + rr + 26, block = fs * (1 + 1.1 * (it.lines - 1)) + 20 + (it.saidSpans.length - 1) * 16.25;
+      ly = cy - block / 2 + fs * .8;
+      sy = ly + fs * 1.1 * (it.lines - 1);
+      it.sub.style.display = 'none';
+      it.lbl.setAttribute('y', ly.toFixed(1));
+      it.spans.forEach(function(s){ s.setAttribute('x', sideX.toFixed(1)); });
+      it.sub.setAttribute('x', sideX.toFixed(1)); it.sub.setAttribute('y', sy.toFixed(1));
+      it.saidSpans.forEach(function(s){ s.setAttribute('x', sideX.toFixed(1)); });
+    }
+    if (it.said){
+      var lyS = sy + 20;
+      it.said.setAttribute('y', lyS.toFixed(1));
+      if (!it.side) it.saidSpans.forEach(function(s){ s.setAttribute('x', cx.toFixed(1)); });
+      bottom = lyS + (it.saidSpans.length - 1) * 16.25;
+      /* the paper tag: wide enough for the widest of the name, the tag and the line */
+      if (it.chipFs !== fs){ var cw = Math.max(it.lbl.getBBox().width, it.sub.getBBox().width, it.said.getBBox().width); if (cw > 0){ it.chipW = cw; it.chipFs = fs; } }
+      var w = (it.chipW || rr * 2) + 28, ct = ly - fs - 6;
+      it.chip.setAttribute('x', (it.side ? cx + rr + 12 : cx - w / 2).toFixed(1)); it.chip.setAttribute('y', ct.toFixed(1));
+      it.chip.setAttribute('width', w.toFixed(1)); it.chip.setAttribute('height', (bottom + 12 - ct).toFixed(1));
+    }
     if (it.gap){
       /* measure the words once per size (and again if the font arrives late), then keep the gap under them */
       if (it.twFs !== fs){ var bw = it.lbl.getBBox().width; if (bw > 0){ it.tw = Math.max(bw, it.sub.getBBox().width); it.twFs = fs; } }
       var gw = (it.tw || rr * 2) + 14, top = ly - fs;
       it.gap.setAttribute('x', (cx - gw / 2).toFixed(1)); it.gap.setAttribute('y', top.toFixed(1));
-      it.gap.setAttribute('width', gw.toFixed(1)); it.gap.setAttribute('height', (sy + 7 - top).toFixed(1));
+      it.gap.setAttribute('width', gw.toFixed(1)); it.gap.setAttribute('height', (bottom + 7 - top).toFixed(1));
+      /* beside the blob, the lines stay off the tag where it actually is */
+      if (it.side && it.chip) ['x', 'y', 'width', 'height'].forEach(function(k){ it.gap.setAttribute(k, it.chip.getAttribute(k)); });
       it.gap.setAttribute('fill-opacity', it.o);
     }
     it.cx = cx; it.cy = cy; it.rr = rr;
@@ -656,7 +718,7 @@ export function createScene(o){
   function relayout(){
     measure(); drawBg();
     var node = view.node, pos = layout(node);
-    view.items.forEach(function(it, i){ if (pos[i]){ it.x = pos[i].x; it.y = pos[i].y; it.r = pos[i].r; } });
+    view.items.forEach(function(it, i){ if (pos[i]){ it.x = pos[i].x; it.y = pos[i].y; it.r = pos[i].r; it.side = !!pos[i].side; } });
     /* the scatter changes with the screen, so which nodes are nearest changes too: redraw the lines to match */
     view.links.forEach(function(l){ if (l.p.parentNode) l.p.parentNode.removeChild(l.p); });
     view.links = makeLinks(node, view.items);
@@ -702,7 +764,9 @@ export function createScene(o){
     /* 0 to 1: how far the map has come together (see "arrival" above). The intro drives this; it rests at 1 */
     setArrival: function(p){ arr = clamp(p, 0, 1); if (arr < 1) arrSettled = false; },
     activateById: function(id){ var it = view.items.filter(function(i){ return i.node.id === id; })[0]; if (it) activate(it); },
-    currentNode: function(){ return view.node; }
+    currentNode: function(){ return view.node; },
+    /* a trial switch changed how this level looks: build it again where it stands */
+    redraw: function(){ if (view.node && !busy()){ swapView(view.node, 'instant'); relayout(); } }
   };
 }
 
@@ -715,12 +779,12 @@ export function createScene(o){
              changes the stack, so the map knows how to transition
    sceneRef: BrainExperience uses it to call activateById (curio "Feeds" buttons)
    ------------------------------------------------------------------ */
-export default function BrainMap({ stack, done, reduce, busyRef, modeRef, sceneRef, mapLayerRef, mapShowing, onDive, onOpenPage, onSticker }){
+export default function BrainMap({ stack, done, reduce, busyRef, modeRef, sceneRef, mapLayerRef, mapShowing, onDive, onOpenPage, onSticker, labels }){
   var svgRef = useRef(null), nodesRef = useRef(null), linksRef = useRef(null), bgRef = useRef(null), wmRef = useRef(null);
   var curioRef = useRef(null), curioLinksRef = useRef(null), legendRef = useRef(null), pickRef = useRef(null);
   var maskRef = useRef(null), maskAllRef = useRef(null);
   var cb = useRef(null);
-  cb.current = { onDive:onDive, onOpenPage:onOpenPage, onSticker:onSticker, mapShowing:mapShowing };
+  cb.current = { onDive:onDive, onOpenPage:onOpenPage, onSticker:onSticker, mapShowing:mapShowing, labels:!!labels };
 
   useLayoutEffect(function(){
     var scene = createScene({
@@ -731,7 +795,8 @@ export default function BrainMap({ stack, done, reduce, busyRef, modeRef, sceneR
       mapShowing:function(){ return cb.current.mapShowing(); },
       onDive:function(n, it){ cb.current.onDive(n, it); },
       onOpenPage:function(n, seq){ cb.current.onOpenPage(n, seq); },
-      onSticker:function(go){ cb.current.onSticker(go); }
+      onSticker:function(go){ cb.current.onSticker(go); },
+      labels:function(){ return cb.current.labels; }
     });
     scene.init();
     sceneRef.current = scene;
@@ -740,6 +805,9 @@ export default function BrainMap({ stack, done, reduce, busyRef, modeRef, sceneR
   }, []);
 
   useEffect(function(){ if (sceneRef.current) sceneRef.current.setDone(done); }, [done, sceneRef]);
+  /* trial A3 switched on or off: redraw the level in place */
+  var firstLabels = useRef(true);
+  useEffect(function(){ if (firstLabels.current){ firstLabels.current = false; return; } if (sceneRef.current) sceneRef.current.redraw(); }, [labels, sceneRef]);
 
   useEffect(function(){
     var scene = sceneRef.current; if (!scene) return;

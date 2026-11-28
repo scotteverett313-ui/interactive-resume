@@ -16,7 +16,8 @@
 /* the ideas that are built so far, in the order they are offered */
 export const TRIES = [
   { id:'a1', name:'A1 · Name list', note:'Work opens as a list of names on its own color', group:'layout' },
-  { id:'a2', name:'A2 · Card stack', note:'Work opens as one big card per project; swipe or scroll to the next', group:'layout' }
+  { id:'a2', name:'A2 · Card stack', note:'Work opens as one big card per project; swipe or scroll to the next', group:'layout' },
+  { id:'a3', name:'A3 · Labelled blobs', note:'Work keeps its blobs, each with a bigger name and a line on a paper tag', group:'layout' }
 ];
 
 var KEY = 'brain-try', PANEL = 'brain-try-panel';
